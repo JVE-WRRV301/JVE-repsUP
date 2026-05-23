@@ -112,7 +112,7 @@ Instead, schema changes are done through **migration files**. Each change gets i
 
 ```bash
 git pull
-mysql -u root -p < database/migrations/002_filename.sql
+Get-Content database/migrations/002_filename.sql | mysql -u root -p
 ```
 
 ### Migration naming convention
