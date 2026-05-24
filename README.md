@@ -14,6 +14,40 @@ A gamified mobile fitness application that helps users schedule, track, and exec
 
 ---
 
+## Android App Setup
+
+### Prerequisites
+
+- [Android Studio] installed (latest stable version)
+- An Android device or emulator to run the app on
+
+### Opening the project
+
+1. Clone the repo if you haven't already (see [Database Setup](#database-setup) below for the clone command).
+2. Open Android Studio.
+3. On the Welcome screen, click **Open**.
+4. Navigate to the `android/` folder inside your cloned repo and click **Open**.
+5. If prompted to trust the project, click **Trust Project**.
+6. Android Studio will run Gradle sync. The first sync takes 5–15 minutes — it downloads SDK components and dependencies. Subsequent opens are fast.
+7. When sync finishes, you should see `MainActivity.kt` in the editor and "BUILD SUCCESSFUL" in the bottom panel.
+
+### Running the app
+
+1. At the top of the Android Studio window, you'll see a green play button ▶ with a device selector to its left.
+2. To use an emulator: click the device selector → **Device Manager** → **Create Device** → pick a Pixel model → pick a system image (download if prompted) → Finish.
+3. To use a real phone: enable Developer Options and USB Debugging on the phone, plug it in via USB, and select it from the device dropdown.
+4. Click the green play button to build and install the app on your chosen device.
+
+### Troubleshooting
+
+**Gradle sync fails with "SDK location not found"**
+Android Studio can't find your Android SDK. Go to **File → Project Structure → SDK Location** and set the Android SDK path (usually `C:\Users\YourName\AppData\Local\Android\Sdk` on Windows).
+
+**"Add files to Git" popup appears**
+Always click **Cancel**. Git is handled at the repo level, not by Android Studio.
+
+---
+
 ## Database Setup
 
 Follow these steps to get the Reps Up database running on your local machine.
@@ -82,6 +116,10 @@ You should see 16 tables, 23 exercises, and 3 test users (Dylan, Sarah, Mike). I
 
 ```
 JVE-repsUP/
+├── android/                Android Studio project (Kotlin + Compose)
+│   ├── app/                App source code
+│   ├── gradle/             Gradle wrapper
+│   └── build.gradle.kts    Top-level build config
 ├── database/
 │   ├── schema.sql          Database structure (tables, foreign keys, indexes)
 │   ├── seed.sql            Sample data for development
@@ -89,6 +127,7 @@ JVE-repsUP/
 ├── .env.example            Template for environment variables
 ├── .gitignore              Files Git should never commit
 └── README.md               This file
+
 ```
 
 ---
