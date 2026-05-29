@@ -69,24 +69,42 @@ cd JVE-repsUP
 
 From the project root, open a terminal and run:
 
-```bash
+**PowerShell:**
+```powershell
 Get-Content database/schema.sql | mysql -u root -p
+```
+
+**Command Prompt:**
+```cmd
+mysql -u root -p < database\schema.sql
 ```
 
 You'll be prompted for your MySQL root password. After entering it, this creates the `reps_up` database and all its tables.
 
 ### 3. Load the seed data
 
-```bash
+**PowerShell:**
+```powershell
 Get-Content database/seed.sql | mysql -u root -p
+```
+
+**Command Prompt:**
+```cmd
+mysql -u root -p < database\seed.sql
 ```
 
 This populates the database with default ranks, the exercise library, default workouts, cosmetic items, and a few test users.
 
 ### 4. Set up your local environment file
 
-```bash
+**PowerShell:**
+```powershell
 cp .env.example .env
+```
+
+**Command Prompt:**
+```cmd
+copy .env.example .env
 ```
 
 Then open `.env` in your editor and replace `your_mysql_password_here` with your actual MySQL root password. **Never commit this file** — it's already in `.gitignore`.
@@ -151,7 +169,16 @@ Instead, schema changes are done through **migration files**. Each change gets i
 
 ```bash
 git pull
+```
+
+**PowerShell:**
+```powershell
 Get-Content database/migrations/002_filename.sql | mysql -u root -p
+```
+
+**Command Prompt:**
+```cmd
+mysql -u root -p < database\migrations\002_filename.sql
 ```
 
 ### Migration naming convention
