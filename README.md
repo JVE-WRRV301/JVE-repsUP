@@ -2,13 +2,13 @@
 
 A gamified mobile fitness application that helps users schedule, track, and execute workouts, with XP, levels, ranks, and avatar customization to keep them motivated.
 
-**Team JVE** — James Ford, Vincent van Niekerk, Emma Martin
+**Team JVE** - James Ford, Vincent van Niekerk, Emma Martin
 
 ---
 
 ## Tech Stack
 
-- **Mobile app:** Android (Kotlin), built in Android Studio
+- **Mobile app:** Android (Java), built in Android Studio
 - **Database:** MySQL
 - **Version control:** Git + GitHub
 
@@ -28,8 +28,8 @@ A gamified mobile fitness application that helps users schedule, track, and exec
 3. On the Welcome screen, click **Open**.
 4. Navigate to the `android/` folder inside your cloned repo and click **Open**.
 5. If prompted to trust the project, click **Trust Project**.
-6. Android Studio will run Gradle sync. The first sync takes 5–15 minutes — it downloads SDK components and dependencies. Subsequent opens are fast.
-7. When sync finishes, you should see `MainActivity.kt` in the editor and "BUILD SUCCESSFUL" in the bottom panel.
+6. Android Studio will run Gradle sync. The first sync takes 5–15 minutes - it downloads SDK components and dependencies. Subsequent opens are fast.
+7. When sync finishes, you should see `MainActivity.java` in the editor and "BUILD SUCCESSFUL" in the bottom panel.
 
 ### Running the app
 
@@ -152,7 +152,7 @@ JVE-repsUP/
 
 ## Schema Changes (Migrations)
 
-**Do not edit `schema.sql` after initial setup.** Once everyone has the database running with their own test data, editing the schema directly would force teammates to drop and rebuild — losing their work.
+**Do not edit `schema.sql` after initial setup.** Once everyone has the database running with their own test data, editing the schema directly would force teammates to drop and rebuild - losing their work.
 
 Instead, schema changes are done through **migration files**. Each change gets its own numbered SQL file in `database/migrations/`.
 
