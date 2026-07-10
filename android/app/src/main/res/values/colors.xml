@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <!-- Backgrounds -->
+    <color name="dark_grey">#FF393944</color>
+    <color name="dark_grey_variant">#FF2D2D38</color>
+    <color name="dark_grey_surface">#FF4A4A55</color>
+
+    <!-- Accent -->
+    <color name="light_blue">#FFB2D6FD</color>
+
+    <!-- Emphasis -->
+    <color name="red">#FFFF5050</color>
+    <color name="yellow">#FFFAD942</color>
+
+    <!-- Text -->
     <color name="white">#FFFFFFFF</color>
+    <color name="muted">#FFB0B0B8</color>
 </resources>
