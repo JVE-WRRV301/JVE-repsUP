@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_grey"
+    android:padding="24dp">
+
+    <!-- Section title -->
+    <TextView
+        android:id="@+id/tvSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="About your body."
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="14sp"/>
+
+    <!-- Progress bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginTop="8dp"
+        android:max="4"
+        android:progress="1"
+        android:progressTint="@color/light_blue"
+        android:progressBackgroundTint="@color/dark_grey_surface"/>
+
+    <!-- Question -->
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="What's your gender?"
+        android:textColor="@color/white"
+        android:fontFamily="@font/orbitron"
+        android:textSize="22sp"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Male button -->
+    <Button
+        android:id="@+id/btnMale"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Male"
+        android:backgroundTint="@color/dark_grey_surface"
+        android:textColor="@color/white"
+        android:fontFamily="@font/inter"/>
+
+    <!-- Female button -->
+    <Button
+        android:id="@+id/btnFemale"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Female"
+        android:backgroundTint="@color/dark_grey_surface"
+        android:textColor="@color/white"
+        android:fontFamily="@font/inter"/>
+
+    <!-- Spacer to push nav buttons to bottom -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Back and Next buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="Back"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"/>
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="Next"
+            android:backgroundTint="@color/light_blue"
+            android:textColor="@color/dark_grey"
+            android:fontFamily="@font/inter"/>
+
+    </LinearLayout>
+
+</LinearLayout>
