@@ -7,242 +7,242 @@ CREATE DATABASE reps_up;
 USE reps_up;
 
 
--- RANKS: tier system (Bronze I, Bronze II, Silver I, etc.)
+-- RANK: tier system (Bronze I, Bronze II, Silver I, etc.)
 
-CREATE TABLE ranks (
+CREATE TABLE Ranks (
     rank_id INT AUTO_INCREMENT PRIMARY KEY,
     tier VARCHAR(20) NOT NULL,
-    sub_tier VARCHAR(5) NOT NULL,
-    min_lvl_req INT NOT NULL,
-    UNIQUE KEY unique_rank (tier, sub_tier)
+    subtier VARCHAR(5) NOT NULL,
+    min_lvl_required INT NOT NULL,
+    UNIQUE KEY unique_rank (tier, subtier)
 );
 
 
--- COSMETIC ITEMS: items available in the locker
+-- COSMETIC ITEM: items available in the locker
 
-CREATE TABLE cosmetic_items (
-    cos_id INT AUTO_INCREMENT PRIMARY KEY,
-    cos_name VARCHAR(100) NOT NULL,
-    cos_type VARCHAR(30) NOT NULL,
+CREATE TABLE Cosmetic_Item (
+    cosmetic_id INT AUTO_INCREMENT PRIMARY KEY,
+    cosmetic_name VARCHAR(100) NOT NULL,
+    cosmetic_type VARCHAR(30) NOT NULL,
     unlock_type VARCHAR(20) NOT NULL,
-    lvl_req INT DEFAULT 0,
+    lvl_required INT DEFAULT 0,
     coin_cost INT DEFAULT 0,
-    cos_img_data VARCHAR(255)
+    cosmetic_img_data VARCHAR(250)
 );
 
 
--- EXERCISES: pre-populated exercise library
+-- EXERCISE: pre-populated exercise library
 
-CREATE TABLE exercises (
-    ex_id INT AUTO_INCREMENT PRIMARY KEY,
-    ex_name VARCHAR(100) NOT NULL,
+CREATE TABLE Exercise (
+    exercise_id INT AUTO_INCREMENT PRIMARY KEY,
+    exercise_name VARCHAR(100) NOT NULL,
     muscle_group VARCHAR(50) NOT NULL,
     default_sets INT DEFAULT 3,
     default_reps INT DEFAULT 12,
-    diff VARCHAR(20) NOT NULL,
+    difficulty VARCHAR(20) NOT NULL,
     base_xp INT NOT NULL DEFAULT 10
 );
 
 
--- ADMINS: app administrators
+-- ADMIN: app administrators
 
-CREATE TABLE admins (
+CREATE TABLE Admins (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     admin_username VARCHAR(50) NOT NULL UNIQUE,
     admin_password VARCHAR(255) NOT NULL
 );
 
 
--- USERS: app users
+-- USER: app users
 
-CREATE TABLE users (
+CREATE TABLE User (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    set_password VARCHAR(100) NOT NULL,
     xp INT NOT NULL DEFAULT 0,
     coins INT NOT NULL DEFAULT 0,
-    level INT NOT NULL DEFAULT 1,
+    current_level INT NOT NULL DEFAULT 1,
     rank_id INT,
-    curr_streak INT NOT NULL DEFAULT 0,
-    av_id INT,
-    meas_system VARCHAR(10) DEFAULT 'metric',
-    language VARCHAR(10) DEFAULT 'en',
+    current_streak INT NOT NULL DEFAULT 0,
+    avatar_id INT,
+    measurment_system VARCHAR(10) DEFAULT 'metric',
+    set_language VARCHAR(10) DEFAULT 'en',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (rank_id) REFERENCES ranks(rank_id) ON DELETE SET NULL
+    FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id) ON DELETE SET NULL
 );
 
 
--- AVATARS: each user's avatar
+-- AVATAR: each user's avatar
 
-CREATE TABLE avatars (
-    av_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Avatar (
+    avatar_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     skin_tone VARCHAR(20) NOT NULL,
     body_shape VARCHAR(20) NOT NULL,
-    facial_details VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    facial_details VARCHAR(250),
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
--- Now that both tables exist, link users.av_id back to avatars
-ALTER TABLE users
+-- Link User.avatar_id back to avatars
+
+ALTER TABLE User
     ADD CONSTRAINT fk_user_avatar
-    FOREIGN KEY (av_id) REFERENCES avatars(av_id) ON DELETE SET NULL;
+    FOREIGN KEY (avatar_id) REFERENCES Avatar(avatar_id) ON DELETE SET NULL;
 
 
--- USER PROFILES: fitness assessment data
+-- USER PROFILE: fitness assessment data
 
-CREATE TABLE user_profiles (
+CREATE TABLE User_Profile (
     profile_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
-    gender VARCHAR(20),
-    age INT,
-    weight DECIMAL(5,2),
-    height DECIMAL(5,2),
+    user_gender VARCHAR(20),
+    user_age INT,
+    user_weight DECIMAL(5,2),
+    user_height DECIMAL(5,2),
     body_type VARCHAR(20),
-    w_lvl VARCHAR(20),
-    nr_w_per_week INT,
+    workout_lvl VARCHAR(20),
+    num_workouts_per_week INT,
     fitness_goal VARCHAR(50),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 
 -- USER COSMETICS: which items each user owns/has equipped
 
-CREATE TABLE user_cosmetics (
-    user_cos_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE User_Cosmetic (
+    user_cosmetic_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    cos_id INT NOT NULL,
+    cosmetic_id INT NOT NULL,
     is_unlocked BOOLEAN DEFAULT FALSE,
     is_equipped BOOLEAN DEFAULT FALSE,
-    UNIQUE KEY unique_user_cosmetic (user_id, cos_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (cos_id) REFERENCES cosmetic_items(cos_id) ON DELETE CASCADE
+    UNIQUE KEY unique_user_cosmetic (user_id, cosmetic_id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cosmetic_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE CASCADE
 );
 
 
 -- OUTFIT SLOTS: a user's currently equipped outfit
 
-CREATE TABLE outfit_slots (
-    out_slot_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Outfit_Slot (
+    outfit_slot_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     top_id INT,
     bottom_id INT,
     shoes_id INT,
-    acc_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (top_id) REFERENCES cosmetic_items(cos_id) ON DELETE SET NULL,
-    FOREIGN KEY (bottom_id) REFERENCES cosmetic_items(cos_id) ON DELETE SET NULL,
-    FOREIGN KEY (shoes_id) REFERENCES cosmetic_items(cos_id) ON DELETE SET NULL,
-    FOREIGN KEY (acc_id) REFERENCES cosmetic_items(cos_id) ON DELETE SET NULL
+    accessories_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (top_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (bottom_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (shoes_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (accessories_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL
 );
 
  
 -- WORKOUTS: saved workouts (user-created OR admin defaults)
 
-CREATE TABLE workouts (
-    w_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Workout (
+    workout_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
-    w_name VARCHAR(100) NOT NULL,
+    workout_name VARCHAR(100) NOT NULL,
     is_default BOOLEAN DEFAULT FALSE,
-    w_order_index INT DEFAULT 0,
+    workout_order_index INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 
 -- WORKOUT EXERCISES: which exercises are in each workout
 
-CREATE TABLE workout_exercises (
-    w_id INT NOT NULL,
-    ex_id INT NOT NULL,
-    sets INT NOT NULL DEFAULT 3,
-    reps INT NOT NULL DEFAULT 12,
-    w_ex_order_index INT NOT NULL DEFAULT 0,
+CREATE TABLE Workout_Exercise (
+    workout_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    num_sets INT NOT NULL DEFAULT 3,
+    num_reps INT NOT NULL DEFAULT 12,
+    workout_exercise_order_index INT NOT NULL DEFAULT 0,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (w_id, ex_id),
-    FOREIGN KEY (w_id) REFERENCES workouts(w_id) ON DELETE CASCADE,
-    FOREIGN KEY (ex_id) REFERENCES exercises(ex_id) ON DELETE CASCADE
+    PRIMARY KEY (workout_id, exercise_id),
+    FOREIGN KEY (workout_id) REFERENCES Workout(workout_id) ON DELETE CASCADE,
+    FOREIGN KEY (exercise_id) REFERENCES Exercise(exercise_id) ON DELETE CASCADE
 );
 
 
 -- SCHEDULED WORKOUTS: workouts placed on a user's calendar
 
-CREATE TABLE scheduled_workouts (
-    sched_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Scheduled_Workout (
+    scheduled_workout_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    w_id INT NOT NULL,
-    sched_date DATE NOT NULL,
-    is_comp BOOLEAN DEFAULT FALSE,
-    comp_date TIMESTAMP NULL,
+    workout_id INT NOT NULL,
+    scheduled_date DATE NOT NULL,
+    is_completed BOOLEAN DEFAULT FALSE,
+    completed_date TIMESTAMP NULL,
     earned_xp INT DEFAULT 0,
-    comp_sets INT DEFAULT 0,
-    comp_reps INT DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (w_id) REFERENCES workouts(w_id) ON DELETE CASCADE
+    completed_sets INT DEFAULT 0,
+    completed_reps INT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (workout_id) REFERENCES Workout(workout_id) ON DELETE CASCADE
 );
 
 
 -- GOALS: user-defined fitness goals
 
-CREATE TABLE goals (
+CREATE TABLE Goal (
     goal_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    description TEXT NOT NULL,
+    goal_description TEXT NOT NULL,
     deadline DATE,
-    priority VARCHAR(20) NOT NULL,
-    is_comp BOOLEAN DEFAULT FALSE,
+    goal_priority VARCHAR(20) NOT NULL,
+    is_completed BOOLEAN DEFAULT FALSE,
     completed_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 
 -- XP LOGS: history of XP earned (from workouts or goals)
 
-CREATE TABLE xp_logs (
+CREATE TABLE XP_Log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    amt INT NOT NULL,
-    src_type VARCHAR(20) NOT NULL,
-    src_id INT NOT NULL,
+    amount INT NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_id INT NOT NULL,
     xp_earned INT NOT NULL,
     coins_earned INT DEFAULT 0,
     time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 
 -- COIN TRANSACTIONS: history of coin spending
 
-CREATE TABLE coin_transactions (
+CREATE TABLE Coin_Transaction (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    amt INT NOT NULL,
-    cos_id INT,
-    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (cos_id) REFERENCES cosmetic_items(cos_id) ON DELETE SET NULL
+    amount INT NOT NULL,
+    cosmetic_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cosmetic_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL
 );
 
 
 -- STREAKS: weekly streak tracking and XP multipliers
 
-CREATE TABLE streaks (
+CREATE TABLE Streak (
     streak_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     week_st_date DATE NOT NULL,
-    num_w_comp INT DEFAULT 0,
+    num_workouts_completed INT DEFAULT 0,
     met_goal BOOLEAN DEFAULT FALSE,
     multiplier DECIMAL(3,2) DEFAULT 1.00,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 
 -- INDEXES: speed up the most common queries
 
-CREATE INDEX idx_workouts_user ON workouts(user_id);
-CREATE INDEX idx_scheduled_user_date ON scheduled_workouts(user_id, sched_date);
-CREATE INDEX idx_goals_user ON goals(user_id);
-CREATE INDEX idx_xp_logs_user ON xp_logs(user_id);
-CREATE INDEX idx_user_cosmetics_user ON user_cosmetics(user_id);
+CREATE INDEX idx_workouts_user ON Workout(user_id);
+CREATE INDEX idx_scheduled_user_date ON Scheduled_Workout(user_id, scheduled_date);
+CREATE INDEX idx_goals_user ON Goal(user_id);
+CREATE INDEX idx_xp_logs_user ON XP_Log(user_id);
+CREATE INDEX idx_user_cosmetics_user ON User_Cosmetic(user_id);
