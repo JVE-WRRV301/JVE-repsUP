@@ -6,38 +6,38 @@ Reps Up is a gamified Android fitness application that combines workout tracking
 
 ## Glossary
 
-- **App**: The Reps Up Android application
+- **App**: The Reps Up Android application running on user devices
 - **User**: A registered person who uses the App to track workouts and progress
-- **Admin**: A privileged user (Dean) who manages default workouts and exercises via the admin portal
-- **Session_Manager**: The component that manages authentication state using SharedPreferences
-- **Database_Helper**: The singleton component that establishes JDBC connections to MySQL using BuildConfig values
-- **User_Repository**: The data access component for User table operations
-- **Workout_Repository**: The data access component for Workout and Workout_Exercise table operations
-- **Goal_Repository**: The data access component for Goal table operations
-- **Schedule_Repository**: The data access component for Scheduled_Workout table operations
-- **XP_Calculator**: The utility that computes XP earned from workouts and goals
-- **Streak_Manager**: The utility that evaluates and updates streak state daily
-- **Avatar_Compositor**: The utility that layers PNG assets to produce a composite avatar image
-- **Navigation_Shell**: The MainActivity hosting BottomNavigationView with four tabs (Home, Calendar, Workout, Me)
-- **Assessment_Flow**: The multi-step fitness assessment wizard (9 screens) collecting user profile data
-- **Workout_Execution**: The activity where users log sets, reps, and weight for each exercise in a scheduled workout
-- **Locker**: The cosmetic inventory where users browse, unlock, and equip avatar items
-- **Rank**: A tier in the progression system (e.g., Bronze I, Bronze II) unlocked at specific levels
-- **Streak**: The count of consecutive days where all scheduled workouts were completed
-- **XP_Multiplier**: A bonus multiplier applied to XP earnings, unlocked at 14-day streak milestones
+- **Admin**: A privileged user (Dean) who manages the default workout and exercise library
+- **Session_Manager**: The component responsible for persisting and validating user login sessions using SharedPreferences
+- **Database_Helper**: The component responsible for establishing and managing JDBC connections to the MySQL database
+- **User_Repository**: The data access component responsible for CRUD operations on User, User_Profile, and authentication records
+- **Workout_Repository**: The data access component responsible for CRUD operations on Workout and Workout_Exercise records
+- **Goal_Repository**: The data access component responsible for CRUD operations on Goal records
+- **Schedule_Repository**: The data access component responsible for CRUD operations on Scheduled_Workout records
+- **XP_Calculator**: The component responsible for computing XP awards based on exercise base_xp, sets completed, and active multipliers
+- **Streak_Manager**: The component responsible for evaluating daily workout completion and updating streak counts
+- **Avatar_Compositor**: The component responsible for layering PNG assets (base body, clothing, accessories) into a composite avatar image
+- **Navigation_Shell**: The MainActivity host containing BottomNavigationView and the persistent top bar
+- **Assessment_Flow**: The sequence of 9 onboarding screens collecting user fitness profile data
+- **Workout_Execution**: The screen flow for logging sets, reps, and weight during an active workout session
+- **Locker**: The in-app store where users browse and purchase cosmetic items using earned coins
+- **Rank**: A progression tier (e.g., Bronze, Silver, Gold) unlocked at specific level thresholds
+- **Streak**: The count of consecutive days with a completed scheduled workout
+- **XP_Multiplier**: A scaling factor applied to XP earnings, increased at 14-day streak milestones
 
 ## Requirements
 
 ### Requirement 1: Secure Database Connection
 
-**User Story:** As a developer, I want database credentials loaded from `local.properties` via BuildConfig, so that secrets are never hardcoded or committed to version control.
+**User Story:** As a developer, I want database credentials loaded from local.properties via BuildConfig, so that secrets are never hardcoded or committed to version control.
 
 #### Acceptance Criteria
 
 1. THE Database_Helper SHALL load connection parameters (host, port, user, password, database name) exclusively from BuildConfig fields injected at build time
-2. WHEN the App is built, THE build system SHALL read `db.host`, `db.port`, `db.user`, `db.password`, and `db.name` from `android/local.properties` and expose them as BuildConfig string fields
-3. IF `local.properties` is missing any required database field, THEN THE build system SHALL fail with a descriptive error message
-4. THE App SHALL include `local.properties` in `.gitignore` to prevent credential leakage
+2. WHEN the App is built, THE build system SHALL read db.host, db.port, db.user, db.password, and db.name from android/local.properties and expose them as BuildConfig string fields
+3. IF local.properties is missing any required database field, THEN THE build system SHALL fail with a descriptive error message
+4. THE App SHALL include local.properties in .gitignore to prevent credential leakage
 
 ### Requirement 2: User Authentication — Login
 
@@ -359,9 +359,9 @@ Reps Up is a gamified Android fitness application that combines workout tracking
 
 #### Acceptance Criteria
 
-1. THE App SHALL use `#393944` as the primary background color across all screens
-2. THE App SHALL use `#B2D6FD` as the accent color for buttons and interactive highlights
-3. THE App SHALL use `#FF5050` (red) for warnings and goal-related highlights and `#FAD942` (yellow) for XP/coin indicators
+1. THE App SHALL use #393944 as the primary background color across all screens
+2. THE App SHALL use #B2D6FD as the accent color for buttons and interactive highlights
+3. THE App SHALL use #FF5050 (red) for warnings and goal-related highlights and #FAD942 (yellow) for XP/coin indicators
 4. THE App SHALL use Inter font family for body text and HK Modular or Orbitron font family for headings
 5. THE App SHALL display form sections in white card containers against the dark background
 
