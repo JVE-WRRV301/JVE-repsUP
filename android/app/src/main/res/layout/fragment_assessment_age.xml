@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:min="14"
-        android:max="80"
+        android:max="99"
         android:progress="11"
         android:progressTint="@color/light_blue"
         android:thumbTint="@color/light_blue"

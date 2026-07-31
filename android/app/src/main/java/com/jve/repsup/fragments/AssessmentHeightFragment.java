@@ -51,7 +51,7 @@ public class AssessmentHeightFragment extends Fragment {
         double savedHeight = getAssessmentActivity().getAssessmentData().getHeight();
         updateUnitToggle();
         updateDisplay(savedHeight);
-        sbHeight.setProgress((int) savedHeight - 100);
+        sbHeight.setProgress((int) savedHeight - 50);
 
         btnCm.setOnClickListener(v -> {
             if (!isCm) {
@@ -60,7 +60,7 @@ public class AssessmentHeightFragment extends Fragment {
                 isCm = true;
                 getAssessmentActivity().getAssessmentData().setHeightInCm(true);
                 getAssessmentActivity().getAssessmentData().setHeight(Math.round(cmValue));
-                sbHeight.setProgress((int) Math.round(cmValue) - 100);
+                sbHeight.setProgress((int) Math.round(cmValue) - 50);
                 updateUnitToggle();
                 updateDisplay(Math.round(cmValue));
             }
@@ -73,7 +73,7 @@ public class AssessmentHeightFragment extends Fragment {
                 isCm = false;
                 getAssessmentActivity().getAssessmentData().setHeightInCm(false);
                 getAssessmentActivity().getAssessmentData().setHeight(Math.round(ftValue * 10.0) / 10.0);
-                sbHeight.setProgress((int) Math.round(ftValue * 10.0) - 100);
+                sbHeight.setProgress((int) Math.round(ftValue * 10.0) - 50);
                 updateUnitToggle();
                 updateDisplay(Math.round(ftValue * 10.0) / 10.0);
             }
@@ -82,7 +82,7 @@ public class AssessmentHeightFragment extends Fragment {
         sbHeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double height = progress + 100;
+                double height = progress + 50;
                 updateDisplay(height);
                 getAssessmentActivity().getAssessmentData().setHeight(height);
             }
