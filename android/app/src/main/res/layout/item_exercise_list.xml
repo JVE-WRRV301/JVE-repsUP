@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@color/dark_grey_surface"
+    android:padding="12dp">
+
+    <!-- Exercise image -->
+    <ImageView
+        android:id="@+id/ivExerciseImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/exercise_icon_desc"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_exercise_placeholder"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Exercise name -->
+    <TextView
+        android:id="@+id/tvExerciseName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/inter_medium"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivExerciseImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Difficulty badge -->
+    <TextView
+        android:id="@+id/tvExerciseDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/muted"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/ivExerciseImage"
+        app:layout_constraintTop_toBottomOf="@id/tvExerciseName" />
+
+    <!-- Muscle group -->
+    <TextView
+        android:id="@+id/tvExerciseMuscleGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/light_blue"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/tvExerciseDifficulty"
+        app:layout_constraintTop_toBottomOf="@id/tvExerciseName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

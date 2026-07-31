@@ -176,6 +176,82 @@
     <string name="tab_my_plan">My Plan</string>
     <string name="tab_goals">Goals</string>
 
+    <!-- Calendar -->
+    <string name="calendar_prev_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_add_action">Add schedule or goal</string>
+    <string name="calendar_add_title">Add New</string>
+    <string name="calendar_option_schedule_workout">Schedule Workout</string>
+    <string name="calendar_option_create_goal">Create Goal</string>
+    <string name="calendar_status_completed">Completed</string>
+    <string name="calendar_status_scheduled">Scheduled</string>
+    <string name="calendar_schedule_coming_soon">Schedule Workout coming soon</string>
+    <string name="calendar_my_plan_placeholder">Weekly plan coming soon</string>
+
+    <!-- Weekly Plan -->
+    <string name="weekly_plan_prev_week">Previous week</string>
+    <string name="weekly_plan_next_week">Next week</string>
+    <string name="weekly_plan_expand_collapse">Expand or collapse day</string>
+    <string name="weekly_plan_empty">No workouts scheduled this week</string>
+    <string name="weekly_plan_rest_day">Rest day</string>
+    <string name="weekly_plan_status_completed">Completed ✓</string>
+    <string name="weekly_plan_status_missed">Missed</string>
+    <string name="weekly_plan_status_scheduled">Scheduled</string>
+    <string name="weekly_plan_exercises_format">%d exercises</string>
+
+    <!-- Schedule Workout -->
+    <string name="schedule_workout_title">Schedule Workout</string>
+    <string name="schedule_workout_date_hint">Select Date</string>
+    <string name="schedule_workout_select_workout">Select Workout</string>
+    <string name="schedule_workout_repeat_label">Repeat</string>
+    <string name="schedule_workout_repeat_never">Never</string>
+    <string name="schedule_workout_repeat_weekly">Weekly</string>
+    <string name="schedule_workout_repeat_biweekly">Biweekly</string>
+    <string name="schedule_workout_repeat_monthly">Monthly</string>
+    <string name="schedule_workout_save">Schedule</string>
+    <string name="schedule_workout_error_date">Please select a date</string>
+    <string name="schedule_workout_error_workout">Please select a workout</string>
+    <string name="schedule_workout_error_save">Failed to schedule workout. Please try again.</string>
+    <string name="schedule_workout_success">Workout scheduled successfully!</string>
+    <string name="schedule_workout_no_workouts">No workouts available. Create one first.</string>
+
+    <!-- Workout Fragment -->
+    <string name="workout_tab_saved">Saved</string>
+    <string name="workout_tab_library">Library</string>
+    <string name="workout_saved_empty">No saved workouts. Tap + to create one.</string>
+    <string name="workout_add_description">Add workout</string>
+    <string name="workout_back_description">Back to muscle groups</string>
+    <string name="workout_menu_description">Workout options</string>
+    <string name="workout_exercise_count_format">%d exercises</string>
+    <string name="workout_menu_share">Share</string>
+    <string name="workout_menu_edit">Edit</string>
+    <string name="workout_menu_duplicate">Duplicate</string>
+    <string name="workout_menu_reorder">Reorder</string>
+    <string name="workout_menu_delete">Delete</string>
+    <string name="workout_delete_confirm_title">Delete Workout</string>
+    <string name="workout_delete_confirm_message">Are you sure you want to delete this workout?</string>
+    <string name="workout_deleted_success">Workout deleted</string>
+    <string name="workout_deleted_error">Failed to delete workout</string>
+    <string name="workout_duplicated_success">Workout duplicated</string>
+    <string name="workout_duplicated_error">Failed to duplicate workout</string>
+    <string name="workout_load_error">Failed to load workouts. Please try again.</string>
+    <string name="workout_exercises_load_error">Failed to load exercises. Please try again.</string>
+
+    <!-- Edit Workout -->
+    <string name="edit_workout_load_error">Failed to load workout for editing</string>
+    <string name="edit_workout_success">Workout updated successfully</string>
+    <string name="edit_workout_error">Failed to update workout</string>
+    <string name="edit_workout_save_button">Update Workout</string>
+
+    <!-- Reorder Workout -->
+    <string name="workout_reorder_title">Reorder Exercises</string>
+    <string name="workout_reorder_hint">Drag exercises to reorder them</string>
+    <string name="workout_reorder_save">Save Order</string>
+    <string name="workout_reorder_success">Exercise order updated</string>
+    <string name="workout_reorder_error">Failed to update exercise order</string>
+    <string name="workout_reorder_no_exercises">No exercises to reorder</string>
+    <string name="workout_reorder_drag_handle">Drag to reorder</string>
+
     <!-- Admin Login -->
     <string name="admin_login_title">Admin Login</string>
     <string name="admin_username_hint">Username</string>
@@ -244,4 +320,41 @@
     <string name="admin_workout_delete_error">Failed to delete workout. Please try again.</string>
     <string name="admin_workout_menu">Workout options</string>
     <string name="admin_expand_collapse">Expand or collapse section</string>
+
+    <!-- Create User Workout -->
+    <string name="create_workout_title">Create Workout</string>
+    <string name="create_workout_mode_create">Create Workout</string>
+    <string name="create_workout_mode_generate">Generate Workout</string>
+    <string name="create_workout_select_muscle_groups">Select Muscle Groups</string>
+    <string name="create_workout_muscle_groups_hint">Choose one or more muscle groups</string>
+    <string name="create_workout_continue">Continue</string>
+    <string name="create_workout_select_exercises">Select Exercises</string>
+    <string name="create_workout_exercises_selected">%1$d / %2$d selected</string>
+    <string name="create_workout_confirm_exercises">Confirm Selection</string>
+    <string name="create_workout_select_at_least_one">Please select at least one exercise</string>
+    <string name="create_workout_max_exercises_reached">Maximum of 8 exercises reached</string>
+    <string name="create_workout_details_title">Workout Details</string>
+    <string name="create_workout_name_hint">Workout Name</string>
+    <string name="create_workout_exercise_settings">Exercise Settings</string>
+    <string name="create_workout_reps_hint">Reps</string>
+    <string name="create_workout_weight_hint">Weight (kg)</string>
+    <string name="create_workout_save">Save Workout</string>
+    <string name="create_workout_name_required">Workout name is required</string>
+    <string name="create_workout_success">Workout created successfully!</string>
+    <string name="create_workout_error">Failed to create workout. Please try again.</string>
+    <string name="create_workout_select_muscle_group_first">Please select at least one muscle group</string>
+    <string name="create_workout_load_error">Failed to load exercises. Please try again.</string>
+
+    <!-- Generate Workout -->
+    <string name="generate_workout_title">Generate Workout</string>
+    <string name="generate_workout_difficulty_label">Select difficulty</string>
+    <string name="generate_workout_muscle_groups_label">Select muscle groups</string>
+    <string name="generate_workout_button">Generate</string>
+    <string name="generate_workout_select_difficulty">Please select a difficulty</string>
+    <string name="generate_workout_select_muscle_group">Please select at least one muscle group</string>
+    <string name="generate_workout_no_exercises">No exercises found for the selected criteria</string>
+    <string name="generate_workout_review_title">Review Workout</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
 </resources>
