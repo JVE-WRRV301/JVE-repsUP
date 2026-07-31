@@ -1,19 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
+    android:orientation="vertical"
     tools:context="com.jve.repsup.fragments.CalendarFragment">
 
+    <!-- Calendar title -->
     <TextView
         android:id="@+id/tvCalendarTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/orbitron"
         android:text="@string/tab_calendar"
         android:textColor="@color/white"
         android:textSize="24sp" />
 
-</FrameLayout>
+    <!-- Tab layout for My Plan / Goals -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutCalendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/dark_grey"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/light_blue"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/light_blue"
+        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+        app:tabTextColor="@color/muted" />
+
+    <!-- Tab content container -->
+    <FrameLayout
+        android:id="@+id/flTabContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

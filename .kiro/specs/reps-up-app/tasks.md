@@ -121,7 +121,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [ ] 6. Checkpoint — Admin features verification
   - Ensure admin login, create workout, create exercise, manage workouts all function correctly. Ask the user if questions arise.
 
-- [ ] 7. Home Page and Goal Management
+- [x] 7. Home Page and Goal Management
   - [x] 7.1 Implement HomeFragment with today's workout and next goal
     - Display week strip (S M T W T F S) with today highlighted
     - Display "TODAY" card (blue border): workout name, date, first 3 exercises with images and set counts, "START" button
@@ -138,7 +138,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - INSERT Goal record on save
     - _Requirements: 8.1, 8.2_
 
-  - [ ] 7.3 Implement Goals List View and Goal Completion
+  - [x] 7.3 Implement Goals List View and Goal Completion
     - Create `GoalsListFragment` in CalendarFragment Goals tab with goal cards (++red border): deadline, title, priority badge, description, completion checkbox
     - Implement 3-dot menu with Edit Goal and Delete Goal options
     - On checkbox tap: UPDATE goal as completed with timestamp

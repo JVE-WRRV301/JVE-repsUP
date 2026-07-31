@@ -43,6 +43,8 @@ public class CreateGoalActivity extends AppCompatActivity {
 
     private String selectedPriority = "Medium";
     private Date selectedDate;
+    private int editGoalId = -1;
+    private boolean isEditMode = false;
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -56,7 +58,35 @@ public class CreateGoalActivity extends AppCompatActivity {
 
         initViews();
         setupListeners();
+        loadEditData();
         updateImportanceButtons();
+    }
+
+    /**
+     * Loads goal data from intent extras when editing an existing goal.
+     */
+    private void loadEditData() {
+        if (getIntent().hasExtra("goal_id")) {
+            editGoalId = getIntent().getIntExtra("goal_id", -1);
+            isEditMode = editGoalId != -1;
+
+            if (isEditMode) {
+                String title = getIntent().getStringExtra("goal_title");
+                String priority = getIntent().getStringExtra("goal_priority");
+                long deadlineMillis = getIntent().getLongExtra("goal_deadline", -1);
+
+                if (title != null) {
+                    etGoalTitle.setText(title);
+                }
+                if (priority != null) {
+                    selectedPriority = priority;
+                }
+                if (deadlineMillis != -1) {
+                    selectedDate = new Date(deadlineMillis);
+                    etGoalDate.setText(dateFormat.format(selectedDate));
+                }
+            }
+        }
     }
 
     private void initViews() {
@@ -169,23 +199,44 @@ public class CreateGoalActivity extends AppCompatActivity {
         goal.setDeadline(selectedDate);
         goal.setPriority(selectedPriority);
 
-        goalRepository.createGoal(goal, new ConnectionManager.DatabaseCallback<Long>() {
-            @Override
-            public void onSuccess(Long goalId) {
-                runOnUiThread(() -> {
-                    setResult(RESULT_OK);
-                    finish();
-                });
-            }
+        if (isEditMode) {
+            goal.setGoalId(editGoalId);
+            goalRepository.updateGoal(goal, new ConnectionManager.DatabaseCallback<Integer>() {
+                @Override
+                public void onSuccess(Integer rows) {
+                    runOnUiThread(() -> {
+                        setResult(RESULT_OK);
+                        finish();
+                    });
+                }
 
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    showError(getString(R.string.error_goal_save_failed));
-                    btnSave.setEnabled(true);
-                });
-            }
-        });
+                @Override
+                public void onError(Exception e) {
+                    runOnUiThread(() -> {
+                        showError(getString(R.string.error_goal_save_failed));
+                        btnSave.setEnabled(true);
+                    });
+                }
+            });
+        } else {
+            goalRepository.createGoal(goal, new ConnectionManager.DatabaseCallback<Long>() {
+                @Override
+                public void onSuccess(Long goalId) {
+                    runOnUiThread(() -> {
+                        setResult(RESULT_OK);
+                        finish();
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    runOnUiThread(() -> {
+                        showError(getString(R.string.error_goal_save_failed));
+                        btnSave.setEnabled(true);
+                    });
+                }
+            });
+        }
     }
 
     private void showError(String message) {
