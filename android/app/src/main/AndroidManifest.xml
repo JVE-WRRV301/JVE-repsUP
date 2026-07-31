@@ -43,6 +43,21 @@
         <activity
             android:name=".activities.WorkoutExecutionActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.AdminLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AdminMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AdminCreateWorkoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AdminCreateExerciseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AdminManageWorkoutsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

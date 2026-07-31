@@ -87,8 +87,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [ ] 4. Checkpoint — Authentication and onboarding verification
   - Ensure full flow works: Welcome → Register → Assessment → Avatar → Home, and Login → Home. Ask the user if questions arise.
 
-- [ ] 5. Admin Features
-  - [ ] 5.1 Implement Admin Login and Dashboard
+- [x] 5. Admin Features
+  - [x] 5.1 Implement Admin Login and Dashboard
     - Create `AdminLoginActivity.java` with username/password form and dark branding
     - Create `AdminRepository.java` with `authenticate(username, password, callback)` against Admins table
     - Create `AdminMainActivity.java` with management navigation options
@@ -96,7 +96,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Store admin session state in SessionManager
     - _Requirements: 24.1, 24.2, 24.3, 24.4_
 
-  - [ ] 5.2 Implement Admin Create Default Workout flow
+  - [x] 5.2 Implement Admin Create Default Workout flow
     - Create category selection screen: Abdominal, Full Body, Lower Body, Upper Body buttons
     - Create muscle group grid screen filtered by selected category
     - Create exercise selection screen showing exercises from Exercise table filtered by muscle group (max 8, highlighted in blue when selected)
@@ -104,13 +104,13 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - On save: INSERT Workout (is_default=TRUE, user_id=NULL) and Workout_Exercise records
     - _Requirements: 25.1, 25.2, 25.3, 25.4, 25.5, 25.6_
 
-  - [ ] 5.3 Implement Admin Create Default Exercise
+  - [x] 5.3 Implement Admin Create Default Exercise
     - Create exercise form: Exercise Name, Muscle Group (dropdown), Difficulty (Easy/Medium/Hard), Default Sets, Default Reps, Base XP, Demo image
     - Validate required fields (name, muscle group, difficulty)
     - On valid submission: INSERT Exercise record
     - _Requirements: 26.1, 26.2, 26.3_
 
-  - [ ] 5.4 Implement Admin Manage Default Workouts
+  - [x] 5.4 Implement Admin Manage Default Workouts
     - Create `ManageWorkoutsFragment` with search bar and collapsible category sections with difficulty sub-sections
     - Display workout cards with exercise previews and 3-dot menu (Edit, Delete)
     - Edit: open Create Default Workout flow pre-populated with existing data
