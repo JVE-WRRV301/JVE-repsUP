@@ -93,8 +93,8 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.material
 
-    // MySQL JDBC Connector
-    implementation 'com.mysql:mysql-connector-j:8.2.0'
+    // MySQL JDBC Connector (5.1.x — compatible with Android's java.sql subset)
+    implementation 'mysql:mysql-connector-java:5.1.49'
 
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core

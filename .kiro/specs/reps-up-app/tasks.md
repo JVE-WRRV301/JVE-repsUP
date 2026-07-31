@@ -42,11 +42,11 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Add session check: no session → LoginActivity, active session → MainActivity
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 2.4_
 
-- [ ] 2. Checkpoint — Foundation verification
+- [x] 2. Checkpoint — Foundation verification
   - Ensure app builds, connects to MySQL on emulator, dark theme is applied, navigation shell works, and session redirect logic functions correctly. Ask the user if questions arise.
 
 - [ ] 3. Authentication and Onboarding
-  - [ ] 3.1 Implement LoginActivity and UserRepository authentication
+  - [x] 3.1 Implement LoginActivity and UserRepository authentication
     - Create `LoginActivity.java` with dark top section (gym image, "Welcome back!") and white bottom card (username, password fields, Login button)
     - Create `UserRepository.java` with `authenticate(username, password, callback)` method querying User table on background thread
     - On success: store user_id in SessionManager, navigate to MainActivity
@@ -54,7 +54,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Wire "Sign Up" link to navigate to RegisterActivity
     - _Requirements: 2.1, 2.2, 2.3, 2.5_
 
-  - [ ] 3.2 Implement WelcomeActivity and RegisterActivity
+  - [x] 3.2 Implement WelcomeActivity and RegisterActivity
     - Create `WelcomeActivity.java` as launcher activity with "Welcome to REPS UP", Sign Up and Login navigation
     - Create `RegisterActivity.java` with form: Name, Username, Email, Password, Confirm Password, "Get Started" button
     - Add `UserRepository.register(user, callback)` — INSERT into User table with defaults (xp=0, coins=0, level=1, rank_id=1, streak=0)

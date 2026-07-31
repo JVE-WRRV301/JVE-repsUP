@@ -1,0 +1,65 @@
+package com.jve.repsup.repositories;
+
+import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.models.User;
+
+/**
+ * Repository handling User table CRUD operations.
+ * All methods execute on background threads via ConnectionManager.
+ */
+public class UserRepository {
+
+    /**
+     * Authenticates a user by username and password.
+     * Returns the User object on success, null if credentials are invalid.
+     */
+    public void authenticate(String username, String password, ConnectionManager.DatabaseCallback<User> callback) {
+        String sql = "SELECT user_id, first_name, email, username, set_password, xp, coins, " +
+                "current_level, rank_id, current_streak, avatar_id, measurment_system, set_language " +
+                "FROM user WHERE username = ? AND set_password = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{username, password}, rs -> {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setEmail(rs.getString("email"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("set_password"));
+            user.setXp(rs.getInt("xp"));
+            user.setCoins(rs.getInt("coins"));
+            user.setCurrentLevel(rs.getInt("current_level"));
+            user.setRankId(rs.getInt("rank_id"));
+            user.setCurrentStreak(rs.getInt("current_streak"));
+            user.setAvatarId(rs.getInt("avatar_id"));
+            user.setMeasurementSystem(rs.getString("measurment_system"));
+            user.setLanguage(rs.getString("set_language"));
+            return user;
+        }, callback);
+    }
+
+    /**
+     * Registers a new user with default values (xp=0, coins=0, level=1, rank_id=1, streak=0).
+     * Returns the generated user_id on success.
+     */
+    public void register(User user, ConnectionManager.DatabaseCallback<Long> callback) {
+        String sql = "INSERT INTO user (first_name, email, username, set_password, xp, coins, " +
+                "current_level, rank_id, current_streak) VALUES (?, ?, ?, ?, 0, 0, 1, 1, 0)";
+
+        ConnectionManager.executeInsert(sql, new Object[]{
+                user.getFirstName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getPassword()
+        }, callback);
+    }
+
+    /**
+     * Checks if a username already exists in the User table.
+     * Returns true if taken, false if available.
+     */
+    public void isUsernameTaken(String username, ConnectionManager.DatabaseCallback<Boolean> callback) {
+        String sql = "SELECT COUNT(*) AS cnt FROM user WHERE username = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{username}, rs -> rs.getInt("cnt") > 0, callback);
+    }
+}
