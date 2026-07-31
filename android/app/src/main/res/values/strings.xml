@@ -19,8 +19,34 @@
     <string name="streak_description">Current streak</string>
     <string name="coins_description">Coin balance</string>
 
-    <!-- Login stub -->
+    <!-- Login -->
+    <string name="login_welcome_back">Welcome back!</string>
+    <string name="login_username_hint">Username</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="login_error">Invalid username or password. Please try again.</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_sign_up">Sign Up</string>
+    <string name="login_connection_error">Connection error. Please try again later.</string>
     <string name="login_placeholder">Login — Coming Soon</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">Welcome to REPS UP</string>
+    <string name="btn_sign_up">Sign Up</string>
+    <string name="btn_login">Login</string>
+
+    <!-- Register Screen -->
+    <string name="register_title">Create Account</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="error_fields_required">All fields are required</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_username_taken">Username is already taken</string>
+    <string name="error_registration_failed">Registration failed. Please try again.</string>
 
     <!-- Fitness Assessment -->
     <string name="assessment_back">Back</string>
@@ -36,6 +62,12 @@
     <!-- Assessment Sections -->
     <string name="assessment_section_body">About your body.</string>
     <string name="assessment_section_fitness">About your fitness.</string>
+    <string name="section_about_body">About your body.</string>
+    <string name="question_gender">What\'s your gender?</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_next">Next</string>
 
     <!-- Gender -->
     <string name="assessment_gender_question">What\'s your gender?</string>

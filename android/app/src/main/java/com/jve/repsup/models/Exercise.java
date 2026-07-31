@@ -2,7 +2,7 @@ package com.jve.repsup.models;
 
 /**
  * Represents an exercise in the library.
- * Maps to the `exercises` table.
+ * Maps to the `Exercise` table.
  */
 public class Exercise {
 
