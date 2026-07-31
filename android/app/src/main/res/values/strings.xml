@@ -120,4 +120,73 @@
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
     <string name="avatar_continue">Continue</string>
     <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
+
+    <!-- Admin Login -->
+    <string name="admin_login_title">Admin Login</string>
+    <string name="admin_username_hint">Username</string>
+    <string name="admin_password_hint">Password</string>
+    <string name="admin_login_button">Login</string>
+    <string name="admin_login_error">Invalid admin credentials. Please try again.</string>
+    <string name="admin_connection_error">Connection error. Please try again later.</string>
+
+    <!-- Admin Dashboard -->
+    <string name="admin_dashboard_title">Admin Dashboard</string>
+    <string name="admin_create_workout">Create Default Workout</string>
+    <string name="admin_create_exercise">Create Default Exercise</string>
+    <string name="admin_manage_workouts">Manage Default Workouts</string>
+    <string name="admin_logout">Logout</string>
+
+    <!-- Admin Create Exercise -->
+    <string name="admin_create_exercise_title">Create Exercise</string>
+    <string name="hint_exercise_name">Exercise Name</string>
+    <string name="hint_muscle_group">Muscle Group</string>
+    <string name="hint_difficulty">Difficulty</string>
+    <string name="hint_default_sets">Default Sets</string>
+    <string name="hint_default_reps">Default Reps</string>
+    <string name="hint_base_xp">Base XP</string>
+    <string name="btn_select_demo_image">Select Demo Image</string>
+    <string name="btn_save_exercise">Save Exercise</string>
+    <string name="error_exercise_name_required">Exercise name is required</string>
+    <string name="error_muscle_group_required">Muscle group is required</string>
+    <string name="error_difficulty_required">Difficulty is required</string>
+    <string name="exercise_created_success">Exercise created successfully</string>
+    <string name="exercise_created_error">Failed to create exercise. Please try again.</string>
+
+    <!-- Admin Create Workout -->
+    <string name="admin_select_category">Select Category</string>
+    <string name="category_abdominal">Abdominal</string>
+    <string name="category_full_body">Full Body</string>
+    <string name="category_lower_body">Lower Body</string>
+    <string name="category_upper_body">Upper Body</string>
+    <string name="admin_select_muscle_group">Select Muscle Group</string>
+    <string name="admin_select_exercises">Select Exercises</string>
+    <string name="admin_exercises_selected">%1$d / %2$d selected</string>
+    <string name="admin_confirm_selection">Confirm Selection</string>
+    <string name="admin_select_at_least_one">Please select at least one exercise</string>
+    <string name="admin_load_exercises_error">Failed to load exercises. Please try again.</string>
+    <string name="admin_name_workout">Name Your Workout</string>
+    <string name="admin_workout_name_hint">Workout Name</string>
+    <string name="admin_sets_hint">Sets per exercise</string>
+    <string name="admin_reps_hint">Reps per exercise</string>
+    <string name="admin_save_workout">Save Workout</string>
+    <string name="admin_fill_all_fields">Please fill in all fields</string>
+    <string name="admin_invalid_numbers">Sets and reps must be valid positive numbers</string>
+    <string name="admin_workout_created">Workout created successfully!</string>
+    <string name="admin_workout_create_error">Failed to create workout. Please try again.</string>
+    <string name="admin_exercise_details">%1$d sets × %2$d reps · %3$s</string>
+
+    <!-- Admin Manage Workouts -->
+    <string name="admin_manage_workouts_title">Manage Workouts</string>
+    <string name="admin_search_workouts_hint">Search workouts…</string>
+    <string name="admin_no_workouts">No default workouts found</string>
+    <string name="admin_load_workouts_error">Failed to load workouts. Please try again.</string>
+    <string name="admin_action_edit">Edit</string>
+    <string name="admin_action_delete">Delete</string>
+    <string name="admin_action_cancel">Cancel</string>
+    <string name="admin_delete_workout_title">Delete Workout</string>
+    <string name="admin_delete_workout_message">Are you sure? This will permanently remove this workout.</string>
+    <string name="admin_workout_deleted">Workout deleted successfully</string>
+    <string name="admin_workout_delete_error">Failed to delete workout. Please try again.</string>
+    <string name="admin_workout_menu">Workout options</string>
+    <string name="admin_expand_collapse">Expand or collapse section</string>
 </resources>

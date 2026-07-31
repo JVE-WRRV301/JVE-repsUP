@@ -55,6 +55,68 @@
         "chatSessionId": "sess_29918407-686c-4785-8ccd-c7f120f830a4",
         "timestamp": 1785521339031
       }
+    ],
+    "4. Checkpoint — Authentication and onboarding verification": [
+      {
+        "executionId": "22a212c1-2e6e-48df-bf56-db2fbefb5511",
+        "chatSessionId": "sess_55d8128a-a14d-435a-9c43-e860f9bb3c96",
+        "timestamp": 1785525896050
+      }
+    ],
+    "5.1 Implement Admin Login and Dashboard": [
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528007034
+      },
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528436850
+      }
+    ],
+    "5.2 Implement Admin Create Default Workout flow": [
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528442580
+      },
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528919088
+      }
+    ],
+    "5.3 Implement Admin Create Default Exercise": [
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528443129
+      },
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528919787
+      }
+    ],
+    "5.4 Implement Admin Manage Default Workouts": [
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785528928204
+      },
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785529419705
+      }
+    ],
+    "5. Admin Features": [
+      {
+        "executionId": "89005f5e-9e6f-4725-83c0-82d1315dfa6e",
+        "chatSessionId": "sess_a10030da-991d-45ce-9adb-7f584c7b505c",
+        "timestamp": 1785529419791
+      }
     ]
   }
 }

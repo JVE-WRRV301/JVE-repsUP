@@ -101,6 +101,13 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Hidden admin entry point: detect "admin" username and redirect to admin login
+        if (username.equalsIgnoreCase("admin")) {
+            Intent adminIntent = new Intent(LoginActivity.this, AdminLoginActivity.class);
+            startActivity(adminIntent);
+            return;
+        }
+
         // Disable button while authenticating
         btnLogin.setEnabled(false);
 
