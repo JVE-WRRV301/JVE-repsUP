@@ -153,8 +153,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate arbitrary priority strings and verify the mapping
     - **Validates: Requirements 8.5, 17.2**
 
-- [ ] 8. Workout Features
-  - [ ] 8.1 Implement WorkoutFragment with Saved and Library tabs
+- [x] 8. Workout Features
+  - [x] 8.1 Implement WorkoutFragment with Saved and Library tabs
     - Create `WorkoutFragment.java` with TabLayout: "Saved" and "Library" sub-tabs
     - Create `WorkoutRepository.java` with all repository methods
     - Saved tab: display user workout cards (blue border) with exercise previews using `WorkoutCardAdapter`
@@ -162,7 +162,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Wire "+" button to Create Workout flow
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-  - [ ] 8.2 Implement Create User Workout flow
+  - [x] 8.2 Implement Create User Workout flow
     - Create toggle between "Generate Workout" and "Create Workout" modes
     - Create Workout mode: select muscle groups → choose exercises (1 to 8 max) → set name, reps, weight → save
     - Generate Workout mode: select difficulty + muscle groups → system picks exercises → review → save
@@ -176,7 +176,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate random exercise counts [0..20] and verify acceptance/rejection
     - **Validates: Requirements 12.4, 25.4**
 
-  - [ ] 8.4 Implement Manage Workout (3-dot menu actions)
+  - [x] 8.4 Implement Manage Workout (3-dot menu actions)
     - 3-dot menu on saved workout cards: Share, Edit, Duplicate, Reorder, Delete
     - Share: invoke native Android share intent with workout details
     - Edit: open Create Workout flow pre-populated with existing data

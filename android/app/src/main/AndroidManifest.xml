@@ -58,6 +58,9 @@
         <activity
             android:name=".activities.AdminManageWorkoutsActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.CreateWorkoutActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
