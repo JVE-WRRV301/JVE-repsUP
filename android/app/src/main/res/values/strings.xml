@@ -48,6 +48,38 @@
     <string name="error_username_taken">Username is already taken</string>
     <string name="error_registration_failed">Registration failed. Please try again.</string>
 
+    <!-- Home Fragment -->
+    <string name="home_today">TODAY</string>
+    <string name="home_next_goal">NEXT GOAL</string>
+    <string name="home_start">START</string>
+    <string name="home_rest_day">Rest day — no workout scheduled</string>
+    <string name="home_no_goals">No goals set</string>
+    <string name="home_sets_format">%d sets</string>
+    <string name="exercise_icon_desc">Exercise icon</string>
+    <string name="home_deadline_format">Deadline: %s</string>
+    <string name="workout_execution_placeholder">Workout Execution</string>
+    <string name="day_sun">S</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+
+    <!-- Create Goal -->
+    <string name="create_goal_title">New Goal</string>
+    <string name="hint_goal_title">Title</string>
+    <string name="hint_goal_date">Deadline</string>
+    <string name="hint_goal_notes">Notes (optional)</string>
+    <string name="label_goal_importance">Importance</string>
+    <string name="importance_top">Top</string>
+    <string name="importance_medium">Medium</string>
+    <string name="importance_low">Low</string>
+    <string name="btn_save_goal">Save Goal</string>
+    <string name="error_goal_title_required">Title is required</string>
+    <string name="error_goal_date_required">Date is required</string>
+    <string name="error_goal_save_failed">Failed to save goal. Please try again.</string>
+
     <!-- Fitness Assessment -->
     <string name="assessment_back">Back</string>
     <string name="assessment_next">Next</string>
@@ -120,6 +152,29 @@
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
     <string name="avatar_continue">Continue</string>
     <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
+
+    <!-- Goals List -->
+    <string name="goals_empty">No goals yet. Tap + to create one.</string>
+    <string name="goal_menu_description">Goal options</string>
+    <string name="goal_menu_edit">Edit Goal</string>
+    <string name="goal_menu_delete">Delete Goal</string>
+    <string name="goal_delete_confirm_title">Delete Goal</string>
+    <string name="goal_delete_confirm_message">Are you sure you want to delete this goal?</string>
+    <string name="goal_delete_success">Goal deleted</string>
+    <string name="goal_delete_error">Failed to delete goal</string>
+    <string name="goal_complete_error">Failed to complete goal</string>
+    <string name="goal_deadline_format">Deadline: %s</string>
+
+    <!-- Goal Complete Dialog -->
+    <string name="goal_congratulations">CONGRATULATIONS!</string>
+    <string name="goal_xp_earned_label">XP EARNED</string>
+    <string name="goal_share">Share</string>
+    <string name="goal_close">Close</string>
+    <string name="goal_share_text">I just completed my goal \"%1$s\" and earned %2$d XP on Reps Up! 💪🔥</string>
+
+    <!-- Calendar Tabs -->
+    <string name="tab_my_plan">My Plan</string>
+    <string name="tab_goals">Goals</string>
 
     <!-- Admin Login -->
     <string name="admin_login_title">Admin Login</string>

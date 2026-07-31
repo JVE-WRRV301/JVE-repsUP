@@ -62,4 +62,29 @@ public class UserRepository {
 
         ConnectionManager.querySingle(sql, new Object[]{username}, rs -> rs.getInt("cnt") > 0, callback);
     }
+
+    /**
+     * Updates the user's XP by adding the specified delta amount.
+     * Returns the number of affected rows.
+     */
+    public void updateXp(int userId, int xpDelta, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET xp = xp + ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{xpDelta, userId}, callback);
+    }
+
+    /**
+     * Inserts a new XP_Log record for tracking XP earnings.
+     * Returns the generated log_id.
+     */
+    public void insertXpLog(int userId, int amount, String sourceType, int sourceId,
+                            int xpEarned, int coinsEarned,
+                            ConnectionManager.DatabaseCallback<Long> callback) {
+        String sql = "INSERT INTO xp_log (user_id, amount, source_type, source_id, " +
+                "xp_earned, coins_earned, time_stamp) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+
+        ConnectionManager.executeInsert(sql, new Object[]{
+                userId, amount, sourceType, sourceId, xpEarned, coinsEarned
+        }, callback);
+    }
 }

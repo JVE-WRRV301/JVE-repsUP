@@ -63,7 +63,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - On success: store session, navigate to FitnessAssessmentActivity
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ]* 3.3 Write property test for registration validation (Property 9)
+  - [x] 3.3 Write property test for registration validation (Property 9)
     - **Property 9: Registration Validation Rejects Invalid Inputs**
     - For any registration attempt where username is taken OR password != confirm OR required field is empty, system rejects and no User record is inserted
     - Use jqwik to generate random invalid input combinations and verify rejection
@@ -121,8 +121,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [ ] 6. Checkpoint — Admin features verification
   - Ensure admin login, create workout, create exercise, manage workouts all function correctly. Ask the user if questions arise.
 
-- [ ] 7. Home Page and Goal Management
-  - [ ] 7.1 Implement HomeFragment with today's workout and next goal
+- [x] 7. Home Page and Goal Management
+  - [x] 7.1 Implement HomeFragment with today's workout and next goal
     - Display week strip (S M T W T F S) with today highlighted
     - Display "TODAY" card (blue border): workout name, date, first 3 exercises with images and set counts, "START" button
     - Display "NEXT GOAL" card (red border): deadline, title, priority badge, description
@@ -131,15 +131,15 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use `ScheduleRepository.getTodaysWorkout()` and `GoalRepository.getNextGoal()`
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-  - [ ] 7.2 Implement GoalRepository and Goal Creation
+  - [x] 7.2 Implement GoalRepository and Goal Creation
     - Create `GoalRepository.java` with `getUserGoals`, `getNextGoal`, `createGoal`, `updateGoal`, `completeGoal`, `deleteGoal` methods
     - Create goal creation form accessible from Calendar "+" button: Title, Date picker, Importance (Top/Medium/Low), Notes
     - Validate Title and Date required
     - INSERT Goal record on save
     - _Requirements: 8.1, 8.2_
 
-  - [ ] 7.3 Implement Goals List View and Goal Completion
-    - Create `GoalsListFragment` in CalendarFragment Goals tab with goal cards (red border): deadline, title, priority badge, description, completion checkbox
+  - [x] 7.3 Implement Goals List View and Goal Completion
+    - Create `GoalsListFragment` in CalendarFragment Goals tab with goal cards (++red border): deadline, title, priority badge, description, completion checkbox
     - Implement 3-dot menu with Edit Goal and Delete Goal options
     - On checkbox tap: UPDATE goal as completed with timestamp
     - Award XP on completion: Top=1000, Medium=500, Low=250

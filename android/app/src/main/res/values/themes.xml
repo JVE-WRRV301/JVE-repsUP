@@ -20,4 +20,21 @@
         <!-- Status bar -->
         <item name="android:statusBarColor">@color/dark_grey</item>
     </style>
+
+    <!-- DatePicker dialog styled for dark theme -->
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorOnPrimary">@color/dark_text</item>
+        <item name="android:windowBackground">@color/dark_grey_surface</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <!-- Dialog theme for popups (GoalComplete, LevelUp, etc.) -->
+    <style name="Theme.RepsUp.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorOnPrimary">@color/dark_text</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>
