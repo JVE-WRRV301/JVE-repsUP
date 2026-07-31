@@ -176,6 +176,45 @@
     <string name="tab_my_plan">My Plan</string>
     <string name="tab_goals">Goals</string>
 
+    <!-- Calendar -->
+    <string name="calendar_prev_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_add_action">Add schedule or goal</string>
+    <string name="calendar_add_title">Add New</string>
+    <string name="calendar_option_schedule_workout">Schedule Workout</string>
+    <string name="calendar_option_create_goal">Create Goal</string>
+    <string name="calendar_status_completed">Completed</string>
+    <string name="calendar_status_scheduled">Scheduled</string>
+    <string name="calendar_schedule_coming_soon">Schedule Workout coming soon</string>
+    <string name="calendar_my_plan_placeholder">Weekly plan coming soon</string>
+
+    <!-- Weekly Plan -->
+    <string name="weekly_plan_prev_week">Previous week</string>
+    <string name="weekly_plan_next_week">Next week</string>
+    <string name="weekly_plan_expand_collapse">Expand or collapse day</string>
+    <string name="weekly_plan_empty">No workouts scheduled this week</string>
+    <string name="weekly_plan_rest_day">Rest day</string>
+    <string name="weekly_plan_status_completed">Completed ✓</string>
+    <string name="weekly_plan_status_missed">Missed</string>
+    <string name="weekly_plan_status_scheduled">Scheduled</string>
+    <string name="weekly_plan_exercises_format">%d exercises</string>
+
+    <!-- Schedule Workout -->
+    <string name="schedule_workout_title">Schedule Workout</string>
+    <string name="schedule_workout_date_hint">Select Date</string>
+    <string name="schedule_workout_select_workout">Select Workout</string>
+    <string name="schedule_workout_repeat_label">Repeat</string>
+    <string name="schedule_workout_repeat_never">Never</string>
+    <string name="schedule_workout_repeat_weekly">Weekly</string>
+    <string name="schedule_workout_repeat_biweekly">Biweekly</string>
+    <string name="schedule_workout_repeat_monthly">Monthly</string>
+    <string name="schedule_workout_save">Schedule</string>
+    <string name="schedule_workout_error_date">Please select a date</string>
+    <string name="schedule_workout_error_workout">Please select a workout</string>
+    <string name="schedule_workout_error_save">Failed to schedule workout. Please try again.</string>
+    <string name="schedule_workout_success">Workout scheduled successfully!</string>
+    <string name="schedule_workout_no_workouts">No workouts available. Create one first.</string>
+
     <!-- Workout Fragment -->
     <string name="workout_tab_saved">Saved</string>
     <string name="workout_tab_library">Library</string>

@@ -184,8 +184,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Delete: confirmation dialog → remove workout and Workout_Exercise records
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 9. Calendar and Schedule Features
-  - [ ] 9.1 Implement CalendarFragment with monthly grid
+- [x] 9. Calendar and Schedule Features
+  - [x] 9.1 Implement CalendarFragment with monthly grid
     - Create `CalendarFragment.java` with monthly calendar grid and navigation arrows
     - Mark days with scheduled workouts (blue indicator) and goals (red triangle indicator)
     - Tap day → display scheduled content with edit options
@@ -194,12 +194,12 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Create `ScheduleRepository.java` with all repository methods
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 9.2 Implement Schedule Workout flow
+  - [x] 9.2 Implement Schedule Workout flow
     - Create schedule form: date picker, workout selection, repeat interval (Never/Weekly/Biweekly/Monthly)
     - On save: INSERT Scheduled_Workout record; if repeat ≠ Never, generate future occurrences
     - _Requirements: 10.1, 10.2_
 
-  - [ ] 9.3 Implement Weekly Plan view ("My Plan" tab)
+  - [x] 9.3 Implement Weekly Plan view ("My Plan" tab)
     - Create `WeeklyPlanFragment` with collapsible week sections using `WeeklyPlanAdapter`
     - Display workout cards: day, name, exercises, completion status or "START" button (today only)
     - _Requirements: 10.3_

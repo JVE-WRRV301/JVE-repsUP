@@ -97,4 +97,190 @@ public class ScheduleRepository {
             return scheduledWorkout;
         }, callback);
     }
+
+    /**
+     * Fetches all scheduled workouts for a user in a given month (1-indexed).
+     * Includes workout name for display purposes.
+     */
+    public void getScheduledWorkoutsForMonth(int userId, int year, int month,
+                                              ConnectionManager.DatabaseCallback<List<ScheduledWorkout>> callback) {
+        String sql = "SELECT sw.scheduled_workout_id, sw.user_id, sw.workout_id, sw.scheduled_date, " +
+                "sw.is_completed, sw.completed_date, sw.earned_xp, sw.completed_sets, sw.completed_reps, " +
+                "w.workout_name " +
+                "FROM scheduled_workout sw " +
+                "JOIN workout w ON sw.workout_id = w.workout_id " +
+                "WHERE sw.user_id = ? AND YEAR(sw.scheduled_date) = ? AND MONTH(sw.scheduled_date) = ? " +
+                "ORDER BY sw.scheduled_date ASC";
+
+        ConnectionManager.queryList(sql, new Object[]{userId, year, month}, rs -> {
+            ScheduledWorkout sw = new ScheduledWorkout();
+            sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
+            sw.setUserId(rs.getInt("user_id"));
+            sw.setWorkoutId(rs.getInt("workout_id"));
+            sw.setScheduledDate(rs.getDate("scheduled_date"));
+            sw.setCompleted(rs.getBoolean("is_completed"));
+            sw.setCompletedDate(rs.getTimestamp("completed_date"));
+            sw.setEarnedXp(rs.getInt("earned_xp"));
+            sw.setCompletedSets(rs.getInt("completed_sets"));
+            sw.setCompletedReps(rs.getInt("completed_reps"));
+
+            Workout workout = new Workout();
+            workout.setWorkoutId(rs.getInt("workout_id"));
+            workout.setName(rs.getString("workout_name"));
+            sw.setWorkout(workout);
+
+            return sw;
+        }, callback);
+    }
+
+    /**
+     * Fetches all scheduled workouts for a user in a given week (starting from weekStart).
+     */
+    public void getScheduledWorkoutsForWeek(int userId, Date weekStart,
+                                             ConnectionManager.DatabaseCallback<List<ScheduledWorkout>> callback) {
+        String sql = "SELECT sw.scheduled_workout_id, sw.user_id, sw.workout_id, sw.scheduled_date, " +
+                "sw.is_completed, sw.completed_date, sw.earned_xp, sw.completed_sets, sw.completed_reps, " +
+                "w.workout_name " +
+                "FROM scheduled_workout sw " +
+                "JOIN workout w ON sw.workout_id = w.workout_id " +
+                "WHERE sw.user_id = ? AND sw.scheduled_date >= ? AND sw.scheduled_date < DATE_ADD(?, INTERVAL 7 DAY) " +
+                "ORDER BY sw.scheduled_date ASC";
+
+        ConnectionManager.queryList(sql, new Object[]{userId, weekStart, weekStart}, rs -> {
+            ScheduledWorkout sw = new ScheduledWorkout();
+            sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
+            sw.setUserId(rs.getInt("user_id"));
+            sw.setWorkoutId(rs.getInt("workout_id"));
+            sw.setScheduledDate(rs.getDate("scheduled_date"));
+            sw.setCompleted(rs.getBoolean("is_completed"));
+            sw.setCompletedDate(rs.getTimestamp("completed_date"));
+            sw.setEarnedXp(rs.getInt("earned_xp"));
+            sw.setCompletedSets(rs.getInt("completed_sets"));
+            sw.setCompletedReps(rs.getInt("completed_reps"));
+
+            Workout workout = new Workout();
+            workout.setWorkoutId(rs.getInt("workout_id"));
+            workout.setName(rs.getString("workout_name"));
+            sw.setWorkout(workout);
+
+            return sw;
+        }, callback);
+    }
+
+    /**
+     * Schedules a workout on a specific date. If repeatInterval is not "Never",
+     * generates future occurrences for up to 12 weeks.
+     * Returns the generated scheduled_workout_id of the first insertion.
+     */
+    public void scheduleWorkout(ScheduledWorkout scheduled, String repeatInterval,
+                                 ConnectionManager.DatabaseCallback<Long> callback) {
+        String sql = "INSERT INTO scheduled_workout (user_id, workout_id, scheduled_date, is_completed) " +
+                "VALUES (?, ?, ?, 0)";
+
+        ConnectionManager.executeAsync(connection -> {
+            long firstId = -1L;
+
+            // Insert the initial scheduled workout
+            try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql,
+                    java.sql.PreparedStatement.RETURN_GENERATED_KEYS)) {
+                stmt.setInt(1, scheduled.getUserId());
+                stmt.setInt(2, scheduled.getWorkoutId());
+                stmt.setDate(3, scheduled.getScheduledDate());
+                stmt.executeUpdate();
+
+                try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        firstId = keys.getLong(1);
+                    }
+                }
+            }
+
+            // Generate recurring occurrences if repeatInterval is not "Never"
+            if (repeatInterval != null && !repeatInterval.equals("Never")) {
+                int intervalDays;
+                switch (repeatInterval) {
+                    case "Weekly":
+                        intervalDays = 7;
+                        break;
+                    case "Biweekly":
+                        intervalDays = 14;
+                        break;
+                    case "Monthly":
+                        intervalDays = 30;
+                        break;
+                    default:
+                        intervalDays = 0;
+                        break;
+                }
+
+                if (intervalDays > 0) {
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.setTime(scheduled.getScheduledDate());
+
+                    // Generate up to 12 future occurrences
+                    for (int i = 0; i < 12; i++) {
+                        cal.add(java.util.Calendar.DAY_OF_YEAR, intervalDays);
+                        Date futureDate = new Date(cal.getTimeInMillis());
+
+                        try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
+                            stmt.setInt(1, scheduled.getUserId());
+                            stmt.setInt(2, scheduled.getWorkoutId());
+                            stmt.setDate(3, futureDate);
+                            stmt.executeUpdate();
+                        }
+                    }
+                }
+            }
+
+            return firstId;
+        }, callback);
+    }
+
+    /**
+     * Marks a scheduled workout as completed with earned XP, sets, and reps.
+     * Returns the number of affected rows.
+     */
+    public void completeScheduledWorkout(int schedId, int earnedXp, int sets, int reps,
+                                          ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE scheduled_workout SET is_completed = 1, completed_date = NOW(), " +
+                "earned_xp = ?, completed_sets = ?, completed_reps = ? " +
+                "WHERE scheduled_workout_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{earnedXp, sets, reps, schedId}, callback);
+    }
+
+    /**
+     * Fetches all scheduled content for a user on a specific day.
+     * Includes workout name for display.
+     */
+    public void getScheduledContentForDay(int userId, Date date,
+                                           ConnectionManager.DatabaseCallback<List<ScheduledWorkout>> callback) {
+        String sql = "SELECT sw.scheduled_workout_id, sw.user_id, sw.workout_id, sw.scheduled_date, " +
+                "sw.is_completed, sw.completed_date, sw.earned_xp, sw.completed_sets, sw.completed_reps, " +
+                "w.workout_name " +
+                "FROM scheduled_workout sw " +
+                "JOIN workout w ON sw.workout_id = w.workout_id " +
+                "WHERE sw.user_id = ? AND sw.scheduled_date = ? " +
+                "ORDER BY sw.scheduled_workout_id ASC";
+
+        ConnectionManager.queryList(sql, new Object[]{userId, date}, rs -> {
+            ScheduledWorkout sw = new ScheduledWorkout();
+            sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
+            sw.setUserId(rs.getInt("user_id"));
+            sw.setWorkoutId(rs.getInt("workout_id"));
+            sw.setScheduledDate(rs.getDate("scheduled_date"));
+            sw.setCompleted(rs.getBoolean("is_completed"));
+            sw.setCompletedDate(rs.getTimestamp("completed_date"));
+            sw.setEarnedXp(rs.getInt("earned_xp"));
+            sw.setCompletedSets(rs.getInt("completed_sets"));
+            sw.setCompletedReps(rs.getInt("completed_reps"));
+
+            Workout workout = new Workout();
+            workout.setWorkoutId(rs.getInt("workout_id"));
+            workout.setName(rs.getString("workout_name"));
+            sw.setWorkout(workout);
+
+            return sw;
+        }, callback);
+    }
 }
