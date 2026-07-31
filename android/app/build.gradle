@@ -2,6 +2,46 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// ─── Load database credentials from local.properties ───
+// Required fields: db.host, db.port, db.user, db.password, db.name
+// Example local.properties entries:
+//   db.host=10.0.2.2
+//   db.port=3306
+//   db.user=repsup_user
+//   db.password=your_password_here
+//   db.name=repsup_db
+def localPropertiesFile = rootProject.file("local.properties")
+def localProperties = new Properties()
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
+def dbHost = localProperties.getProperty('db.host')
+def dbPort = localProperties.getProperty('db.port')
+def dbUser = localProperties.getProperty('db.user')
+def dbPassword = localProperties.getProperty('db.password')
+def dbName = localProperties.getProperty('db.name')
+
+// Fail the build with a descriptive error if any required database field is missing
+def missingFields = []
+if (dbHost == null || dbHost.isEmpty()) missingFields.add('db.host')
+if (dbPort == null || dbPort.isEmpty()) missingFields.add('db.port')
+if (dbUser == null || dbUser.isEmpty()) missingFields.add('db.user')
+if (dbPassword == null || dbPassword.isEmpty()) missingFields.add('db.password')
+if (dbName == null || dbName.isEmpty()) missingFields.add('db.name')
+
+if (!missingFields.isEmpty()) {
+    throw new GradleException(
+        "Missing required database fields in android/local.properties: ${missingFields.join(', ')}.\n" +
+        "Please add the following entries to android/local.properties:\n" +
+        "  db.host=10.0.2.2\n" +
+        "  db.port=3306\n" +
+        "  db.user=your_db_user\n" +
+        "  db.password=your_db_password\n" +
+        "  db.name=your_db_name"
+    )
+}
+
 android {
     namespace 'com.jve.repsup'
     compileSdk 36
@@ -14,6 +54,17 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inject database credentials as BuildConfig string fields
+        buildConfigField "String", "DB_HOST", "\"${dbHost}\""
+        buildConfigField "String", "DB_PORT", "\"${dbPort}\""
+        buildConfigField "String", "DB_USER", "\"${dbUser}\""
+        buildConfigField "String", "DB_PASSWORD", "\"${dbPassword}\""
+        buildConfigField "String", "DB_NAME", "\"${dbName}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -35,6 +86,10 @@ dependencies {
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material
+
+    // MySQL JDBC connector for database access
+    implementation 'mysql:mysql-connector-java:8.0.33'
+
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
