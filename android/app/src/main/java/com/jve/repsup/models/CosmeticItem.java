@@ -2,7 +2,7 @@ package com.jve.repsup.models;
 
 /**
  * Represents a cosmetic item available for avatar customization.
- * Maps to the `cosmetic_items` table.
+ * Maps to the `Cosmetic_Item` table.
  */
 public class CosmeticItem {
 

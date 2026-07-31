@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 /**
  * Represents an XP earning event log entry.
- * Maps to the `xp_logs` table.
+ * Maps to the `XP_Log` table.
  */
 public class XPLog {
 

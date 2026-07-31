@@ -2,7 +2,7 @@ package com.jve.repsup.models;
 
 /**
  * Represents the fitness assessment profile data for a user.
- * Maps to the `user_profiles` table.
+ * Maps to the `User_Profile` table.
  */
 public class UserProfile {
 

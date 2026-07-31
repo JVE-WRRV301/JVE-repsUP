@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 /**
  * Represents a fitness goal set by the user.
- * Maps to the `goals` table.
+ * Maps to the `Goal` table.
  */
 public class Goal {
 

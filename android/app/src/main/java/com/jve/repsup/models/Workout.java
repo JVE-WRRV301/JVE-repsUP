@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Represents a workout (user-created or default).
- * Maps to the `workouts` table.
+ * Maps to the `Workout` table.
  */
 public class Workout {
 

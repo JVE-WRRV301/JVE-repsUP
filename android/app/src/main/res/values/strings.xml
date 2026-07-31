@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">RepsUp</string>
+
+    <!-- Main Activity -->
+    <string name="hello_world">Hello World!</string>
+
+    <!-- Fitness Assessment - Gender Screen -->
+    <string name="section_about_body">About your body.</string>
+    <string name="question_gender">What\'s your gender?</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_next">Next</string>
 </resources>
