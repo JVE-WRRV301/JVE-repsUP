@@ -25,6 +25,12 @@
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.FitnessAssessmentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AvatarGenerationActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

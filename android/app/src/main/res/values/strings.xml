@@ -21,4 +21,71 @@
 
     <!-- Login stub -->
     <string name="login_placeholder">Login — Coming Soon</string>
+
+    <!-- Fitness Assessment -->
+    <string name="assessment_back">Back</string>
+    <string name="assessment_next">Next</string>
+    <string name="assessment_finish">Finish</string>
+    <string name="assessment_get_started">Get Started</string>
+
+    <!-- Assessment Welcome -->
+    <string name="assessment_welcome_title">Fitness Assessment</string>
+    <string name="assessment_welcome_subtitle">Let\'s get to know you</string>
+    <string name="assessment_welcome_description">Answer a few quick questions so we can personalise your experience and build your avatar.</string>
+
+    <!-- Assessment Sections -->
+    <string name="assessment_section_body">About your body.</string>
+    <string name="assessment_section_fitness">About your fitness.</string>
+
+    <!-- Gender -->
+    <string name="assessment_gender_question">What\'s your gender?</string>
+    <string name="assessment_gender_male">Male</string>
+    <string name="assessment_gender_female">Female</string>
+
+    <!-- Age -->
+    <string name="assessment_age_question">How old are you?</string>
+
+    <!-- Weight -->
+    <string name="assessment_weight_question">What\'s your weight?</string>
+    <string name="assessment_unit_kg">KG</string>
+    <string name="assessment_unit_lbs">LBS</string>
+
+    <!-- Height -->
+    <string name="assessment_height_question">How tall are you?</string>
+    <string name="assessment_unit_cm">CM</string>
+    <string name="assessment_unit_ft">FT</string>
+
+    <!-- Body Type -->
+    <string name="assessment_body_type_question">What\'s your body type?</string>
+    <string name="assessment_body_ectomorph">Ectomorph</string>
+    <string name="assessment_body_mesomorph">Mesomorph</string>
+    <string name="assessment_body_endomorph">Endomorph</string>
+    <string name="assessment_body_athletic">Athletic</string>
+    <string name="assessment_body_stocky">Stocky</string>
+    <string name="assessment_body_slim">Slim</string>
+
+    <!-- Workout Level -->
+    <string name="assessment_workout_level_question">What\'s your workout experience?</string>
+    <string name="assessment_level_never">Never worked out</string>
+    <string name="assessment_level_beginner">Beginner</string>
+    <string name="assessment_level_intermediate">Intermediate</string>
+    <string name="assessment_level_advanced">Advanced</string>
+
+    <!-- Schedule -->
+    <string name="assessment_schedule_question">How many days per week do you want to work out?</string>
+    <string name="assessment_schedule_days_per_week">days per week</string>
+
+    <!-- Goals -->
+    <string name="assessment_goals_question">What are your fitness goals?</string>
+    <string name="assessment_goals_hint">Select all that apply</string>
+    <string name="assessment_goal_lose_weight">Lose weight</string>
+    <string name="assessment_goal_stay_consistent">Stay Consistent</string>
+    <string name="assessment_goal_build_muscle">Build muscle</string>
+    <string name="assessment_goal_get_fitter">Get fitter</string>
+    <string name="assessment_goal_improve_endurance">Improve endurance</string>
+
+    <!-- Avatar Generation -->
+    <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
+    <string name="avatar_continue">Continue</string>
+    <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
 </resources>

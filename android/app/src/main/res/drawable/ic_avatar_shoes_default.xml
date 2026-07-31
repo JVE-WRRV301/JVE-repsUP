@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Placeholder white sneakers overlay -->
+    <path
+        android:fillColor="@color/white"
+        android:fillAlpha="0.4"
+        android:pathData="M70,170 L90,170 L90,185 L65,185 Z" />
+    <path
+        android:fillColor="@color/white"
+        android:fillAlpha="0.4"
+        android:pathData="M110,170 L130,170 L135,185 L110,185 Z" />
+</vector>

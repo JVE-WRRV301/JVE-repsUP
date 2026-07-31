@@ -69,7 +69,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate random invalid input combinations and verify rejection
     - **Validates: Requirements 3.2, 3.3, 3.4**
 
-  - [ ] 3.4 Implement FitnessAssessmentActivity (9-step wizard)
+  - [x] 3.4 Implement FitnessAssessmentActivity (9-step wizard)
     - Create `FitnessAssessmentActivity.java` with ViewPager2 hosting 9 steps
     - Steps: Welcome, Gender, Age, Weight (ruler slider + kg/lbs toggle), Height (ruler slider + cm/ft toggle), Body Type (2x3 grid), Workout Level, Workout Schedule, Fitness Goals (multi-select)
     - Implement segmented progress bar at top
@@ -77,7 +77,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - On completion: INSERT User_Profile record with collected data
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ] 3.5 Implement Avatar Generation and "Meet Your Avatar" screen
+  - [x] 3.5 Implement Avatar Generation and "Meet Your Avatar" screen
     - Create `AvatarCompositor.java` — layers base body PNG (by gender + body type) with default outfit overlays (white tank, black shorts, white sneakers) using Android Canvas
     - Implement `getBaseBodyResource(gender, bodyType)` resource resolution
     - INSERT Avatar record, link default cosmetic items as equipped in User_Cosmetic, create Outfit_Slot, update User.avatar_id

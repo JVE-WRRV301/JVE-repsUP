@@ -87,6 +87,9 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.material
 
+    // ViewPager2 for swipeable fragments
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
+
     // MySQL JDBC connector for database access
     implementation 'mysql:mysql-connector-java:8.0.33'
 
