@@ -1,20 +1,190 @@
 package com.jve.repsup.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.jve.repsup.R;
+import com.jve.repsup.adapters.AssessmentPagerAdapter;
+import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.utils.SessionManager;
 
 /**
- * Stub for FitnessAssessmentActivity.
- * Full implementation will be done in a future task.
+ * 9-step fitness assessment wizard using ViewPager2.
+ * Steps: Welcome, Gender, Age, Weight, Height, Body Type, Workout Level, Schedule, Goals.
+ * On completion, inserts a User_Profile record with collected data.
  */
 public class FitnessAssessmentActivity extends AppCompatActivity {
+
+    private ViewPager2 vpAssessment;
+    private LinearLayout llProgressSegments;
+    private Button btnBack;
+    private Button btnNext;
+    private AssessmentPagerAdapter adapter;
+    private AssessmentData assessmentData;
+    private View[] progressSegments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fitness_assessment);
+
+        assessmentData = new AssessmentData();
+
+        vpAssessment = findViewById(R.id.vpAssessment);
+        llProgressSegments = findViewById(R.id.llProgressSegments);
+        btnBack = findViewById(R.id.btnBack);
+        btnNext = findViewById(R.id.btnNext);
+
+        adapter = new AssessmentPagerAdapter(this);
+        vpAssessment.setAdapter(adapter);
+        vpAssessment.setUserInputEnabled(false); // Disable swipe
+
+        setupProgressBar();
+        updateProgressBar(0);
+        updateButtons(0);
+
+        btnBack.setOnClickListener(v -> {
+            int current = vpAssessment.getCurrentItem();
+            if (current > 0) {
+                vpAssessment.setCurrentItem(current - 1);
+            }
+        });
+
+        btnNext.setOnClickListener(v -> {
+            int current = vpAssessment.getCurrentItem();
+            if (current < AssessmentPagerAdapter.TOTAL_STEPS - 1) {
+                vpAssessment.setCurrentItem(current + 1);
+            } else {
+                // Final step — save profile
+                saveProfile();
+            }
+        });
+
+        vpAssessment.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                updateProgressBar(position);
+                updateButtons(position);
+            }
+        });
+    }
+
+    /**
+     * Creates 9 segmented progress indicators.
+     */
+    private void setupProgressBar() {
+        progressSegments = new View[AssessmentPagerAdapter.TOTAL_STEPS];
+        for (int i = 0; i < AssessmentPagerAdapter.TOTAL_STEPS; i++) {
+            View segment = new View(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    0, (int) (6 * getResources().getDisplayMetrics().density));
+            params.weight = 1;
+            params.setMargins(
+                    (int) (2 * getResources().getDisplayMetrics().density), 0,
+                    (int) (2 * getResources().getDisplayMetrics().density), 0);
+            segment.setLayoutParams(params);
+            segment.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey_surface));
+            llProgressSegments.addView(segment);
+            progressSegments[i] = segment;
+        }
+    }
+
+    /**
+     * Updates the segmented progress bar colors based on the current step.
+     */
+    private void updateProgressBar(int currentStep) {
+        for (int i = 0; i < progressSegments.length; i++) {
+            if (i <= currentStep) {
+                progressSegments[i].setBackgroundColor(
+                        ContextCompat.getColor(this, R.color.light_blue));
+            } else {
+                progressSegments[i].setBackgroundColor(
+                        ContextCompat.getColor(this, R.color.dark_grey_surface));
+            }
+        }
+    }
+
+    /**
+     * Updates button text and visibility based on the current step.
+     */
+    private void updateButtons(int currentStep) {
+        // Hide Back on first step
+        btnBack.setVisibility(currentStep == 0 ? View.INVISIBLE : View.VISIBLE);
+
+        // Change Next text on first step to "Get Started" and last step to "Finish"
+        if (currentStep == 0) {
+            btnNext.setText(R.string.assessment_get_started);
+        } else if (currentStep == AssessmentPagerAdapter.TOTAL_STEPS - 1) {
+            btnNext.setText(R.string.assessment_finish);
+        } else {
+            btnNext.setText(R.string.assessment_next);
+        }
+    }
+
+    /**
+     * Saves the collected assessment data to the database.
+     */
+    private void saveProfile() {
+        SessionManager sessionManager = new SessionManager(this);
+        int userId = sessionManager.getUserId();
+
+        String sql = "INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, "
+                + "user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        Object[] params = new Object[]{
+                userId,
+                assessmentData.getGender(),
+                assessmentData.getAge(),
+                assessmentData.getWeightInKgValue(),
+                assessmentData.getHeightInCmValue(),
+                assessmentData.getBodyType(),
+                assessmentData.getWorkoutLevel(),
+                assessmentData.getWorkoutsPerWeek(),
+                assessmentData.getFitnessGoalsAsString()
+        };
+
+        ConnectionManager.executeInsert(sql, params, new ConnectionManager.DatabaseCallback<Long>() {
+            @Override
+            public void onSuccess(Long result) {
+                runOnUiThread(() -> {
+                    // Navigate to AvatarGenerationActivity to generate avatar
+                    Intent intent = new Intent(FitnessAssessmentActivity.this,
+                            AvatarGenerationActivity.class);
+                    intent.putExtra(AvatarGenerationActivity.EXTRA_GENDER,
+                            assessmentData.getGender());
+                    intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE,
+                            assessmentData.getBodyType());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(FitnessAssessmentActivity.this,
+                            "Failed to save profile. Please try again.",
+                            Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    /**
+     * Returns the shared assessment data holder.
+     * Called by fragment steps to read/write assessment values.
+     */
+    public AssessmentData getAssessmentData() {
+        return assessmentData;
     }
 }

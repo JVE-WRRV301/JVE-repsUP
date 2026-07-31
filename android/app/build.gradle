@@ -31,7 +31,7 @@ if (dbPassword == null || dbPassword.isEmpty()) missingFields.add('db.password')
 if (dbName == null || dbName.isEmpty()) missingFields.add('db.name')
 
 if (!missingFields.isEmpty()) {
-    throw new GradleException(
+    throw new RuntimeException(
         "Missing required database fields in android/local.properties: ${missingFields.join(', ')}.\n" +
         "Please add the following entries to android/local.properties:\n" +
         "  db.host=10.0.2.2\n" +
@@ -92,6 +92,9 @@ dependencies {
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material
+
+    // ViewPager2 for swipeable fragments
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
     // MySQL JDBC Connector (5.1.x — compatible with Android's java.sql subset)
     implementation 'mysql:mysql-connector-java:5.1.49'

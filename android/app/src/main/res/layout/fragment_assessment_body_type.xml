@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/dark_grey">
+
+    <TextView
+        android:id="@+id/tvSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_section_body"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_body_type_question"
+        android:textColor="@color/white"
+        android:fontFamily="@font/orbitron"
+        android:textSize="22sp"
+        android:layout_marginTop="24dp" />
+
+    <!-- 2x3 Grid of body types -->
+    <GridLayout
+        android:id="@+id/glBodyTypes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:alignmentMode="alignBounds">
+
+        <!-- Row 1 -->
+        <LinearLayout
+            android:id="@+id/llEctomorph"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_ectomorph"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_ectomorph"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llMesomorph"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_mesomorph"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_mesomorph"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Row 2 -->
+        <LinearLayout
+            android:id="@+id/llEndomorph"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_endomorph"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_endomorph"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llAthletic"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_athletic"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_athletic"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Row 3 -->
+        <LinearLayout
+            android:id="@+id/llStocky"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_stocky"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_stocky"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llSlim"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@color/dark_grey_surface">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/assessment_body_slim"
+                android:src="@android:drawable/ic_menu_myplaces" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/assessment_body_slim"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </GridLayout>
+
+</LinearLayout>

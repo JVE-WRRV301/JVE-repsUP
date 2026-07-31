@@ -35,6 +35,9 @@
             android:name=".activities.FitnessAssessmentActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.AvatarGenerationActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.CreateGoalActivity"
             android:exported="false" />
         <activity

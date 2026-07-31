@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Placeholder white tank top overlay -->
+    <path
+        android:fillColor="@color/white"
+        android:fillAlpha="0.3"
+        android:pathData="M75,80 L125,80 L130,130 L70,130 Z" />
+</vector>
