@@ -1,8 +1,26 @@
 <resources>
     <string name="app_name">RepsUp</string>
 
-    <!-- Main Activity -->
-    <string name="hello_world">Hello World!</string>
+    <!-- Navigation tabs -->
+    <string name="nav_home">Home</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_workout">Workout</string>
+    <string name="nav_me">Me</string>
+
+    <!-- Tab titles (displayed in placeholder fragments) -->
+    <string name="tab_home">Home</string>
+    <string name="tab_calendar">Calendar</string>
+    <string name="tab_workout">Workout</string>
+    <string name="tab_me">Me</string>
+
+    <!-- Top bar content descriptions -->
+    <string name="avatar_description">User avatar</string>
+    <string name="level_description">Current level</string>
+    <string name="streak_description">Current streak</string>
+    <string name="coins_description">Coin balance</string>
+
+    <!-- Login stub -->
+    <string name="login_placeholder">Login — Coming Soon</string>
 
     <!-- Fitness Assessment - Gender Screen -->
     <string name="section_about_body">About your body.</string>
