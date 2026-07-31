@@ -6,8 +6,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 
 ## Tasks
 
-- [ ] 1. Foundation — Project Setup and Database Connection Layer
-  - [ ] 1.1 Configure build system for secure database credentials
+- [x] 1. Foundation — Project Setup and Database Connection Layer
+  - [x] 1.1 Configure build system for secure database credentials
     - Read `db.host`, `db.port`, `db.user`, `db.password`, `db.name` from `android/local.properties`
     - Inject values as `BuildConfig` string fields in `app/build.gradle.kts`
     - Fail the build with a descriptive error if any required field is missing
@@ -15,25 +15,25 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Add MySQL JDBC connector and INTERNET permission to AndroidManifest.xml
     - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-  - [ ] 1.2 Create DatabaseHelper and ConnectionManager infrastructure
+  - [x] 1.2 Create DatabaseHelper and ConnectionManager infrastructure
     - Implement `DatabaseHelper.java` singleton using `BuildConfig` fields to establish JDBC connections
     - Implement `ConnectionManager.java` with `ExecutorService` (fixed pool of 4 threads), `DatabaseCallback<T>` interface, and `runOnUiThread` result delivery
     - Wrap all connections with try-with-resources patterns
     - _Requirements: 1.1, 30.1, 30.2, 30.3_
 
-  - [ ] 1.3 Set up dark theme design system and base styles
+  - [x] 1.3 Set up dark theme design system and base styles
     - Configure `res/values/themes.xml` with primary background `#393944`
     - Set accent `#B2D6FD`, warning/goal red `#FF5050`, XP/coin yellow `#FAD942` in `colors.xml`
     - Add Inter font family (regular, medium, bold) and Orbitron font family (regular, medium, bold) to `res/font/`
     - Create base styles: rounded light-blue buttons, blue/red bordered cards, white card containers, input field styles
     - _Requirements: 29.1, 29.2, 29.3, 29.4, 29.5_
 
-  - [ ] 1.4 Create all data model classes
+  - [x] 1.4 Create all data model classes
     - Create/update `models/` package with: `User`, `Avatar`, `UserProfile`, `Rank`, `Exercise`, `Workout`, `WorkoutExercise`, `ScheduledWorkout`, `Goal`, `XPLog`, `CosmeticItem`, `UserCosmetic`, `OutfitSlot`, `CoinTransaction`, `ExerciseResult`, `Streak`
     - Each model must map to its corresponding MySQL table with appropriate field types
     - _Requirements: All (data foundation)_
 
-  - [ ] 1.5 Create SessionManager and Navigation Shell
+  - [x] 1.5 Create SessionManager and Navigation Shell
     - Implement `SessionManager.java` using SharedPreferences to store user_id, username, isAdmin
     - Implement `MainActivity.java` with BottomNavigationView (Home, Calendar, Workout, Me tabs)
     - Create placeholder fragments: `HomeFragment`, `CalendarFragment`, `WorkoutFragment`, `MeFragment`
