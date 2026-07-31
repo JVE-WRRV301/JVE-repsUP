@@ -2,6 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// Read database credentials from local.properties
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace 'com.jve.repsup'
     compileSdk 36
@@ -14,6 +21,17 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inject database credentials as BuildConfig fields
+        buildConfigField "String", "DB_HOST", "\"${localProperties.getProperty('db.host', '10.0.2.2')}\""
+        buildConfigField "String", "DB_PORT", "\"${localProperties.getProperty('db.port', '3306')}\""
+        buildConfigField "String", "DB_USER", "\"${localProperties.getProperty('db.user', 'root')}\""
+        buildConfigField "String", "DB_PASSWORD", "\"${localProperties.getProperty('db.password', '')}\""
+        buildConfigField "String", "DB_NAME", "\"${localProperties.getProperty('db.name', 'reps_up')}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -27,6 +45,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    // Allow MySQL JDBC connector (references java.sql.* packages)
+    packaging {
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/io.netty.versions.properties']
+        }
+    }
 }
 
 dependencies {
@@ -35,6 +60,10 @@ dependencies {
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material
+
+    // MySQL JDBC Connector
+    implementation 'com.mysql:mysql-connector-j:8.2.0'
+
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
