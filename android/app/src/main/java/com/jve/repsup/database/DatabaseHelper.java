@@ -21,12 +21,11 @@ public class DatabaseHelper {
     private final String connectionUrl;
 
     private DatabaseHelper() {
-        // Load JDBC driver
+        // Load JDBC driver (5.1.x driver class)
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             Log.e(TAG, "MySQL JDBC Driver not found", e);
-            throw new RuntimeException("MySQL JDBC Driver not found", e);
         }
 
         // Build connection URL from BuildConfig values
@@ -34,7 +33,7 @@ public class DatabaseHelper {
                 + BuildConfig.DB_HOST + ":"
                 + BuildConfig.DB_PORT + "/"
                 + BuildConfig.DB_NAME
-                + "?useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=5000";
+                + "?useSSL=false&connectTimeout=5000&useUnicode=true&characterEncoding=UTF-8";
     }
 
     /**

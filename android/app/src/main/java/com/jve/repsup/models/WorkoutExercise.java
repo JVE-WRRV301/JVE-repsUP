@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 /**
  * Represents the link between a workout and an exercise with sets/reps configuration.
- * Maps to the `workout_exercises` table.
+ * Maps to the `Workout_Exercise` table.
  */
 public class WorkoutExercise {
 

@@ -4,7 +4,7 @@ import java.sql.Date;
 
 /**
  * Represents a weekly streak record for a user.
- * Maps to the `streaks` table.
+ * Maps to the `Streak` table.
  */
 public class Streak {
 

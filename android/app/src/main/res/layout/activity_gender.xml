@@ -11,7 +11,7 @@
         android:id="@+id/tvSectionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="About your body."
+        android:text="@string/section_about_body"
         android:textColor="@color/muted"
         android:fontFamily="@font/inter"
         android:textSize="14sp"/>
@@ -33,7 +33,7 @@
         android:id="@+id/tvQuestion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="What's your gender?"
+        android:text="@string/question_gender"
         android:textColor="@color/white"
         android:fontFamily="@font/orbitron"
         android:textSize="22sp"
@@ -45,7 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Male"
+        android:text="@string/gender_male"
         android:backgroundTint="@color/dark_grey_surface"
         android:textColor="@color/white"
         android:fontFamily="@font/inter"/>
@@ -56,7 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Female"
+        android:text="@string/gender_female"
         android:backgroundTint="@color/dark_grey_surface"
         android:textColor="@color/white"
         android:fontFamily="@font/inter"/>
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            android:text="Back"
+            android:text="@string/btn_back"
             android:backgroundTint="@color/dark_grey_surface"
             android:textColor="@color/white"
             android:fontFamily="@font/inter"/>
@@ -91,9 +91,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
-            android:text="Next"
+            android:text="@string/btn_next"
             android:backgroundTint="@color/light_blue"
-            android:textColor="@color/dark_grey"
+            android:textColor="@color/dark_text"
             android:fontFamily="@font/inter"/>
 
     </LinearLayout>

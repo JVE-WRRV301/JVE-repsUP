@@ -9,7 +9,7 @@ plugins {
 //   db.port=3306
 //   db.user=repsup_user
 //   db.password=your_password_here
-//   db.name=repsup_db
+//   db.name=reps_up
 def localPropertiesFile = rootProject.file("local.properties")
 def localProperties = new Properties()
 if (localPropertiesFile.exists()) {
@@ -78,17 +78,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    // Allow MySQL JDBC connector (references java.sql.* packages)
+    packaging {
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/io.netty.versions.properties']
+        }
+    }
 }
 
 dependencies {
-    implementation 'com.google.android.material:material:1.12.0'
     implementation libs.activity.ktx
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material
 
-    // MySQL JDBC connector for database access
-    implementation 'mysql:mysql-connector-java:8.0.33'
+    // MySQL JDBC Connector (5.1.x — compatible with Android's java.sql subset)
+    implementation 'mysql:mysql-connector-java:5.1.49'
 
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
