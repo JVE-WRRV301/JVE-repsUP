@@ -47,6 +47,38 @@
     <string name="error_username_taken">Username is already taken</string>
     <string name="error_registration_failed">Registration failed. Please try again.</string>
 
+    <!-- Home Fragment -->
+    <string name="home_today">TODAY</string>
+    <string name="home_next_goal">NEXT GOAL</string>
+    <string name="home_start">START</string>
+    <string name="home_rest_day">Rest day — no workout scheduled</string>
+    <string name="home_no_goals">No goals set</string>
+    <string name="home_sets_format">%d sets</string>
+    <string name="exercise_icon_desc">Exercise icon</string>
+    <string name="home_deadline_format">Deadline: %s</string>
+    <string name="workout_execution_placeholder">Workout Execution</string>
+    <string name="day_sun">S</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+
+    <!-- Create Goal -->
+    <string name="create_goal_title">New Goal</string>
+    <string name="hint_goal_title">Title</string>
+    <string name="hint_goal_date">Deadline</string>
+    <string name="hint_goal_notes">Notes (optional)</string>
+    <string name="label_goal_importance">Importance</string>
+    <string name="importance_top">Top</string>
+    <string name="importance_medium">Medium</string>
+    <string name="importance_low">Low</string>
+    <string name="btn_save_goal">Save Goal</string>
+    <string name="error_goal_title_required">Title is required</string>
+    <string name="error_goal_date_required">Date is required</string>
+    <string name="error_goal_save_failed">Failed to save goal. Please try again.</string>
+
     <!-- Fitness Assessment - Gender Screen -->
     <string name="section_about_body">About your body.</string>
     <string name="question_gender">What\'s your gender?</string>

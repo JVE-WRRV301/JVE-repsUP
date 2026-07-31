@@ -122,7 +122,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
   - Ensure admin login, create workout, create exercise, manage workouts all function correctly. Ask the user if questions arise.
 
 - [ ] 7. Home Page and Goal Management
-  - [ ] 7.1 Implement HomeFragment with today's workout and next goal
+  - [x] 7.1 Implement HomeFragment with today's workout and next goal
     - Display week strip (S M T W T F S) with today highlighted
     - Display "TODAY" card (blue border): workout name, date, first 3 exercises with images and set counts, "START" button
     - Display "NEXT GOAL" card (red border): deadline, title, priority badge, description
@@ -131,7 +131,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use `ScheduleRepository.getTodaysWorkout()` and `GoalRepository.getNextGoal()`
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-  - [ ] 7.2 Implement GoalRepository and Goal Creation
+  - [x] 7.2 Implement GoalRepository and Goal Creation
     - Create `GoalRepository.java` with `getUserGoals`, `getNextGoal`, `createGoal`, `updateGoal`, `completeGoal`, `deleteGoal` methods
     - Create goal creation form accessible from Calendar "+" button: Title, Date picker, Importance (Top/Medium/Low), Notes
     - Validate Title and Date required

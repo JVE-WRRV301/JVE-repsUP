@@ -34,6 +34,12 @@
         <activity
             android:name=".activities.FitnessAssessmentActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.CreateGoalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.WorkoutExecutionActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
