@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="@color/dark_grey">
+
+    <TextView
+        android:id="@+id/tvWelcomeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_welcome_title"
+        android:textColor="@color/white"
+        android:fontFamily="@font/orbitron"
+        android:textSize="26sp"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tvWelcomeSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/assessment_welcome_subtitle"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="16sp"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tvWelcomeDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/assessment_welcome_description"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="14sp"
+        android:gravity="center" />
+
+</LinearLayout>
