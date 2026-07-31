@@ -63,7 +63,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - On success: store session, navigate to FitnessAssessmentActivity
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ]* 3.3 Write property test for registration validation (Property 9)
+  - [x]* 3.3 Write property test for registration validation (Property 9)
     - **Property 9: Registration Validation Rejects Invalid Inputs**
     - For any registration attempt where username is taken OR password != confirm OR required field is empty, system rejects and no User record is inserted
     - Use jqwik to generate random invalid input combinations and verify rejection
