@@ -1,7 +1,3 @@
-
----
-
-```markdown
 # Implementation Plan — Reps Up
 
 ## Problem Statement
@@ -624,6 +620,3 @@ com.jve.repsup/
   - Performance: ensure JDBC calls don't block UI thread
 - **Test:** All use cases pass end-to-end. No crashes on happy path or error paths.
 - **Demo:** Complete app walkthrough from onboarding to level up.
-```
-
----
