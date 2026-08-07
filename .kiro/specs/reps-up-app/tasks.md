@@ -230,8 +230,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [x] 11. Checkpoint — Core features verification
   - Ensure Home, Goals, Workouts, Calendar, Schedule, and Workout Execution all function end-to-end. Ask the user if questions arise.
 
-- [ ] 12. Gamification — Streaks
-  - [ ] 12.1 Implement StreakManager utility class
+- [x] 12. Gamification — Streaks
+  - [x] 12.1 Implement StreakManager utility class
     - Implement `StreakManager.evaluateStreak(currentStreak, hadScheduledWorkout, completedYesterday)`:
       - Scheduled + completed → streak + 1
       - Scheduled + not completed → streak = 0
@@ -241,25 +241,25 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Wire streak evaluation to post-workout flow and app launch
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-  - [ ]* 12.2 Write property test for streak evaluation (Property 3)
+  - [x] 12.2 Write property test for streak evaluation (Property 3)
     - **Property 3: Streak Evaluation is Deterministic and Correct**
     - For any current streak >= 0, verify the three transition rules are correctly applied
     - Use jqwik to generate random streak counts and boolean states
     - **Validates: Requirements 16.1, 16.2, 16.3**
 
-  - [ ]* 12.3 Write property test for streak multiplier (Property 4)
+  - [x] 12.3 Write property test for streak multiplier (Property 4)
     - **Property 4: Streak Multiplier Increases at 14-Day Intervals**
     - For any streak >= 0, multiplier is 1.0 for <14 and >=1.5 for >=14, non-decreasing as streak increases
     - Use jqwik to generate random streak counts [0..500]
     - **Validates: Requirements 16.5**
 
-  - [ ]* 12.4 Write property test for streak milestones (Property 5)
+  - [x] 12.4 Write property test for streak milestones (Property 5)
     - **Property 5: Streak Milestones Occur at Exact Multiples of 14**
     - For any positive integer streak, `isMilestone(streak)` returns true iff streak % 14 == 0 and streak > 0
     - Use jqwik to generate random positive integers
     - **Validates: Requirements 16.4**
 
-  - [ ] 12.5 Implement StreakMilestoneDialog
+  - [x] 12.5 Implement StreakMilestoneDialog
     - Create `StreakMilestoneDialog.java` with fire icon, streak count, XP multiplier value, Share/Close buttons
     - Trigger on 14-day milestones (14, 28, 42, ...)
     - _Requirements: 16.4, 16.5_

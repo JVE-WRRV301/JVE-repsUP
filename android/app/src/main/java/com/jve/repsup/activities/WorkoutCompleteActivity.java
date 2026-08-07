@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.dialogs.StreakMilestoneDialog;
 import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
@@ -17,6 +19,7 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.StreakManager;
 import com.jve.repsup.utils.XPCalculator;
 
 import java.util.ArrayList;
@@ -87,18 +90,43 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     }
 
     private void calculateResults() {
-        // TODO: When StreakManager is implemented (task 12), retrieve user's streak
-        // and calculate the actual multiplier. For now, use 1.0 as default.
-        double streakMultiplier = 1.0;
+        // Get the user's current streak and calculate the multiplier
+        int userId = sessionManager.getUserId();
+        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer streak) {
+                int currentStreak = streak != null ? streak : 0;
+                double streakMultiplier = StreakManager.getMultiplier(currentStreak);
 
-        totalXp = XPCalculator.calculateWorkoutXP(exerciseResults, streakMultiplier);
+                totalXp = XPCalculator.calculateWorkoutXP(exerciseResults, streakMultiplier);
 
-        totalSets = 0;
-        totalReps = 0;
-        for (ExerciseResult result : exerciseResults) {
-            totalSets += result.getSetsCompleted();
-            totalReps += result.getTotalReps();
-        }
+                totalSets = 0;
+                totalReps = 0;
+                for (ExerciseResult result : exerciseResults) {
+                    totalSets += result.getSetsCompleted();
+                    totalReps += result.getTotalReps();
+                }
+
+                runOnUiThread(() -> displaySummary());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Fallback to 1.0 multiplier if streak cannot be retrieved
+                double streakMultiplier = 1.0;
+
+                totalXp = XPCalculator.calculateWorkoutXP(exerciseResults, streakMultiplier);
+
+                totalSets = 0;
+                totalReps = 0;
+                for (ExerciseResult result : exerciseResults) {
+                    totalSets += result.getSetsCompleted();
+                    totalReps += result.getTotalReps();
+                }
+
+                runOnUiThread(() -> displaySummary());
+            }
+        });
     }
 
     private void displaySummary() {
@@ -184,7 +212,30 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                     }
                 });
 
-        // TODO: Task 12 — update streak after workout completion
+        // 4. Update streak — user completed today's scheduled workout
+        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer streak) {
+                int currentStreak = streak != null ? streak : 0;
+                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
+                userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer result) {
+                        // Streak updated successfully
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Log error but don't block user
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Log error but don't block user
+            }
+        });
     }
 
     /**
@@ -193,8 +244,37 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
      */
     private void navigateHome() {
         // TODO: Task 13 — trigger level-up check dialog before navigating
-        // TODO: Task 12 — trigger streak milestone check before navigating
 
+        // Check for streak milestone before navigating
+        int userId = sessionManager.getUserId();
+        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer streak) {
+                int currentStreak = streak != null ? streak : 0;
+                if (StreakManager.isMilestone(currentStreak)) {
+                    runOnUiThread(() -> {
+                        double multiplier = StreakManager.getMultiplier(currentStreak);
+                        StreakMilestoneDialog dialog = new StreakMilestoneDialog(
+                                WorkoutCompleteActivity.this, currentStreak, multiplier);
+                        dialog.setOnDismissListener(d -> proceedToHome());
+                        dialog.show();
+                    });
+                } else {
+                    proceedToHome();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                proceedToHome();
+            }
+        });
+    }
+
+    /**
+     * Actually performs the navigation to MainActivity.
+     */
+    private void proceedToHome() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

@@ -250,6 +250,39 @@ public class ScheduleRepository {
     }
 
     /**
+     * Checks yesterday's workout status for streak evaluation.
+     * Returns a boolean array: [hadScheduledWorkout, completedYesterday].
+     * If no workout was scheduled yesterday, returns [false, false].
+     * If a workout was scheduled and completed, returns [true, true].
+     * If a workout was scheduled but not completed, returns [true, false].
+     */
+    public void getYesterdaysWorkoutStatus(int userId, ConnectionManager.DatabaseCallback<boolean[]> callback) {
+        String sql = "SELECT is_completed FROM scheduled_workout " +
+                "WHERE user_id = ? AND scheduled_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) " +
+                "LIMIT 1";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
+            boolean completed = rs.getBoolean("is_completed");
+            return new boolean[]{true, completed};
+        }, new ConnectionManager.DatabaseCallback<boolean[]>() {
+            @Override
+            public void onSuccess(boolean[] result) {
+                if (result == null) {
+                    // No workout was scheduled yesterday (rest day)
+                    callback.onSuccess(new boolean[]{false, false});
+                } else {
+                    callback.onSuccess(result);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
+    }
+
+    /**
      * Fetches all scheduled content for a user on a specific day.
      * Includes workout name for display.
      */
