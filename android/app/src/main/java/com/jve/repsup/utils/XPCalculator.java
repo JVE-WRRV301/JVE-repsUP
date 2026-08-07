@@ -1,5 +1,7 @@
 package com.jve.repsup.utils;
 
+import com.jve.repsup.models.ExerciseResult;
+
 import java.util.List;
 
 /**
@@ -35,10 +37,25 @@ public class XPCalculator {
      * Calculates XP earned from completing a workout.
      * Formula: sum(base_xp * sets_completed per exercise) * streak_multiplier
      *
-     * TODO: Implement in task 13.1
+     * @param results          list of exercise results from the completed workout
+     * @param streakMultiplier multiplier based on current streak (minimum 1.0)
+     * @return total XP earned, cast to int
      */
-    public static int calculateWorkoutXP(/* List<ExerciseResult> results, double streakMultiplier */) {
-        throw new UnsupportedOperationException("Not yet implemented — see task 13.1");
+    public static int calculateWorkoutXP(List<ExerciseResult> results, double streakMultiplier) {
+        if (results == null || results.isEmpty()) {
+            return 0;
+        }
+
+        if (streakMultiplier < 1.0) {
+            streakMultiplier = 1.0;
+        }
+
+        int baseTotal = 0;
+        for (ExerciseResult result : results) {
+            baseTotal += result.getBaseXp() * result.getSetsCompleted();
+        }
+
+        return (int) (baseTotal * streakMultiplier);
     }
 
     /**

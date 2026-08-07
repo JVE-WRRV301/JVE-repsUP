@@ -204,8 +204,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Display workout cards: day, name, exercises, completion status or "START" button (today only)
     - _Requirements: 10.3_
 
-- [ ] 10. Workout Execution
-  - [ ] 10.1 Implement WorkoutExecutionActivity
+- [x] 10. Workout Execution
+  - [x] 10.1 Implement WorkoutExecutionActivity
     - Create `WorkoutExecutionActivity.java` displaying one exercise at a time: large demo image, difficulty label, exercise name
     - Display set table with editable Reps and Weight (KG) fields and completion checkbox per row
     - Implement "ADD SET +" button to add new set rows
@@ -214,20 +214,20 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Prevent starting workout not scheduled for today
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
 
-  - [ ] 10.2 Implement WorkoutCompleteActivity and XP awarding
+  - [x] 10.2 Implement WorkoutCompleteActivity and XP awarding
     - Create `WorkoutCompleteActivity.java` with "GREAT WORKOUT!" screen showing total XP earned and muscles worked card
     - Implement `XPCalculator.calculateWorkoutXP()`: sum(base_xp × sets_completed) × streak_multiplier
     - UPDATE Scheduled_Workout as completed, UPDATE User XP and coins, INSERT XP_Log record
     - On "Continue": navigate to HomeFragment and trigger level-up and streak checks
     - _Requirements: 15.1, 15.2, 15.3, 15.4_
 
-  - [ ]* 10.3 Write property test for XP calculation (Property 1)
+  - [x] 10.3 Write property test for XP calculation (Property 1)
     - **Property 1: XP Calculation is Non-Negative and Monotonic**
     - For any list of exercise results (base_xp >= 0, sets_completed >= 0) and streak multiplier >= 1.0, workout XP is non-negative and increases monotonically as any exercise's sets_completed increases
     - Use jqwik to generate random exercise result lists and multipliers
     - **Validates: Requirements 15.2, 17.1**
 
-- [ ] 11. Checkpoint — Core features verification
+- [x] 11. Checkpoint — Core features verification
   - Ensure Home, Goals, Workouts, Calendar, Schedule, and Workout Execution all function end-to-end. Ask the user if questions arise.
 
 - [ ] 12. Gamification — Streaks
