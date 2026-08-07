@@ -15,11 +15,15 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jve.repsup.activities.LoginActivity;
+import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CalendarFragment;
 import com.jve.repsup.fragments.HomeFragment;
 import com.jve.repsup.fragments.MeFragment;
 import com.jve.repsup.fragments.WorkoutFragment;
+import com.jve.repsup.repositories.ScheduleRepository;
+import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.StreakManager;
 
 /**
  * Main activity hosting the navigation shell with BottomNavigationView
@@ -67,6 +71,59 @@ public class MainActivity extends AppCompatActivity {
 
         setupFragments(savedInstanceState);
         setupBottomNavigation();
+        evaluateYesterdaysStreak();
+    }
+
+    /**
+     * Evaluates yesterday's workout status and updates the user's streak accordingly.
+     * Called on app launch to ensure missed workouts reset the streak.
+     */
+    private void evaluateYesterdaysStreak() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        ScheduleRepository scheduleRepository = new ScheduleRepository();
+        UserRepository userRepository = new UserRepository();
+
+        scheduleRepository.getYesterdaysWorkoutStatus(userId, new ConnectionManager.DatabaseCallback<boolean[]>() {
+            @Override
+            public void onSuccess(boolean[] status) {
+                boolean hadScheduledWorkout = status[0];
+                boolean completedYesterday = status[1];
+
+                userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer streak) {
+                        int currentStreak = streak != null ? streak : 0;
+                        int newStreak = StreakManager.evaluateStreak(currentStreak, hadScheduledWorkout, completedYesterday);
+
+                        if (newStreak != currentStreak) {
+                            userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer result) {
+                                    // Streak updated
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    // Log error silently
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Log error silently
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Log error silently — don't disrupt app launch
+            }
+        });
     }
 
     /**

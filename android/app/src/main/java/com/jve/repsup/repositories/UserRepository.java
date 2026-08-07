@@ -74,6 +74,26 @@ public class UserRepository {
     }
 
     /**
+     * Updates the user's current streak to the specified value.
+     * Returns the number of affected rows.
+     */
+    public void updateStreak(int userId, int newStreak, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET current_streak = ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{newStreak, userId}, callback);
+    }
+
+    /**
+     * Retrieves the user's current streak from the database.
+     * Returns the streak count, or 0 if the user is not found.
+     */
+    public void getCurrentStreak(int userId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "SELECT current_streak FROM user WHERE user_id = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> rs.getInt("current_streak"), callback);
+    }
+
+    /**
      * Inserts a new XP_Log record for tracking XP earnings.
      * Returns the generated log_id.
      */

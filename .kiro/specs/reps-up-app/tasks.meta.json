@@ -15,6 +15,18 @@
     "10.3 Write property test for XP calculation (Property 1)": {
       "status": "passed",
       "lastRunTimestamp": 1786111605150
+    },
+    "12.2 Write property test for streak evaluation (Property 3)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786117858697
+    },
+    "12.3 Write property test for streak multiplier (Property 4)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786118125994
+    },
+    "12.4 Write property test for streak milestones (Property 5)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786118419458
     }
   },
   "executionHistory": {
@@ -243,6 +255,83 @@
         "executionId": "6b701e6b-5888-40da-805e-87a778842bbc",
         "chatSessionId": "sess_10c91613-5208-4b8c-89ef-53106e465229",
         "timestamp": 1786111833582
+      }
+    ],
+    "12.1 Implement StreakManager utility class": [
+      {
+        "executionId": "db401761-1dce-455e-99c0-3cf344482b88",
+        "chatSessionId": "sess_d25c0d8f-05b9-43dc-bc07-a988ee47c8a5",
+        "timestamp": 1786115590782
+      },
+      {
+        "executionId": "db401761-1dce-455e-99c0-3cf344482b88",
+        "chatSessionId": "sess_d25c0d8f-05b9-43dc-bc07-a988ee47c8a5",
+        "timestamp": 1786116125728
+      }
+    ],
+    "12.5 Implement StreakMilestoneDialog": [
+      {
+        "executionId": "db401761-1dce-455e-99c0-3cf344482b88",
+        "chatSessionId": "sess_d25c0d8f-05b9-43dc-bc07-a988ee47c8a5",
+        "timestamp": 1786116144713
+      },
+      {
+        "executionId": "db401761-1dce-455e-99c0-3cf344482b88",
+        "chatSessionId": "sess_d25c0d8f-05b9-43dc-bc07-a988ee47c8a5",
+        "timestamp": 1786116432214
+      }
+    ],
+    "12.2 Write property test for streak evaluation (Property 3)": [
+      {
+        "executionId": "6824a1db-1b2c-402b-83f6-8eb3debd6904",
+        "chatSessionId": "sess_3b5808b2-7f92-4377-94e9-10fa2326c4c7",
+        "timestamp": 1786116451654
+      },
+      {
+        "executionId": "6824a1db-1b2c-402b-83f6-8eb3debd6904",
+        "chatSessionId": "sess_3b5808b2-7f92-4377-94e9-10fa2326c4c7",
+        "timestamp": 1786117889640
+      }
+    ],
+    "12.3 Write property test for streak multiplier (Property 4)": [
+      {
+        "executionId": "bd6a8320-3992-4b7d-a047-cf2ffe1ebb22",
+        "chatSessionId": "sess_da3c6383-8799-4514-9a8c-6e816723f797",
+        "timestamp": 1786117902056
+      },
+      {
+        "executionId": "bd6a8320-3992-4b7d-a047-cf2ffe1ebb22",
+        "chatSessionId": "sess_da3c6383-8799-4514-9a8c-6e816723f797",
+        "timestamp": 1786118140885
+      },
+      {
+        "executionId": "9553fd67-19c1-4a22-b956-76e2ea0acafa",
+        "chatSessionId": "sess_20a22f55-4dbc-4c72-989d-862a2c648dd1",
+        "timestamp": 1786118445910
+      },
+      {
+        "executionId": "9553fd67-19c1-4a22-b956-76e2ea0acafa",
+        "chatSessionId": "sess_20a22f55-4dbc-4c72-989d-862a2c648dd1",
+        "timestamp": 1786118476661
+      }
+    ],
+    "12.4 Write property test for streak milestones (Property 5)": [
+      {
+        "executionId": "d1833211-a6fd-4a42-bbc3-b6a1e275ad5e",
+        "chatSessionId": "sess_90890c98-bb2c-4a61-9ebd-99caf0139c8b",
+        "timestamp": 1786118152579
+      },
+      {
+        "executionId": "d1833211-a6fd-4a42-bbc3-b6a1e275ad5e",
+        "chatSessionId": "sess_90890c98-bb2c-4a61-9ebd-99caf0139c8b",
+        "timestamp": 1786118434465
+      }
+    ],
+    "12. Gamification — Streaks": [
+      {
+        "executionId": "d1833211-a6fd-4a42-bbc3-b6a1e275ad5e",
+        "chatSessionId": "sess_90890c98-bb2c-4a61-9ebd-99caf0139c8b",
+        "timestamp": 1786118434597
       }
     ]
   }
