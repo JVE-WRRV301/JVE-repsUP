@@ -51,7 +51,7 @@ public class AssessmentWeightFragment extends Fragment {
         double savedWeight = getAssessmentActivity().getAssessmentData().getWeight();
         updateUnitToggle();
         updateDisplay(savedWeight);
-        sbWeight.setProgress((int) savedWeight - 30);
+        sbWeight.setProgress((int) savedWeight - 20);
 
         btnKg.setOnClickListener(v -> {
             if (!isKg) {
@@ -60,7 +60,7 @@ public class AssessmentWeightFragment extends Fragment {
                 isKg = true;
                 getAssessmentActivity().getAssessmentData().setWeightInKg(true);
                 getAssessmentActivity().getAssessmentData().setWeight(Math.round(kgValue));
-                sbWeight.setProgress((int) Math.round(kgValue) - 30);
+                sbWeight.setProgress((int) Math.round(kgValue) - 20);
                 updateUnitToggle();
                 updateDisplay(Math.round(kgValue));
             }
@@ -73,7 +73,7 @@ public class AssessmentWeightFragment extends Fragment {
                 isKg = false;
                 getAssessmentActivity().getAssessmentData().setWeightInKg(false);
                 getAssessmentActivity().getAssessmentData().setWeight(Math.round(lbsValue));
-                sbWeight.setProgress((int) Math.round(lbsValue) - 30);
+                sbWeight.setProgress((int) Math.round(lbsValue) - 20);
                 updateUnitToggle();
                 updateDisplay(Math.round(lbsValue));
             }
@@ -82,7 +82,7 @@ public class AssessmentWeightFragment extends Fragment {
         sbWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                double weight = progress + 30;
+                double weight = progress + 20;
                 updateDisplay(weight);
                 getAssessmentActivity().getAssessmentData().setWeight(weight);
             }

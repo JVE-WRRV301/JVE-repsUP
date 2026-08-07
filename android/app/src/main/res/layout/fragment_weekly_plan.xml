@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_grey"
+    android:orientation="vertical"
+    tools:context="com.jve.repsup.fragments.WeeklyPlanFragment">
+
+    <!-- Week navigation header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <ImageView
+            android:id="@+id/ivPrevWeek"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/weekly_plan_prev_week"
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="@color/white"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+        <TextView
+            android:id="@+id/tvWeekRange"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/orbitron"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            tools:text="Jun 2 - Jun 8" />
+
+        <ImageView
+            android:id="@+id/ivNextWeek"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/weekly_plan_next_week"
+            android:src="@android:drawable/ic_media_next"
+            app:tint="@color/white"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+    </LinearLayout>
+
+    <!-- Weekly plan list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvWeeklyPlan"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="16dp" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/weekly_plan_empty"
+        android:textColor="@color/muted"
+        android:textSize="14sp"
+        android:padding="32dp"
+        android:visibility="gone" />
+
+</LinearLayout>

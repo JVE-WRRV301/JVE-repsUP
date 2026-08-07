@@ -38,6 +38,12 @@
             android:name=".activities.AvatarGenerationActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.CreateGoalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.WorkoutExecutionActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AdminLoginActivity"
             android:exported="false" />
         <activity
@@ -51,6 +57,12 @@
             android:exported="false" />
         <activity
             android:name=".activities.AdminManageWorkoutsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.CreateWorkoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ScheduleWorkoutActivity"
             android:exported="false" />
     </application>
 

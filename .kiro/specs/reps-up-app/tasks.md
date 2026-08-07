@@ -121,8 +121,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [ ] 6. Checkpoint — Admin features verification
   - Ensure admin login, create workout, create exercise, manage workouts all function correctly. Ask the user if questions arise.
 
-- [ ] 7. Home Page and Goal Management
-  - [ ] 7.1 Implement HomeFragment with today's workout and next goal
+- [x] 7. Home Page and Goal Management
+  - [x] 7.1 Implement HomeFragment with today's workout and next goal
     - Display week strip (S M T W T F S) with today highlighted
     - Display "TODAY" card (blue border): workout name, date, first 3 exercises with images and set counts, "START" button
     - Display "NEXT GOAL" card (red border): deadline, title, priority badge, description
@@ -131,15 +131,15 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use `ScheduleRepository.getTodaysWorkout()` and `GoalRepository.getNextGoal()`
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-  - [ ] 7.2 Implement GoalRepository and Goal Creation
+  - [x] 7.2 Implement GoalRepository and Goal Creation
     - Create `GoalRepository.java` with `getUserGoals`, `getNextGoal`, `createGoal`, `updateGoal`, `completeGoal`, `deleteGoal` methods
     - Create goal creation form accessible from Calendar "+" button: Title, Date picker, Importance (Top/Medium/Low), Notes
     - Validate Title and Date required
     - INSERT Goal record on save
     - _Requirements: 8.1, 8.2_
 
-  - [ ] 7.3 Implement Goals List View and Goal Completion
-    - Create `GoalsListFragment` in CalendarFragment Goals tab with goal cards (red border): deadline, title, priority badge, description, completion checkbox
+  - [x] 7.3 Implement Goals List View and Goal Completion
+    - Create `GoalsListFragment` in CalendarFragment Goals tab with goal cards (++red border): deadline, title, priority badge, description, completion checkbox
     - Implement 3-dot menu with Edit Goal and Delete Goal options
     - On checkbox tap: UPDATE goal as completed with timestamp
     - Award XP on completion: Top=1000, Medium=500, Low=250
@@ -153,8 +153,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate arbitrary priority strings and verify the mapping
     - **Validates: Requirements 8.5, 17.2**
 
-- [ ] 8. Workout Features
-  - [ ] 8.1 Implement WorkoutFragment with Saved and Library tabs
+- [x] 8. Workout Features
+  - [x] 8.1 Implement WorkoutFragment with Saved and Library tabs
     - Create `WorkoutFragment.java` with TabLayout: "Saved" and "Library" sub-tabs
     - Create `WorkoutRepository.java` with all repository methods
     - Saved tab: display user workout cards (blue border) with exercise previews using `WorkoutCardAdapter`
@@ -162,7 +162,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Wire "+" button to Create Workout flow
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-  - [ ] 8.2 Implement Create User Workout flow
+  - [x] 8.2 Implement Create User Workout flow
     - Create toggle between "Generate Workout" and "Create Workout" modes
     - Create Workout mode: select muscle groups → choose exercises (1 to 8 max) → set name, reps, weight → save
     - Generate Workout mode: select difficulty + muscle groups → system picks exercises → review → save
@@ -176,7 +176,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate random exercise counts [0..20] and verify acceptance/rejection
     - **Validates: Requirements 12.4, 25.4**
 
-  - [ ] 8.4 Implement Manage Workout (3-dot menu actions)
+  - [x] 8.4 Implement Manage Workout (3-dot menu actions)
     - 3-dot menu on saved workout cards: Share, Edit, Duplicate, Reorder, Delete
     - Share: invoke native Android share intent with workout details
     - Edit: open Create Workout flow pre-populated with existing data
@@ -184,8 +184,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Delete: confirmation dialog → remove workout and Workout_Exercise records
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 9. Calendar and Schedule Features
-  - [ ] 9.1 Implement CalendarFragment with monthly grid
+- [x] 9. Calendar and Schedule Features
+  - [x] 9.1 Implement CalendarFragment with monthly grid
     - Create `CalendarFragment.java` with monthly calendar grid and navigation arrows
     - Mark days with scheduled workouts (blue indicator) and goals (red triangle indicator)
     - Tap day → display scheduled content with edit options
@@ -194,12 +194,12 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Create `ScheduleRepository.java` with all repository methods
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 9.2 Implement Schedule Workout flow
+  - [x] 9.2 Implement Schedule Workout flow
     - Create schedule form: date picker, workout selection, repeat interval (Never/Weekly/Biweekly/Monthly)
     - On save: INSERT Scheduled_Workout record; if repeat ≠ Never, generate future occurrences
     - _Requirements: 10.1, 10.2_
 
-  - [ ] 9.3 Implement Weekly Plan view ("My Plan" tab)
+  - [x] 9.3 Implement Weekly Plan view ("My Plan" tab)
     - Create `WeeklyPlanFragment` with collapsible week sections using `WeeklyPlanAdapter`
     - Display workout cards: day, name, exercises, completion status or "START" button (today only)
     - _Requirements: 10.3_

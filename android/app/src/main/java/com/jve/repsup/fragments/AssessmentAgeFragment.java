@@ -46,7 +46,11 @@ public class AssessmentAgeFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int age = progress + 14;
-                tvAgeValue.setText(String.valueOf(age));
+                if (age >= 99) {
+                    tvAgeValue.setText("99+");
+                } else {
+                    tvAgeValue.setText(String.valueOf(age));
+                }
                 getAssessmentActivity().getAssessmentData().setAge(age);
             }
 
