@@ -118,7 +118,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Real-time search filtering by workout name
     - _Requirements: 27.1, 27.2, 27.3, 27.4, 27.5_
 
-- [ ] 6. Checkpoint — Admin features verification
+- [x] 6. Checkpoint — Admin features verification
   - Ensure admin login, create workout, create exercise, manage workouts all function correctly. Ask the user if questions arise.
 
 - [x] 7. Home Page and Goal Management
@@ -147,7 +147,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - INSERT XP_Log, UPDATE User.xp
     - _Requirements: 8.3, 8.4, 8.5, 8.6, 8.7_
 
-  - [ ]* 7.4 Write property test for Goal XP calculation (Property 2)
+  - [x] 7.4 Write property test for Goal XP calculation (Property 2)
     - **Property 2: Goal XP Matches Priority Mapping**
     - For any goal priority in {Top, Medium, Low}, XP is exactly 1000, 500, or 250 respectively; any other value returns 0
     - Use jqwik to generate arbitrary priority strings and verify the mapping
@@ -170,7 +170,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - INSERT Workout and Workout_Exercise records on save
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-  - [ ]* 8.3 Write property test for workout exercise count bounds (Property 8)
+  - [x] 8.3 Write property test for workout exercise count bounds (Property 8)
     - **Property 8: Workout Exercise Count Bounded**
     - For any workout creation attempt, system accepts exactly 1 to 8 exercises; counts outside this range are rejected
     - Use jqwik to generate random exercise counts [0..20] and verify acceptance/rejection
