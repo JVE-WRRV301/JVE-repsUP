@@ -1,85 +1,51 @@
 package com.jve.repsup.utils;
 
-import java.util.function.Predicate;
-
 /**
- * Pure validation logic for user registration forms.
- * Extracted from RegisterActivity so it can be unit tested without Android framework dependencies.
+ * Validates registration form inputs independently of Android UI.
+ * Extracted from RegisterActivity to enable property-based testing.
  */
 public class RegistrationValidator {
 
-    /**
-     * Result of a registration validation check.
-     */
-    public static class ValidationResult {
-        private final boolean valid;
-        private final String errorReason;
-
-        private ValidationResult(boolean valid, String errorReason) {
-            this.valid = valid;
-            this.errorReason = errorReason;
-        }
-
-        public static ValidationResult success() {
-            return new ValidationResult(true, null);
-        }
-
-        public static ValidationResult failure(String reason) {
-            return new ValidationResult(false, reason);
-        }
-
-        public boolean isValid() {
-            return valid;
-        }
-
-        public String getErrorReason() {
-            return errorReason;
-        }
+    public enum ValidationResult {
+        VALID,
+        EMPTY_FIELD,
+        PASSWORD_MISMATCH,
+        USERNAME_TAKEN
     }
 
-    public static final String ERROR_FIELDS_REQUIRED = "All fields are required";
-    public static final String ERROR_PASSWORD_MISMATCH = "Passwords do not match";
-    public static final String ERROR_USERNAME_TAKEN = "Username is already taken";
-
     /**
-     * Validates registration input fields.
+     * Validates registration inputs.
      *
-     * @param name             the user's display name
-     * @param username         the desired username
-     * @param email            the user's email address
-     * @param password         the chosen password
-     * @param confirmPassword  the password confirmation entry
-     * @param isUsernameTaken  predicate that returns true if the username is already in use
-     * @return ValidationResult indicating success or failure with a reason
+     * @param name             user's first name
+     * @param username         desired username
+     * @param email            user's email
+     * @param password         desired password
+     * @param confirmPassword  password confirmation
+     * @param isUsernameTaken  whether the username already exists in the User table
+     * @return ValidationResult indicating success or specific failure reason
      */
-    public static ValidationResult validate(
-            String name,
-            String username,
-            String email,
-            String password,
-            String confirmPassword,
-            Predicate<String> isUsernameTaken) {
-
-        // Check all required fields are non-null and non-empty after trimming
-        if (isNullOrEmpty(name) || isNullOrEmpty(username) || isNullOrEmpty(email)
-                || isNullOrEmpty(password) || isNullOrEmpty(confirmPassword)) {
-            return ValidationResult.failure(ERROR_FIELDS_REQUIRED);
+    public static ValidationResult validate(String name, String username, String email,
+                                            String password, String confirmPassword,
+                                            boolean isUsernameTaken) {
+        // Check required fields are non-null and non-empty
+        if (name == null || name.trim().isEmpty() ||
+                username == null || username.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return ValidationResult.EMPTY_FIELD;
         }
 
-        // Check password and confirm password match
+        // Check password match
         if (!password.equals(confirmPassword)) {
-            return ValidationResult.failure(ERROR_PASSWORD_MISMATCH);
+            return ValidationResult.PASSWORD_MISMATCH;
         }
 
         // Check username uniqueness
-        if (isUsernameTaken.test(username)) {
-            return ValidationResult.failure(ERROR_USERNAME_TAKEN);
+        if (isUsernameTaken) {
+            return ValidationResult.USERNAME_TAKEN;
         }
 
-        return ValidationResult.success();
-    }
-
-    private static boolean isNullOrEmpty(String value) {
-        return value == null || value.trim().isEmpty();
+        return ValidationResult.VALID;
     }
 }
