@@ -11,6 +11,10 @@
     "8.3 Write property test for workout exercise count bounds (Property 8)": {
       "status": "passed",
       "lastRunTimestamp": 1786108613155
+    },
+    "10.3 Write property test for XP calculation (Property 1)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786111605150
     }
   },
   "executionHistory": {
@@ -184,6 +188,61 @@
         "executionId": "eeffc72c-dee0-4530-b9ca-81263001983c",
         "chatSessionId": "sess_f5dfa9d6-443a-4893-a7fc-3d8fbf9bcab8",
         "timestamp": 1786108630321
+      }
+    ],
+    "10.1 Implement WorkoutExecutionActivity": [
+      {
+        "executionId": "32b0d867-3222-424f-a271-66a04fad1b21",
+        "chatSessionId": "sess_a1ed8f33-8fd3-4e57-93d2-8096778fe5f9",
+        "timestamp": 1786109279958
+      },
+      {
+        "executionId": "32b0d867-3222-424f-a271-66a04fad1b21",
+        "chatSessionId": "sess_a1ed8f33-8fd3-4e57-93d2-8096778fe5f9",
+        "timestamp": 1786109640814
+      }
+    ],
+    "10.2 Implement WorkoutCompleteActivity and XP awarding": [
+      {
+        "executionId": "32b0d867-3222-424f-a271-66a04fad1b21",
+        "chatSessionId": "sess_a1ed8f33-8fd3-4e57-93d2-8096778fe5f9",
+        "timestamp": 1786109646028
+      },
+      {
+        "executionId": "32b0d867-3222-424f-a271-66a04fad1b21",
+        "chatSessionId": "sess_a1ed8f33-8fd3-4e57-93d2-8096778fe5f9",
+        "timestamp": 1786111257233
+      }
+    ],
+    "10. Workout Execution": [
+      {
+        "executionId": "32b0d867-3222-424f-a271-66a04fad1b21",
+        "chatSessionId": "sess_a1ed8f33-8fd3-4e57-93d2-8096778fe5f9",
+        "timestamp": 1786111269806
+      }
+    ],
+    "10.3 Write property test for XP calculation (Property 1)": [
+      {
+        "executionId": "908a8580-df2d-4ec0-87c0-68f2da51f3c0",
+        "chatSessionId": "sess_98650818-e4d0-4015-8e71-6e16cd2c6042",
+        "timestamp": 1786111286822
+      },
+      {
+        "executionId": "908a8580-df2d-4ec0-87c0-68f2da51f3c0",
+        "chatSessionId": "sess_98650818-e4d0-4015-8e71-6e16cd2c6042",
+        "timestamp": 1786111622401
+      }
+    ],
+    "11. Checkpoint — Core features verification": [
+      {
+        "executionId": "6b701e6b-5888-40da-805e-87a778842bbc",
+        "chatSessionId": "sess_10c91613-5208-4b8c-89ef-53106e465229",
+        "timestamp": 1786111725014
+      },
+      {
+        "executionId": "6b701e6b-5888-40da-805e-87a778842bbc",
+        "chatSessionId": "sess_10c91613-5208-4b8c-89ef-53106e465229",
+        "timestamp": 1786111833582
       }
     ]
   }

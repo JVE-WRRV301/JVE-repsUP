@@ -64,6 +64,9 @@
         <activity
             android:name=".activities.ScheduleWorkoutActivity"
             android:exported="false" />
+        <activity
+            android:name=".activities.WorkoutCompleteActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -357,4 +357,23 @@
     <string name="difficulty_easy">Easy</string>
     <string name="difficulty_medium">Medium</string>
     <string name="difficulty_hard">Hard</string>
+
+    <!-- Workout Execution -->
+    <string name="workout_execution_progress">Exercise %1$d / %2$d</string>
+    <string name="workout_execution_add_set">ADD SET +</string>
+    <string name="workout_execution_next">Next</string>
+    <string name="workout_execution_finish">Finish</string>
+    <string name="workout_execution_set_header">Set</string>
+    <string name="workout_execution_reps_header">Reps</string>
+    <string name="workout_execution_weight_header">Weight (KG)</string>
+    <string name="workout_execution_done_header">Done</string>
+    <string name="workout_execution_not_scheduled">This workout is not scheduled for today.</string>
+    <string name="workout_execution_load_error">Failed to load workout. Please try again.</string>
+    <string name="workout_execution_demo_desc">Exercise demonstration image</string>
+
+    <!-- Workout Complete -->
+    <string name="workout_complete_title">GREAT WORKOUT!</string>
+    <string name="workout_complete_xp_earned">+%d XP</string>
+    <string name="workout_complete_muscles_worked">MUSCLES WORKED</string>
+    <string name="workout_complete_continue">Continue</string>
 </resources>

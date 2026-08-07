@@ -1,10 +1,14 @@
 package com.jve.repsup.models;
 
+import java.io.Serializable;
+
 /**
  * Represents the result of completing an exercise during a workout.
  * This is a transient model used for XP calculation and is NOT mapped to a database table.
  */
-public class ExerciseResult {
+public class ExerciseResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int exerciseId;
     private int baseXp;
