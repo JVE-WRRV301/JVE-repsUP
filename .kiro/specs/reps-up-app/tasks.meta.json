@@ -3,6 +3,14 @@
     "3.3 Write property test for registration validation (Property 9)": {
       "status": "passed",
       "lastRunTimestamp": 1786101516893
+    },
+    "7.4 Write property test for Goal XP calculation (Property 2)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786106938396
+    },
+    "8.3 Write property test for workout exercise count bounds (Property 8)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786108613155
     }
   },
   "executionHistory": {
@@ -145,6 +153,37 @@
         "executionId": "ec7a7f15-36a1-49be-8da0-e07130b8a7e9",
         "chatSessionId": "sess_87680ba1-1348-4dd3-b89c-e22e897bb04d",
         "timestamp": 1786101546158
+      }
+    ],
+    "6. Checkpoint — Admin features verification": [
+      {
+        "executionId": "ce46bcb6-cb82-4b69-a172-458663efbb04",
+        "chatSessionId": "sess_a6954c4f-fe80-4627-a83c-e37988d0ac93",
+        "timestamp": 1786103170514
+      }
+    ],
+    "7.4 Write property test for Goal XP calculation (Property 2)": [
+      {
+        "executionId": "c27d2f41-830c-483a-9b99-9ae02a1f5efb",
+        "chatSessionId": "sess_e8725892-71ed-41ed-b6a5-abee4b3c989e",
+        "timestamp": 1786106352679
+      },
+      {
+        "executionId": "c27d2f41-830c-483a-9b99-9ae02a1f5efb",
+        "chatSessionId": "sess_e8725892-71ed-41ed-b6a5-abee4b3c989e",
+        "timestamp": 1786107015656
+      }
+    ],
+    "8.3 Write property test for workout exercise count bounds (Property 8)": [
+      {
+        "executionId": "eeffc72c-dee0-4530-b9ca-81263001983c",
+        "chatSessionId": "sess_f5dfa9d6-443a-4893-a7fc-3d8fbf9bcab8",
+        "timestamp": 1786107030513
+      },
+      {
+        "executionId": "eeffc72c-dee0-4530-b9ca-81263001983c",
+        "chatSessionId": "sess_f5dfa9d6-443a-4893-a7fc-3d8fbf9bcab8",
+        "timestamp": 1786108630321
       }
     ]
   }
