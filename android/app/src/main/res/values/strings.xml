@@ -398,4 +398,7 @@
     <string name="rank_up_share">Share</string>
     <string name="rank_up_close">Close</string>
     <string name="rank_up_share_text">I just reached %1$s rank on Reps Up! 🏅 +100 bonus coins!</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
 </resources>

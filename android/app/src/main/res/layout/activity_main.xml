@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
     android:orientation="vertical"
     android:background="@color/dark_grey"
     tools:context=".MainActivity">
@@ -93,43 +92,20 @@
 
     <!-- Fragment container (fills remaining space) -->
     <FrameLayout
-        android:id="@+id/fragment_container"
-=======
-    android:background="@color/dark_grey"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
-
-    <!-- Persistent top bar -->
-    <include layout="@layout/layout_top_bar" />
-
-    <!-- Fragment container -->
-    <FrameLayout
         android:id="@+id/flFragmentContainer"
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-<<<<<<< HEAD
     <!-- Bottom Navigation -->
-=======
-    <!-- Bottom navigation -->
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/dark_grey_variant"
-<<<<<<< HEAD
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled" />
-=======
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_nav_menu" />
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
 </LinearLayout>

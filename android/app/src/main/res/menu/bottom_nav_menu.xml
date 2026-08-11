@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-<<<<<<< HEAD
-    <item
-        android:id="@+id/nav_home"
-        android:icon="@drawable/ic_home"
-        android:title="Home" />
-    <item
-        android:id="@+id/nav_calendar"
-        android:icon="@drawable/ic_calendar"
-        android:title="Calendar" />
-    <item
-        android:id="@+id/nav_workout"
-        android:icon="@drawable/ic_workout"
-        android:title="Workout" />
-    <item
-        android:id="@+id/nav_me"
-        android:icon="@drawable/ic_me"
-        android:title="Me" />
-=======
 
     <item
         android:id="@+id/nav_home"
@@ -36,8 +18,7 @@
 
     <item
         android:id="@+id/nav_me"
-        android:icon="@drawable/ic_person"
+        android:icon="@drawable/ic_me"
         android:title="@string/nav_me" />
 
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 </menu>

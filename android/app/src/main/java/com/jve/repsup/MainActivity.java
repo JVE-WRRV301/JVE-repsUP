@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(User user) {
                 if (user == null) return;
                 runOnUiThread(() -> {
-                    tvLevel.setText("Lv. " + user.getLevel());
+                    tvLevel.setText("Lv. " + user.getCurrentLevel());
                     tvStreak.setText(String.valueOf(user.getCurrentStreak()));
                     tvCoins.setText(String.valueOf(user.getCoins()));
                 });

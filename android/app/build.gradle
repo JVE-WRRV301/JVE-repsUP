@@ -102,8 +102,8 @@ dependencies {
     // ViewPager2 for swipeable fragments
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
-    // MySQL JDBC connector for direct database access
-    implementation 'com.mysql:mysql-connector-j:8.2.0'
+    // MySQL JDBC Connector (5.1.x — compatible with Android's java.sql subset)
+    implementation 'mysql:mysql-connector-java:5.1.49'
 
     testImplementation libs.junit
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
