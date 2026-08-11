@@ -23,6 +23,9 @@ public class User {
     private String language;
     private Timestamp createdAt;
 
+    // Transient field populated by JOIN queries
+    private String rankName;
+
     public User() {}
 
     public User(int userId, String firstName, String email, String username, String password,
@@ -87,4 +90,7 @@ public class User {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public String getRankName() { return rankName; }
+    public void setRankName(String rankName) { this.rankName = rankName; }
 }

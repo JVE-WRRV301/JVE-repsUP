@@ -214,7 +214,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
                     @Override
                     public void onSuccess(List<ScheduledWorkout> result) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         Set<Integer> workoutDays = new HashSet<>();
                         if (result != null) {
                             for (ScheduledWorkout sw : result) {
@@ -237,7 +237,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         goalRepository.getUserGoals(userId, new ConnectionManager.DatabaseCallback<List<Goal>>() {
             @Override
             public void onSuccess(List<Goal> result) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 Set<Integer> goalDaysSet = new HashSet<>();
                 if (result != null) {
                     for (Goal goal : result) {
@@ -279,7 +279,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
                     @Override
                     public void onSuccess(List<ScheduledWorkout> result) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
                             if (result != null && !result.isEmpty()) {
                                 llDayContent.setVisibility(View.VISIBLE);
@@ -292,7 +292,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
                     @Override
                     public void onError(Exception e) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> llDayContent.setVisibility(View.GONE));
                     }
                 });

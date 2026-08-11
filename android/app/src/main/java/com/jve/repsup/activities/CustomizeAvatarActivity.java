@@ -140,6 +140,25 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         // Load user coin balance
         loadCoinBalance();
 
+        // Load user avatar record
+        cosmeticRepository.getAvatar(userId, new DatabaseCallback<Avatar>() {
+            @Override
+            public void onSuccess(Avatar result) {
+                userAvatar = result;
+                runOnUiThread(() -> updateAvatarPreview());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Use a fallback avatar if loading fails
+                userAvatar = new Avatar();
+                userAvatar.setUserId(userId);
+                userAvatar.setSkinTone("male");
+                userAvatar.setBodyShape("mesomorph");
+                runOnUiThread(() -> updateAvatarPreview());
+            }
+        });
+
         // Load all cosmetics
         cosmeticRepository.getUserCosmetics(userId, new DatabaseCallback<List<CosmeticItem>>() {
             @Override
@@ -276,6 +295,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
      * Updates the avatar preview using AvatarCompositor with currently equipped items.
      */
     private void updateAvatarPreview() {
+        if (userAvatar == null) return;
+
         List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
 
         // Build a temporary outfit slot for the compositor
