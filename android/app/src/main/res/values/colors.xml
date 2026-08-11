@@ -7,6 +7,7 @@
 
     <!-- Accent -->
     <color name="light_blue">#FFB2D6FD</color>
+    <color name="light_blue_muted">#33B2D6FD</color>
 
     <!-- Emphasis -->
     <color name="red">#FFFF5050</color>
@@ -16,6 +17,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="muted">#FFB0B0B8</color>
     <color name="dark_text">#FF1A1A2E</color>
+
+    <!-- Utility -->
     <color name="transparent">#00000000</color>
-    <color name="light_blue_muted">#80B2D6FD</color>
 </resources>

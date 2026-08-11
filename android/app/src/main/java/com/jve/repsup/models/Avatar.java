@@ -2,7 +2,7 @@ package com.jve.repsup.models;
 
 /**
  * Represents a user's avatar configuration.
- * Maps to the `avatars` table.
+ * Maps to the `Avatar` table.
  */
 public class Avatar {
 

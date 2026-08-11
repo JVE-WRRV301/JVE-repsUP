@@ -3,115 +3,155 @@ package com.jve.repsup.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 
+import androidx.core.content.ContextCompat;
+
+import com.jve.repsup.R;
 import com.jve.repsup.models.Avatar;
-import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.models.OutfitSlot;
 
-import java.util.List;
-
 /**
- * Composites avatar layers into a single Bitmap.
- * Layers: base body → top → bottom → shoes → accessories.
- *
- * Currently renders a placeholder avatar silhouette. When real cosmetic
- * image assets are available, this class will layer them via Canvas.
+ * Composites avatar layers (body + outfit) into a single Bitmap.
+ * Uses Android Canvas to draw base body, then overlays for top, bottom, shoes, and accessories.
+ * Falls back to a default placeholder when specific assets are not yet available.
  */
 public class AvatarCompositor {
 
-    private static final int AVATAR_WIDTH = 256;
-    private static final int AVATAR_HEIGHT = 384;
+    private static final String TAG = "AvatarCompositor";
+    private static final int AVATAR_SIZE = 512; // px
 
     /**
-     * Composites the avatar with the given outfit into a Bitmap.
-     * Currently draws a stylised placeholder silhouette with colour accents
-     * based on equipped cosmetic types.
-     */
-    public static Bitmap composite(Context context, Avatar avatar, OutfitSlot outfit,
-                                   List<CosmeticItem> equippedItems) {
-        Bitmap bitmap = Bitmap.createBitmap(AVATAR_WIDTH, AVATAR_HEIGHT, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        // Draw base body silhouette
-        Paint bodyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bodyPaint.setColor(getSkinColor(avatar != null ? avatar.getSkinTone() : null));
-
-        // Head
-        canvas.drawCircle(AVATAR_WIDTH / 2f, 60, 40, bodyPaint);
-        // Body
-        canvas.drawRoundRect(new RectF(80, 100, 176, 280), 16, 16, bodyPaint);
-        // Legs
-        canvas.drawRoundRect(new RectF(88, 280, 120, 370), 8, 8, bodyPaint);
-        canvas.drawRoundRect(new RectF(136, 280, 168, 370), 8, 8, bodyPaint);
-
-        // Overlay equipped items as coloured accents
-        if (equippedItems != null) {
-            for (CosmeticItem item : equippedItems) {
-                drawCosmeticLayer(canvas, item);
-            }
-        }
-
-        return bitmap;
-    }
-
-    /**
-     * Overload for simple composite without equipped item list.
+     * Composites avatar layers into a single Bitmap.
+     * Layers: base body → top → bottom → shoes → accessories
+     *
+     * @param context Application or Activity context
+     * @param avatar  The user's Avatar record (contains bodyShape info)
+     * @param outfit  The user's equipped outfit slots
+     * @return A composited Bitmap of the full avatar
      */
     public static Bitmap composite(Context context, Avatar avatar, OutfitSlot outfit) {
-        return composite(context, avatar, outfit, null);
+        Bitmap result = Bitmap.createBitmap(AVATAR_SIZE, AVATAR_SIZE, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+
+        // Layer 1: Base body
+        int bodyRes = getBaseBodyResource(avatar.getSkinTone(), avatar.getBodyShape());
+        drawLayer(context, canvas, bodyRes);
+
+        // Layer 2: Top
+        if (outfit != null && outfit.getTopId() != null) {
+            int topRes = getDefaultOutfitResource("top");
+            drawLayer(context, canvas, topRes);
+        }
+
+        // Layer 3: Bottom
+        if (outfit != null && outfit.getBottomId() != null) {
+            int bottomRes = getDefaultOutfitResource("bottom");
+            drawLayer(context, canvas, bottomRes);
+        }
+
+        // Layer 4: Shoes
+        if (outfit != null && outfit.getShoesId() != null) {
+            int shoesRes = getDefaultOutfitResource("shoes");
+            drawLayer(context, canvas, shoesRes);
+        }
+
+        // Layer 5: Accessories (none by default)
+        if (outfit != null && outfit.getAccessoriesId() != null) {
+            // Future: resolve accessory resource and draw
+            Log.d(TAG, "Accessories slot filled but no asset mapping yet");
+        }
+
+        return result;
     }
 
-    private static void drawCosmeticLayer(Canvas canvas, CosmeticItem item) {
-        if (item == null) return;
+    /**
+     * Returns the resource ID for the base body image given gender and body type.
+     * Since real PNG assets don't exist yet, all combinations fall back to the default placeholder.
+     * The structure is ready for real assets — just add drawables matching the naming pattern:
+     * ic_avatar_body_{gender}_{bodyType} (e.g., ic_avatar_body_male_mesomorph)
+     *
+     * @param gender   "male" or "female"
+     * @param bodyType "ectomorph", "mesomorph", "endomorph", "athletic", "stocky", or "slim"
+     * @return Drawable resource ID for the base body
+     */
+    public static int getBaseBodyResource(String gender, String bodyType) {
+        // Attempt to resolve a specific drawable for the gender × bodyType combination.
+        // When real assets are added, they should follow the naming convention:
+        // ic_avatar_body_male_ectomorph, ic_avatar_body_female_mesomorph, etc.
+        // For now, all combinations resolve to the default placeholder.
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(getCosmeticColor(item.getType()));
+        if (gender == null || bodyType == null) {
+            return R.drawable.ic_avatar_body_default;
+        }
 
-        switch (item.getType()) {
+        // Normalize inputs
+        String g = gender.toLowerCase().trim();
+        String bt = bodyType.toLowerCase().trim();
+
+        // Map to resource name pattern: ic_avatar_body_{gender}_{bodytype}
+        // In the future, real assets will be resolved here.
+        // For now, return the universal default.
+        switch (g + "_" + bt) {
+            case "male_ectomorph":
+            case "male_mesomorph":
+            case "male_endomorph":
+            case "male_athletic":
+            case "male_stocky":
+            case "male_slim":
+            case "female_ectomorph":
+            case "female_mesomorph":
+            case "female_endomorph":
+            case "female_athletic":
+            case "female_stocky":
+            case "female_slim":
+                // When assets are added, each case returns its own resource.
+                // e.g., return R.drawable.ic_avatar_body_male_mesomorph;
+                return R.drawable.ic_avatar_body_default;
+            default:
+                return R.drawable.ic_avatar_body_default;
+        }
+    }
+
+    /**
+     * Returns the drawable resource for a default outfit piece.
+     *
+     * @param type "top", "bottom", or "shoes"
+     * @return Drawable resource ID for the outfit piece
+     */
+    public static int getDefaultOutfitResource(String type) {
+        if (type == null) {
+            return R.drawable.ic_avatar_body_default;
+        }
+
+        switch (type.toLowerCase().trim()) {
             case "top":
-                canvas.drawRoundRect(new RectF(82, 102, 174, 200), 12, 12, paint);
-                break;
+                return R.drawable.ic_avatar_top_default;
             case "bottom":
-                canvas.drawRoundRect(new RectF(86, 200, 170, 282), 8, 8, paint);
-                break;
+                return R.drawable.ic_avatar_bottom_default;
             case "shoes":
-                canvas.drawRoundRect(new RectF(84, 356, 124, 374), 6, 6, paint);
-                canvas.drawRoundRect(new RectF(132, 356, 172, 374), 6, 6, paint);
-                break;
-            case "hair":
-                canvas.drawRoundRect(new RectF(80, 24, 176, 70), 20, 20, paint);
-                break;
-            case "face":
-            case "skin":
-                // Tints the head area
-                paint.setAlpha(80);
-                canvas.drawCircle(AVATAR_WIDTH / 2f, 60, 40, paint);
-                break;
+                return R.drawable.ic_avatar_shoes_default;
+            default:
+                return R.drawable.ic_avatar_body_default;
         }
     }
 
-    private static int getSkinColor(String skinTone) {
-        if (skinTone == null) return Color.parseColor("#D2A679");
-        switch (skinTone.toLowerCase()) {
-            case "light": return Color.parseColor("#FDDBB4");
-            case "medium": return Color.parseColor("#D2A679");
-            case "dark": return Color.parseColor("#8D5524");
-            default: return Color.parseColor("#D2A679");
-        }
-    }
-
-    private static int getCosmeticColor(String type) {
-        switch (type) {
-            case "top": return Color.parseColor("#4A90D9");
-            case "bottom": return Color.parseColor("#2D5A8A");
-            case "shoes": return Color.parseColor("#3D3D3D");
-            case "hair": return Color.parseColor("#4A3728");
-            case "face":
-            case "skin": return Color.parseColor("#FFB6C1");
-            default: return Color.GRAY;
+    /**
+     * Draws a single layer onto the canvas from a drawable resource.
+     * Gracefully handles missing resources by logging a warning and skipping the layer.
+     */
+    private static void drawLayer(Context context, Canvas canvas, int resourceId) {
+        try {
+            Drawable drawable = ContextCompat.getDrawable(context, resourceId);
+            if (drawable != null) {
+                drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                drawable.draw(canvas);
+            } else {
+                Log.w(TAG, "Drawable resource not found: " + resourceId);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to draw layer with resource: " + resourceId, e);
         }
     }
 }

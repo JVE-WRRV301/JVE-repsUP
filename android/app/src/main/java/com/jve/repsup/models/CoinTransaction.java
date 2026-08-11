@@ -1,7 +1,7 @@
 package com.jve.repsup.models;
 
 /**
- * Represents a coin transaction record.
+ * Represents a coin transaction for purchasing cosmetic items.
  * Maps to the `Coin_Transaction` table.
  */
 public class CoinTransaction {

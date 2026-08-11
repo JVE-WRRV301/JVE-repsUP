@@ -1,7 +1,7 @@
 package com.jve.repsup.models;
 
 /**
- * Represents the user's equipped outfit configuration.
+ * Represents the equipped outfit slots for a user's avatar.
  * Maps to the `Outfit_Slot` table.
  */
 public class OutfitSlot {
@@ -15,8 +15,8 @@ public class OutfitSlot {
 
     public OutfitSlot() {}
 
-    public OutfitSlot(int outfitSlotId, int userId, Integer topId, Integer bottomId,
-                      Integer shoesId, Integer accessoriesId) {
+    public OutfitSlot(int outfitSlotId, int userId, Integer topId,
+                      Integer bottomId, Integer shoesId, Integer accessoriesId) {
         this.outfitSlotId = outfitSlotId;
         this.userId = userId;
         this.topId = topId;

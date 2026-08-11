@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/dark_grey">
+
+    <TextView
+        android:id="@+id/tvSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_section_body"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_height_question"
+        android:textColor="@color/white"
+        android:fontFamily="@font/orbitron"
+        android:textSize="22sp"
+        android:layout_marginTop="24dp" />
+
+    <!-- Unit toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCm"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="@string/assessment_unit_cm"
+            android:backgroundTint="@color/light_blue"
+            android:textColor="@color/dark_text"
+            android:fontFamily="@font/inter"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnFt"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/assessment_unit_ft"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Height value display -->
+    <TextView
+        android:id="@+id/tvHeightValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="170"
+        android:textColor="@color/light_blue"
+        android:fontFamily="@font/orbitron"
+        android:textSize="48sp"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tvHeightUnit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_unit_cm"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="16sp"
+        android:gravity="center" />
+
+    <!-- Ruler slider -->
+    <SeekBar
+        android:id="@+id/sbHeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:min="50"
+        android:max="300"
+        android:progress="70"
+        android:progressTint="@color/light_blue"
+        android:thumbTint="@color/light_blue"
+        android:progressBackgroundTint="@color/dark_grey_surface" />
+
+</LinearLayout>

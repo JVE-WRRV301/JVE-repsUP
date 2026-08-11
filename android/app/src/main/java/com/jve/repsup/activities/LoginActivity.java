@@ -2,7 +2,6 @@ package com.jve.repsup.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -130,9 +129,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                Log.e("LoginActivity", "Connection error details: " + e.getMessage(), e);
                 runOnUiThread(() -> {
-                    showError(getString(R.string.login_connection_error) + "\n[DEBUG] " + e.getMessage());
+                    showError(getString(R.string.login_connection_error));
                     btnLogin.setEnabled(true);
                 });
             }

@@ -5,11 +5,11 @@ import java.sql.Timestamp;
 
 /**
  * Represents a workout scheduled on a specific date.
- * Maps to the `scheduled_workouts` table.
+ * Maps to the `Scheduled_Workout` table.
  */
 public class ScheduledWorkout {
 
-    private int schedId;
+    private int scheduledWorkoutId;
     private int userId;
     private int workoutId;
     private Date scheduledDate;
@@ -24,10 +24,10 @@ public class ScheduledWorkout {
 
     public ScheduledWorkout() {}
 
-    public ScheduledWorkout(int schedId, int userId, int workoutId, Date scheduledDate,
+    public ScheduledWorkout(int scheduledWorkoutId, int userId, int workoutId, Date scheduledDate,
                             boolean isCompleted, Timestamp completedDate, int earnedXp,
                             int completedSets, int completedReps) {
-        this.schedId = schedId;
+        this.scheduledWorkoutId = scheduledWorkoutId;
         this.userId = userId;
         this.workoutId = workoutId;
         this.scheduledDate = scheduledDate;
@@ -40,8 +40,8 @@ public class ScheduledWorkout {
 
     // Getters and Setters
 
-    public int getSchedId() { return schedId; }
-    public void setSchedId(int schedId) { this.schedId = schedId; }
+    public int getScheduledWorkoutId() { return scheduledWorkoutId; }
+    public void setScheduledWorkoutId(int scheduledWorkoutId) { this.scheduledWorkoutId = scheduledWorkoutId; }
 
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }

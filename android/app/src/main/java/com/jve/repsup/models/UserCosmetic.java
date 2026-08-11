@@ -1,7 +1,7 @@
 package com.jve.repsup.models;
 
 /**
- * Represents a user's ownership/equip state for a cosmetic item.
+ * Represents a cosmetic item owned by a user.
  * Maps to the `User_Cosmetic` table.
  */
 public class UserCosmetic {

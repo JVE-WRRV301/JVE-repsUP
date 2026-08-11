@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/dark_grey">
+
+    <TextView
+        android:id="@+id/tvSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_section_body"
+        android:textColor="@color/muted"
+        android:fontFamily="@font/inter"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/assessment_age_question"
+        android:textColor="@color/white"
+        android:fontFamily="@font/orbitron"
+        android:textSize="22sp"
+        android:layout_marginTop="24dp" />
+
+    <TextView
+        android:id="@+id/tvAgeValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="25"
+        android:textColor="@color/light_blue"
+        android:fontFamily="@font/orbitron"
+        android:textSize="48sp"
+        android:gravity="center" />
+
+    <SeekBar
+        android:id="@+id/sbAge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:min="14"
+        android:max="99"
+        android:progress="11"
+        android:progressTint="@color/light_blue"
+        android:thumbTint="@color/light_blue"
+        android:progressBackgroundTint="@color/dark_grey_surface" />
+
+</LinearLayout>

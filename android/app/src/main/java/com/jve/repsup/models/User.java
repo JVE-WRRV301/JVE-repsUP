@@ -4,18 +4,18 @@ import java.sql.Timestamp;
 
 /**
  * Represents a user in the Reps Up app.
- * Maps to the `users` table.
+ * Maps to the `user` table.
  */
 public class User {
 
     private int userId;
-    private String name;
+    private String firstName;
     private String email;
     private String username;
     private String password;
     private int xp;
     private int coins;
-    private int level;
+    private int currentLevel;
     private Integer rankId;
     private int currentStreak;
     private Integer avatarId;
@@ -25,17 +25,17 @@ public class User {
 
     public User() {}
 
-    public User(int userId, String name, String email, String username, String password,
-                int xp, int coins, int level, Integer rankId, int currentStreak,
+    public User(int userId, String firstName, String email, String username, String password,
+                int xp, int coins, int currentLevel, Integer rankId, int currentStreak,
                 Integer avatarId, String measurementSystem, String language, Timestamp createdAt) {
         this.userId = userId;
-        this.name = name;
+        this.firstName = firstName;
         this.email = email;
         this.username = username;
         this.password = password;
         this.xp = xp;
         this.coins = coins;
-        this.level = level;
+        this.currentLevel = currentLevel;
         this.rankId = rankId;
         this.currentStreak = currentStreak;
         this.avatarId = avatarId;
@@ -49,8 +49,8 @@ public class User {
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -67,8 +67,8 @@ public class User {
     public int getCoins() { return coins; }
     public void setCoins(int coins) { this.coins = coins; }
 
-    public int getLevel() { return level; }
-    public void setLevel(int level) { this.level = level; }
+    public int getCurrentLevel() { return currentLevel; }
+    public void setCurrentLevel(int currentLevel) { this.currentLevel = currentLevel; }
 
     public Integer getRankId() { return rankId; }
     public void setRankId(Integer rankId) { this.rankId = rankId; }

@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * Manages user session state via SharedPreferences.
+ * Manages user session using SharedPreferences.
+ * Stores user_id, username, and isAdmin flag.
  */
 public class SessionManager {
 
@@ -12,41 +13,67 @@ public class SessionManager {
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_IS_ADMIN = "is_admin";
+    private static final int DEFAULT_USER_ID = -1;
 
-    private final SharedPreferences prefs;
+    private final SharedPreferences preferences;
 
     public SessionManager(Context context) {
-        prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
+    /**
+     * Creates a new session with the given user ID and username.
+     */
     public void createSession(int userId, String username) {
-        prefs.edit()
-                .putInt(KEY_USER_ID, userId)
-                .putString(KEY_USERNAME, username)
-                .apply();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(KEY_USER_ID, userId);
+        editor.putString(KEY_USERNAME, username);
+        editor.apply();
     }
 
+    /**
+     * Returns true if a valid session exists (user_id is stored and not default).
+     */
     public boolean hasActiveSession() {
-        return prefs.getInt(KEY_USER_ID, -1) != -1;
+        return preferences.getInt(KEY_USER_ID, DEFAULT_USER_ID) != DEFAULT_USER_ID;
     }
 
+    /**
+     * Returns the stored user ID, or -1 if no session exists.
+     */
     public int getUserId() {
-        return prefs.getInt(KEY_USER_ID, -1);
+        return preferences.getInt(KEY_USER_ID, DEFAULT_USER_ID);
     }
 
+    /**
+     * Returns the stored username, or null if no session exists.
+     */
     public String getUsername() {
-        return prefs.getString(KEY_USERNAME, null);
+        return preferences.getString(KEY_USERNAME, null);
     }
 
+    /**
+     * Clears all session data.
+     */
     public void clearSession() {
-        prefs.edit().clear().apply();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
     }
 
+    /**
+     * Returns true if the current session user is an admin.
+     */
     public boolean isAdmin() {
-        return prefs.getBoolean(KEY_IS_ADMIN, false);
+        return preferences.getBoolean(KEY_IS_ADMIN, false);
     }
 
+    /**
+     * Sets the admin flag for the current session.
+     */
     public void setAdmin(boolean isAdmin) {
-        prefs.edit().putBoolean(KEY_IS_ADMIN, isAdmin).apply();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(KEY_IS_ADMIN, isAdmin);
+        editor.apply();
     }
 }

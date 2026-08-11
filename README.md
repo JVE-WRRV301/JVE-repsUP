@@ -122,11 +122,11 @@ Then run:
 ```sql
 USE reps_up;
 SHOW TABLES;
-SELECT COUNT(*) FROM exercises;
-SELECT username, level FROM users;
+SELECT COUNT(*) FROM exercise;
+SELECT username, current_level FROM user;
 ```
 
-You should see 16 tables, 23 exercises, and 3 test users (Dylan, Sarah, Mike). If you do, your setup is working.
+You should see 16 tables, 23 exercises, and 3 test users (dyllan12345, sarahj, jaskrug). If you do, your setup is working.
 
 ---
 
