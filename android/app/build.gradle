@@ -2,6 +2,26 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// Read database credentials from local.properties
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localProps.load(new FileInputStream(localPropsFile))
+}
+
+def dbHost = localProps.getProperty('db.host')
+def dbPort = localProps.getProperty('db.port')
+def dbName = localProps.getProperty('db.name')
+def dbUser = localProps.getProperty('db.user')
+def dbPassword = localProps.getProperty('db.password')
+
+if (!dbHost || !dbPort || !dbName || !dbUser || !dbPassword) {
+    throw new GradleException(
+        "Missing required database properties in local.properties. " +
+        "Please add: db.host, db.port, db.name, db.user, db.password"
+    )
+}
+
 android {
     namespace 'com.jve.repsup'
     compileSdk 36
@@ -19,12 +39,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Database connection config (override in local.properties for real values)
-        buildConfigField "String", "DB_HOST", "\"10.0.2.2\""
-        buildConfigField "String", "DB_PORT", "\"3306\""
-        buildConfigField "String", "DB_NAME", "\"repsup\""
-        buildConfigField "String", "DB_USER", "\"root\""
-        buildConfigField "String", "DB_PASSWORD", "\"password\""
+        // Database connection config injected from local.properties
+        buildConfigField "String", "DB_HOST", "\"${dbHost}\""
+        buildConfigField "String", "DB_PORT", "\"${dbPort}\""
+        buildConfigField "String", "DB_NAME", "\"${dbName}\""
+        buildConfigField "String", "DB_USER", "\"${dbUser}\""
+        buildConfigField "String", "DB_PASSWORD", "\"${dbPassword}\""
     }
 
     buildTypes {
@@ -46,6 +66,10 @@ dependencies {
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material
+
+    // MySQL JDBC connector for direct database access
+    implementation 'com.mysql:mysql-connector-j:8.2.0'
+
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit

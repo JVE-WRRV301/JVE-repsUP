@@ -1,19 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_grey"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Persistent Top Bar -->
+    <RelativeLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/dark_grey_variant"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:gravity="center_vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Avatar thumbnail (left) -->
+        <ImageView
+            android:id="@+id/ivAvatarThumb"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/avatar_placeholder"
+            android:contentDescription="Avatar"
+            android:scaleType="centerCrop" />
+
+        <!-- Level indicator (next to avatar) -->
+        <TextView
+            android:id="@+id/tvLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ivAvatarThumb"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:text="Lv. 1"
+            android:textColor="@color/light_blue"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Coin count (far right) -->
+        <TextView
+            android:id="@+id/tvCoins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="0"
+            android:textColor="@color/yellow"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivCoinIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_toStartOf="@id/tvCoins"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_coin_small"
+            android:contentDescription="Coins" />
+
+        <!-- Streak count (left of coin) -->
+        <TextView
+            android:id="@+id/tvStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/ivCoinIcon"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:text="0"
+            android:textColor="@color/red"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivFireIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_toStartOf="@id/tvStreak"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_fire"
+            android:contentDescription="Streak" />
+
+    </RelativeLayout>
+
+    <!-- Fragment container (fills remaining space) -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/dark_grey_variant"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled" />
+
+</LinearLayout>
