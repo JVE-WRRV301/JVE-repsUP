@@ -323,8 +323,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - If insufficient: display "Not enough coins" message, disable Buy button
     - _Requirements: 22.1, 22.2, 22.3_
 
-- [ ] 16. User Profile Management
-  - [ ] 16.1 Implement SettingsActivity
+- [x] 16. User Profile Management
+  - [x] 16.1 Implement SettingsActivity
     - Create `SettingsActivity.java` with sections: User (Personal Details, Account) and Application (Measurement System, Language)
     - Measurement system change → UPDATE User.measurement_system
     - Logout: confirmation dialog → SessionManager.clearSession() → navigate to WelcomeActivity

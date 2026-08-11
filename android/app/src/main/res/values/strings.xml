@@ -401,4 +401,19 @@
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_section_user">USER</string>
+    <string name="settings_section_application">APPLICATION</string>
+    <string name="settings_personal_details">Personal Details</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_measurement_system">Measurement System</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_metric">Metric</string>
+    <string name="settings_imperial">Imperial</string>
+    <string name="settings_logout">Log out</string>
+    <string name="settings_logout_confirm_title">Log out</string>
+    <string name="settings_logout_confirm_message">Are you sure you want to log out?</string>
+    <string name="settings_measurement_updated">Measurement system updated</string>
+    <string name="settings_measurement_error">Failed to update measurement system</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_language_english">English</string>
 </resources>

@@ -198,6 +198,20 @@ public class UserRepository {
     }
 
     /**
+     * Updates the user's measurement system preference.
+     * Returns the number of affected rows.
+     *
+     * @param userId   the user's ID
+     * @param system   the measurement system to set ("Metric" or "Imperial")
+     * @param callback receives the number of affected rows or error
+     */
+    public void updateMeasurementSystem(int userId, String system, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET measurment_system = ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{system, userId}, callback);
+    }
+
+    /**
      * Queries the next eligible rank for the given level and current rank.
      * Returns the next rank where min_lvl_required <= currentLevel and rank_id > currentRankId,
      * or null if no promotion is available.

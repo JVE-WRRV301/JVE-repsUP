@@ -6,6 +6,19 @@
     android:background="@color/dark_grey"
     tools:context="com.jve.repsup.fragments.MeFragment">
 
+    <!-- Settings gear icon top-right -->
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_gear"
+        android:contentDescription="@string/settings_title"
+        android:tint="@color/white" />
+
+    <!-- Placeholder title -->
     <TextView
         android:id="@+id/tvMeTitle"
         android:layout_width="wrap_content"
