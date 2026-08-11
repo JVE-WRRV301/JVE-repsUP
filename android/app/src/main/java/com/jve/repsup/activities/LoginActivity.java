@@ -14,6 +14,7 @@ import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.User;
+import com.jve.repsup.repositories.AdminRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
 
@@ -33,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvSignUp;
 
     private UserRepository userRepository;
+    private AdminRepository adminRepository;
     private SessionManager sessionManager;
 
     @Override
@@ -49,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         userRepository = new UserRepository();
+        adminRepository = new AdminRepository();
 
         initViews();
         setupListeners();
@@ -101,30 +104,22 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Hidden admin entry point: detect "admin" username and redirect to admin login
-        if (username.equalsIgnoreCase("admin")) {
-            Intent adminIntent = new Intent(LoginActivity.this, AdminLoginActivity.class);
-            startActivity(adminIntent);
-            return;
-        }
-
         // Disable button while authenticating
         btnLogin.setEnabled(false);
 
         userRepository.authenticate(username, password, new ConnectionManager.DatabaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
-                runOnUiThread(() -> {
-                    if (user != null) {
-                        // Authentication successful — store session and navigate
+                if (user != null) {
+                    runOnUiThread(() -> {
+                        // User authentication successful — store session and navigate
                         sessionManager.createSession(user.getUserId(), user.getUsername());
                         navigateToMain();
-                    } else {
-                        // Authentication failed — generic error (don't reveal which field was wrong)
-                        showError(getString(R.string.login_error));
-                        btnLogin.setEnabled(true);
-                    }
-                });
+                    });
+                } else {
+                    // User not found — try admin credentials
+                    attemptAdminLogin(username, password);
+                }
             }
 
             @Override
@@ -150,6 +145,48 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void navigateToMain() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
+     * Attempts admin authentication as a fallback when regular user login fails.
+     * If admin credentials match, navigates to AdminMainActivity.
+     * If not, shows a generic login error.
+     */
+    private void attemptAdminLogin(String username, String password) {
+        adminRepository.authenticate(username, password, new ConnectionManager.DatabaseCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isAdmin) {
+                runOnUiThread(() -> {
+                    if (isAdmin != null && isAdmin) {
+                        // Admin authentication successful
+                        sessionManager.setAdmin(true);
+                        navigateToAdminMain();
+                    } else {
+                        // Both user and admin auth failed
+                        showError(getString(R.string.login_error));
+                        btnLogin.setEnabled(true);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    showError(getString(R.string.login_connection_error));
+                    btnLogin.setEnabled(true);
+                });
+            }
+        });
+    }
+
+    /**
+     * Navigates to AdminMainActivity and clears the back stack.
+     */
+    private void navigateToAdminMain() {
+        Intent intent = new Intent(LoginActivity.this, AdminMainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
