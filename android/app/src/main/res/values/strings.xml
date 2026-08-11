@@ -384,4 +384,18 @@
     <string name="streak_milestone_share">Share</string>
     <string name="streak_milestone_close">Close</string>
     <string name="streak_share_text">I just hit a %1$d-day streak on Reps Up! 🔥 Now earning %2$s\u00D7 XP!</string>
+
+    <!-- Level Up Dialog -->
+    <string name="level_up_title">LEVEL UP!</string>
+    <string name="level_up_new_level">LEVEL %d</string>
+    <string name="level_up_coins">+50 COINS</string>
+    <string name="level_up_close">Close</string>
+
+    <!-- Rank Up Dialog -->
+    <string name="rank_up_congratulations">CONGRATULATIONS!</string>
+    <string name="rank_up_new_rank">NEW RANK UNLOCKED</string>
+    <string name="rank_up_coins">+100 COINS</string>
+    <string name="rank_up_share">Share</string>
+    <string name="rank_up_close">Close</string>
+    <string name="rank_up_share_text">I just reached %1$s rank on Reps Up! 🏅 +100 bonus coins!</string>
 </resources>

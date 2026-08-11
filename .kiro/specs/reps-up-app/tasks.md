@@ -264,8 +264,8 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Trigger on 14-day milestones (14, 28, 42, ...)
     - _Requirements: 16.4, 16.5_
 
-- [ ] 13. Gamification — XP, Levels, and Ranks
-  - [ ] 13.1 Implement XPCalculator utility class
+- [x] 13. Gamification — XP, Levels, and Ranks
+  - [x] 13.1 Implement XPCalculator utility class
     - Implement `calculateWorkoutXP(results, streakMultiplier)`: sum(base_xp × sets_completed) × multiplier
     - Implement `calculateGoalXP(priority)`: Top=1000, Medium=500, Low=250, other=0
     - Implement `xpForNextLevel(currentLevel)`: Level N requires N × 100 XP
@@ -273,26 +273,26 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Wire XP awarding to INSERT XP_Log and UPDATE User.xp and User.coins
     - _Requirements: 17.1, 17.2, 17.3_
 
-  - [ ]* 13.2 Write property test for level-up threshold (Property 6)
+  - [x] 13.2 Write property test for level-up threshold (Property 6)
     - **Property 6: Level-Up Threshold is Deterministic**
     - For any level >= 1 and totalXp >= 0, `shouldLevelUp` returns true iff totalXp >= sum of (level × 100) for levels 1 through currentLevel; calling it twice with same inputs produces same result
     - Use jqwik to generate random levels and XP values
     - **Validates: Requirements 18.1**
 
-  - [ ] 13.3 Implement Level Up logic and LevelUpDialog
+  - [x] 13.3 Implement Level Up logic and LevelUpDialog
     - After XP earned → check `shouldLevelUp` → increment User.current_level
     - Award 50 coins on level up, UPDATE User.coins
     - Create `LevelUpDialog.java`: blurred overlay, bicep icon, new level number, "+50 COINS"
     - After level up → check rank promotion eligibility
     - _Requirements: 18.1, 18.2, 18.3, 18.4_
 
-  - [ ] 13.4 Implement Rank Up logic and RankUpDialog
+  - [x] 13.4 Implement Rank Up logic and RankUpDialog
     - After level up → query Ranks table for next rank where user's level >= min_lvl_required
     - If qualified: UPDATE User.rank_id, award 100 bonus coins
     - Create `RankUpDialog.java`: "CONGRATULATIONS! NEW RANK UNLOCKED", medal image, rank name, "+100 COINS", Share/Close buttons
     - _Requirements: 19.1, 19.2, 19.3, 19.4_
 
-  - [ ]* 13.5 Write property test for coin balance invariant (Property 7)
+  - [x] 13.5 Write property test for coin balance invariant (Property 7)
     - **Property 7: Coin Balance Invariant on Cosmetic Purchase**
     - For any user with coins >= item cost, new balance = previous - cost; if coins < cost, balance unchanged
     - Use jqwik to generate random coin balances and item costs

@@ -1,6 +1,7 @@
 package com.jve.repsup.utils;
 
 import com.jve.repsup.models.ExerciseResult;
+import com.jve.repsup.repositories.UserRepository;
 
 import java.util.List;
 
@@ -62,18 +63,43 @@ public class XPCalculator {
      * Determines the XP threshold needed for the next level.
      * Level N requires N * 100 XP to advance to N+1.
      *
-     * TODO: Implement in task 13.1
+     * @param currentLevel the user's current level (must be >= 1)
+     * @return XP required to advance from currentLevel to currentLevel+1
      */
     public static int xpForNextLevel(int currentLevel) {
-        throw new UnsupportedOperationException("Not yet implemented — see task 13.1");
+        return currentLevel * 100;
     }
 
     /**
-     * Checks if total XP exceeds the threshold for the next level.
+     * Checks if total XP meets or exceeds the cumulative threshold for the current level.
+     * The cumulative threshold for level N is the sum of (i * 100) for i = 1 to currentLevel,
+     * which equals currentLevel * (currentLevel + 1) * 50.
      *
-     * TODO: Implement in task 13.1
+     * @param totalXp      the user's total accumulated XP
+     * @param currentLevel the user's current level (must be >= 1)
+     * @return true if the user has enough XP to level up
      */
     public static boolean shouldLevelUp(int totalXp, int currentLevel) {
-        throw new UnsupportedOperationException("Not yet implemented — see task 13.1");
+        int cumulativeThreshold = currentLevel * (currentLevel + 1) * 50;
+        return totalXp >= cumulativeThreshold;
+    }
+
+    /**
+     * Awards XP to a user by inserting an XP_Log record and updating the user's total XP.
+     * This wires XP awarding per Requirement 17.3.
+     *
+     * @param userId         the user's ID
+     * @param xpEarned       the amount of XP earned
+     * @param sourceType     the source of XP (e.g., "workout", "goal")
+     * @param sourceId       the ID of the source entity (workout_id or goal_id)
+     * @param userRepository the repository instance for database operations
+     */
+    public static void awardXP(int userId, int xpEarned, String sourceType, int sourceId,
+                               UserRepository userRepository) {
+        // Update the user's total XP
+        userRepository.updateXp(userId, xpEarned, null);
+
+        // Insert an XP_Log record to track this earning
+        userRepository.insertXpLog(userId, xpEarned, sourceType, sourceId, xpEarned, 0, null);
     }
 }

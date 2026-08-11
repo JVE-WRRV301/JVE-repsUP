@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/dark_grey_surface"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <!-- Bicep icon -->
+    <TextView
+        android:id="@+id/tvBicepIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\uD83D\uDCAA"
+        android:textSize="48sp" />
+
+    <!-- Level up title -->
+    <TextView
+        android:id="@+id/tvLevelUpTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/orbitron"
+        android:text="@string/level_up_title"
+        android:textColor="@color/yellow"
+        android:textSize="22sp" />
+
+    <!-- New level number -->
+    <TextView
+        android:id="@+id/tvNewLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/orbitron"
+        android:textColor="@color/white"
+        android:textSize="32sp" />
+
+    <!-- Coins earned -->
+    <TextView
+        android:id="@+id/tvCoinsEarned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/inter_medium"
+        android:text="@string/level_up_coins"
+        android:textColor="@color/yellow"
+        android:textSize="18sp" />
+
+    <!-- Close button -->
+    <TextView
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_card_blue_border"
+        android:fontFamily="@font/inter_medium"
+        android:gravity="center"
+        android:text="@string/level_up_close"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+</LinearLayout>
