@@ -298,7 +298,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Use jqwik to generate random coin balances and item costs
     - **Validates: Requirements 22.2, 22.3**
 
-- [ ] 14. Checkpoint — Gamification verification
+- [x] 14. Checkpoint — Gamification verification
   - Ensure streaks track correctly, XP calculates properly, level ups trigger with coin rewards, rank promotions work. Ask the user if questions arise.
 
 - [ ] 15. Avatar Page and Locker
