@@ -1,27 +1,10 @@
 package com.jve.repsup.fragments;
 
-<<<<<<< HEAD
-=======
 import android.content.Intent;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import com.jve.repsup.R;
-
-/**
- * Placeholder CalendarFragment — displays "Calendar" text centered.
- * Will be replaced with monthly grid and plan/goals tabs in a future task.
- */
-public class CalendarFragment extends Fragment {
-=======
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -79,27 +62,21 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
     private Calendar currentMonth;
     private int selectedDay = -1;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
     public CalendarFragment() {
         // Required empty public constructor
     }
 
-<<<<<<< HEAD
-=======
     public static CalendarFragment newInstance() {
         return new CalendarFragment();
     }
 
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_calendar, container, false);
     }
-<<<<<<< HEAD
-=======
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -134,7 +111,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         tabLayout = view.findViewById(R.id.tabLayoutCalendar);
         fabAdd = view.findViewById(R.id.fabAdd);
 
-        // Month navigation
         ivPrevMonth.setOnClickListener(v -> navigateMonth(-1));
         ivNextMonth.setOnClickListener(v -> navigateMonth(1));
     }
@@ -173,7 +149,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Select Goals tab by default
         TabLayout.Tab goalsTab = tabLayout.getTabAt(1);
         if (goalsTab != null) {
             goalsTab.select();
@@ -184,9 +159,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         fabAdd.setOnClickListener(v -> showAddOptions());
     }
 
-    /**
-     * Navigates the calendar by the given number of months (-1 or +1).
-     */
     private void navigateMonth(int offset) {
         currentMonth.add(Calendar.MONTH, offset);
         selectedDay = -1;
@@ -194,18 +166,12 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         updateCalendar();
     }
 
-    /**
-     * Updates the calendar grid and indicators for the current month.
-     */
     private void updateCalendar() {
-        // Update month/year header
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         tvMonthYear.setText(monthFormat.format(currentMonth.getTime()));
 
-        // Build day list
         List<Integer> days = buildDaysList();
 
-        // Determine if current month contains today
         Calendar today = Calendar.getInstance();
         int todayDay = -1;
         if (today.get(Calendar.YEAR) == currentMonth.get(Calendar.YEAR)
@@ -214,30 +180,22 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         }
 
         calendarDayAdapter.setDays(days, todayDay);
-
-        // Load indicators
         loadMonthIndicators();
     }
 
-    /**
-     * Builds the list of day numbers for the grid, with 0s for empty padding cells.
-     */
     private List<Integer> buildDaysList() {
         List<Integer> days = new ArrayList<>();
 
         Calendar cal = (Calendar) currentMonth.clone();
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
-        // Day of week for first day (Sunday=1, Saturday=7)
         int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
         int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        // Add empty cells for days before the 1st
         for (int i = 1; i < firstDayOfWeek; i++) {
             days.add(0);
         }
 
-        // Add day numbers
         for (int day = 1; day <= daysInMonth; day++) {
             days.add(day);
         }
@@ -245,17 +203,13 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         return days;
     }
 
-    /**
-     * Loads scheduled workouts and goals for the current month to show indicators.
-     */
     private void loadMonthIndicators() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
         int year = currentMonth.get(Calendar.YEAR);
-        int month = currentMonth.get(Calendar.MONTH) + 1; // Calendar.MONTH is 0-indexed
+        int month = currentMonth.get(Calendar.MONTH) + 1;
 
-        // Load scheduled workouts for the month
         scheduleRepository.getScheduledWorkoutsForMonth(userId, year, month,
                 new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
                     @Override
@@ -277,11 +231,9 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
                     @Override
                     public void onError(Exception e) {
-                        // Silently fail — indicators won't show
                     }
                 });
 
-        // Load goals for the month to show red indicators
         goalRepository.getUserGoals(userId, new ConnectionManager.DatabaseCallback<List<Goal>>() {
             @Override
             public void onSuccess(List<Goal> result) {
@@ -292,7 +244,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                         if (goal.getDeadline() != null && !goal.isCompleted()) {
                             Calendar cal = Calendar.getInstance();
                             cal.setTime(goal.getDeadline());
-                            // Only add if goal deadline is in current displayed month
                             if (cal.get(Calendar.YEAR) == currentMonth.get(Calendar.YEAR)
                                     && cal.get(Calendar.MONTH) == currentMonth.get(Calendar.MONTH)) {
                                 goalDaysSet.add(cal.get(Calendar.DAY_OF_MONTH));
@@ -306,29 +257,21 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
             @Override
             public void onError(Exception e) {
-                // Silently fail — goal indicators won't show
             }
         });
     }
 
-    /**
-     * Called when a day in the calendar grid is tapped.
-     * Loads and displays the scheduled content for that day.
-     */
     @Override
     public void onDayClick(int day) {
         selectedDay = day;
 
-        // Build a Date for the selected day
         Calendar cal = (Calendar) currentMonth.clone();
         cal.set(Calendar.DAY_OF_MONTH, day);
         java.sql.Date selectedDate = new java.sql.Date(cal.getTimeInMillis());
 
-        // Update the day title
         SimpleDateFormat titleFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
         tvSelectedDayTitle.setText(titleFormat.format(cal.getTime()));
 
-        // Load content for the selected day
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
@@ -355,9 +298,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 });
     }
 
-    /**
-     * Shows the "My Plan" tab content with the WeeklyPlanFragment.
-     */
     private void showMyPlanTab() {
         getChildFragmentManager()
                 .beginTransaction()
@@ -365,9 +305,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 .commit();
     }
 
-    /**
-     * Shows the Goals tab with the GoalsListFragment.
-     */
     private void showGoalsTab() {
         getChildFragmentManager()
                 .beginTransaction()
@@ -375,9 +312,6 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 .commit();
     }
 
-    /**
-     * Displays a dialog with options: Schedule Workout or Create Goal.
-     */
     private void showAddOptions() {
         if (getContext() == null) return;
 
@@ -401,25 +335,16 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 .show();
     }
 
-    /**
-     * Navigates to the Schedule Workout flow.
-     */
     private void navigateToScheduleWorkout() {
         Intent intent = new Intent(getContext(), com.jve.repsup.activities.ScheduleWorkoutActivity.class);
         startActivity(intent);
     }
 
-    /**
-     * Navigates to the Create Goal activity.
-     */
     private void navigateToCreateGoal() {
         Intent intent = new Intent(getContext(), CreateGoalActivity.class);
         startActivity(intent);
     }
 
-    /**
-     * Simple placeholder fragment for tabs not yet implemented.
-     */
     public static class PlaceholderFragment extends Fragment {
         @Nullable
         @Override
@@ -433,5 +358,4 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
             return tv;
         }
     }
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 }
