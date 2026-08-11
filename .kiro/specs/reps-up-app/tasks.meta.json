@@ -27,6 +27,14 @@
     "12.4 Write property test for streak milestones (Property 5)": {
       "status": "passed",
       "lastRunTimestamp": 1786118419458
+    },
+    "13.2 Write property test for level-up threshold (Property 6)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786453160629
+    },
+    "13.5 Write property test for coin balance invariant (Property 7)": {
+      "status": "passed",
+      "lastRunTimestamp": 1786454306345
     }
   },
   "executionHistory": {
@@ -332,6 +340,73 @@
         "executionId": "d1833211-a6fd-4a42-bbc3-b6a1e275ad5e",
         "chatSessionId": "sess_90890c98-bb2c-4a61-9ebd-99caf0139c8b",
         "timestamp": 1786118434597
+      }
+    ],
+    "13.1 Implement XPCalculator utility class": [
+      {
+        "executionId": "0f814064-8ca4-4259-a071-ef96cff309d8",
+        "chatSessionId": "sess_d59b7003-07b5-48d7-983a-928deb3857b2",
+        "timestamp": 1786452312773
+      },
+      {
+        "executionId": "0f814064-8ca4-4259-a071-ef96cff309d8",
+        "chatSessionId": "sess_d59b7003-07b5-48d7-983a-928deb3857b2",
+        "timestamp": 1786452678561
+      }
+    ],
+    "13.2 Write property test for level-up threshold (Property 6)": [
+      {
+        "executionId": "4a6385bb-011a-494f-9837-d6ecdb69fc78",
+        "chatSessionId": "sess_ad04f7c4-2b89-485c-9d66-ed78e95714af",
+        "timestamp": 1786452694652
+      },
+      {
+        "executionId": "4a6385bb-011a-494f-9837-d6ecdb69fc78",
+        "chatSessionId": "sess_ad04f7c4-2b89-485c-9d66-ed78e95714af",
+        "timestamp": 1786453176575
+      }
+    ],
+    "13.3 Implement Level Up logic and LevelUpDialog": [
+      {
+        "executionId": "b177ebd2-d238-4350-bc14-4a22d44f065d",
+        "chatSessionId": "sess_cda4d46f-4d08-4e06-b8dd-0ef25ab32a6e",
+        "timestamp": 1786453187662
+      },
+      {
+        "executionId": "b177ebd2-d238-4350-bc14-4a22d44f065d",
+        "chatSessionId": "sess_cda4d46f-4d08-4e06-b8dd-0ef25ab32a6e",
+        "timestamp": 1786453539766
+      }
+    ],
+    "13.4 Implement Rank Up logic and RankUpDialog": [
+      {
+        "executionId": "2a10a8d1-489d-4587-bc37-d0bcf9e09f23",
+        "chatSessionId": "sess_93dcdded-1e1e-4943-aa11-563664e672fa",
+        "timestamp": 1786453554299
+      },
+      {
+        "executionId": "2a10a8d1-489d-4587-bc37-d0bcf9e09f23",
+        "chatSessionId": "sess_93dcdded-1e1e-4943-aa11-563664e672fa",
+        "timestamp": 1786453878320
+      }
+    ],
+    "13.5 Write property test for coin balance invariant (Property 7)": [
+      {
+        "executionId": "0ef36767-c000-418b-85c8-33c1217627bf",
+        "chatSessionId": "sess_c8db6e73-fa4c-4632-9aa2-fac85d64d74d",
+        "timestamp": 1786453893076
+      },
+      {
+        "executionId": "0ef36767-c000-418b-85c8-33c1217627bf",
+        "chatSessionId": "sess_c8db6e73-fa4c-4632-9aa2-fac85d64d74d",
+        "timestamp": 1786454321345
+      }
+    ],
+    "13. Gamification — XP, Levels, and Ranks": [
+      {
+        "executionId": "0ef36767-c000-418b-85c8-33c1217627bf",
+        "chatSessionId": "sess_c8db6e73-fa4c-4632-9aa2-fac85d64d74d",
+        "timestamp": 1786454321435
       }
     ]
   }

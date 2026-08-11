@@ -1,6 +1,7 @@
 package com.jve.repsup.repositories;
 
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.models.Rank;
 import com.jve.repsup.models.User;
 
 /**
@@ -105,6 +106,117 @@ public class UserRepository {
 
         ConnectionManager.executeInsert(sql, new Object[]{
                 userId, amount, sourceType, sourceId, xpEarned, coinsEarned
+        }, callback);
+    }
+
+    /**
+     * Updates the user's XP and coins simultaneously by adding the specified deltas.
+     * Returns the number of affected rows.
+     *
+     * @param userId    the user's ID
+     * @param xpDelta   XP amount to add (can be 0)
+     * @param coinDelta coin amount to add (can be 0)
+     * @param callback  receives the number of affected rows or error
+     */
+    public void updateXpAndCoins(int userId, int xpDelta, int coinDelta,
+                                 ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET xp = xp + ?, coins = coins + ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{xpDelta, coinDelta, userId}, callback);
+    }
+
+    /**
+     * Retrieves a full user record by user_id.
+     *
+     * @param userId   the user's ID
+     * @param callback receives the User object or null if not found
+     */
+    public void getUserById(int userId, ConnectionManager.DatabaseCallback<User> callback) {
+        String sql = "SELECT user_id, first_name, email, username, set_password, xp, coins, " +
+                "current_level, rank_id, current_streak, avatar_id, measurment_system, set_language " +
+                "FROM user WHERE user_id = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setEmail(rs.getString("email"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("set_password"));
+            user.setXp(rs.getInt("xp"));
+            user.setCoins(rs.getInt("coins"));
+            user.setCurrentLevel(rs.getInt("current_level"));
+            user.setRankId(rs.getInt("rank_id"));
+            user.setCurrentStreak(rs.getInt("current_streak"));
+            user.setAvatarId(rs.getInt("avatar_id"));
+            user.setMeasurementSystem(rs.getString("measurment_system"));
+            user.setLanguage(rs.getString("set_language"));
+            return user;
+        }, callback);
+    }
+
+    /**
+     * Updates the user's current level to the specified value.
+     * Returns the number of affected rows.
+     *
+     * @param userId   the user's ID
+     * @param newLevel the new level to set
+     * @param callback receives the number of affected rows or error
+     */
+    public void updateLevel(int userId, int newLevel, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET current_level = ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{newLevel, userId}, callback);
+    }
+
+    /**
+     * Updates the user's coins by adding the specified delta amount.
+     * Returns the number of affected rows.
+     *
+     * @param userId    the user's ID
+     * @param coinDelta coin amount to add
+     * @param callback  receives the number of affected rows or error
+     */
+    public void updateCoins(int userId, int coinDelta, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET coins = coins + ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{coinDelta, userId}, callback);
+    }
+
+    /**
+     * Updates the user's rank to the specified rank ID.
+     * Returns the number of affected rows.
+     *
+     * @param userId    the user's ID
+     * @param newRankId the new rank ID to set
+     * @param callback  receives the number of affected rows or error
+     */
+    public void updateRank(int userId, int newRankId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET rank_id = ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{newRankId, userId}, callback);
+    }
+
+    /**
+     * Queries the next eligible rank for the given level and current rank.
+     * Returns the next rank where min_lvl_required <= currentLevel and rank_id > currentRankId,
+     * or null if no promotion is available.
+     *
+     * @param currentLevel  the user's current level
+     * @param currentRankId the user's current rank ID
+     * @param callback      receives the next Rank or null
+     */
+    public void getNextRank(int currentLevel, int currentRankId, ConnectionManager.DatabaseCallback<Rank> callback) {
+        String sql = "SELECT rank_id, tier, subtier, min_lvl_required FROM ranks " +
+                "WHERE min_lvl_required <= ? AND rank_id > ? ORDER BY rank_id ASC LIMIT 1";
+
+        ConnectionManager.querySingle(sql, new Object[]{currentLevel, currentRankId}, rs -> {
+            Rank rank = new Rank();
+            rank.setRankId(rs.getInt("rank_id"));
+            rank.setTier(rs.getString("tier"));
+            rank.setSubTier(rs.getString("subtier"));
+            rank.setMinLevelRequired(rs.getInt("min_lvl_required"));
+            return rank;
         }, callback);
     }
 }
