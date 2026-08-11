@@ -1,20 +1,36 @@
 package com.jve.repsup.fragments;
 
+<<<<<<< HEAD
+=======
 import android.app.AlertDialog;
 import android.content.Intent;
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+<<<<<<< HEAD
+=======
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+<<<<<<< HEAD
+
+import com.jve.repsup.R;
+
+/**
+ * Placeholder WorkoutFragment — displays "Workout" text centered.
+ * Will be replaced with Saved/Library sub-tabs and workout browsing in a future task.
+ */
+public class WorkoutFragment extends Fragment {
+=======
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -74,21 +90,27 @@ public class WorkoutFragment extends Fragment implements
     // Data
     private WorkoutRepository workoutRepository;
     private SessionManager sessionManager;
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
     public WorkoutFragment() {
         // Required empty public constructor
     }
 
+<<<<<<< HEAD
+=======
     public static WorkoutFragment newInstance() {
         return new WorkoutFragment();
     }
 
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_workout, container, false);
     }
+<<<<<<< HEAD
+=======
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -525,4 +547,5 @@ public class WorkoutFragment extends Fragment implements
         super.onResume();
         loadSavedWorkouts();
     }
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 }

@@ -1,10 +1,27 @@
 package com.jve.repsup.fragments;
 
+<<<<<<< HEAD
+=======
 import android.content.Intent;
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+<<<<<<< HEAD
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.jve.repsup.R;
+
+/**
+ * Placeholder CalendarFragment — displays "Calendar" text centered.
+ * Will be replaced with monthly grid and plan/goals tabs in a future task.
+ */
+public class CalendarFragment extends Fragment {
+=======
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,21 +79,27 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
     private Calendar currentMonth;
     private int selectedDay = -1;
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
     public CalendarFragment() {
         // Required empty public constructor
     }
 
+<<<<<<< HEAD
+=======
     public static CalendarFragment newInstance() {
         return new CalendarFragment();
     }
 
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_calendar, container, false);
     }
+<<<<<<< HEAD
+=======
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -410,4 +433,5 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
             return tv;
         }
     }
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 }

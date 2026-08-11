@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_grey">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Workout"
+        android:textColor="@color/white"
+        android:textSize="24sp" />
+
+</FrameLayout>
+=======
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -147,3 +163,4 @@
     </FrameLayout>
 
 </LinearLayout>
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f

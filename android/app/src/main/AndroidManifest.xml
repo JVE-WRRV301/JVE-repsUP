@@ -24,8 +24,15 @@
             </intent-filter>
         </activity>
         <activity
+<<<<<<< HEAD
+            android:name=".activities.CustomizeAvatarActivity"
+            android:exported="false"
+            android:label="Locker" />
+        <activity android:name=".activities.SettingsActivity" />
+=======
             android:name=".MainActivity"
             android:exported="false" />
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false" />
@@ -33,6 +40,10 @@
             android:name=".activities.RegisterActivity"
             android:exported="false" />
         <activity
+<<<<<<< HEAD
+            android:name=".activities.AdminLoginActivity"
+            android:exported="false" />
+=======
             android:name=".activities.FitnessAssessmentActivity"
             android:exported="false" />
         <activity
@@ -68,6 +79,7 @@
         <activity
             android:name=".activities.WorkoutCompleteActivity"
             android:exported="false" />
+>>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     </application>
 
 </manifest>
