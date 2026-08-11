@@ -301,14 +301,14 @@ This plan implements the Reps Up gamified fitness Android application in Java us
 - [x] 14. Checkpoint — Gamification verification
   - Ensure streaks track correctly, XP calculates properly, level ups trigger with coin rewards, rank promotions work. Ask the user if questions arise.
 
-- [ ] 15. Avatar Page and Locker
-  - [ ] 15.1 Implement MeFragment with avatar display and progress
+- [x] 15. Avatar Page and Locker
+  - [x] 15.1 Implement MeFragment with avatar display and progress
     - Create `MeFragment.java`: large composited avatar image, gear icon → SettingsActivity, locker icon → CustomizeAvatarActivity
     - Display current gym rank with medal icon and rank name
     - Display current level with circular progress indicator showing progress toward next level
     - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
 
-  - [ ] 15.2 Implement CustomizeAvatarActivity (Locker)
+  - [x] 15.2 Implement CustomizeAvatarActivity (Locker)
     - Create `CustomizeAvatarActivity.java`: avatar preview at top, coin balance display, category tabs (Body, Face, Hair, Clothing)
     - Create `CosmeticRepository.java` with all repository methods
     - Display owned items fully visible, locked items with coin price overlay using `CosmeticGridAdapter`
@@ -317,7 +317,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Back without saving → discard changes
     - _Requirements: 21.1, 21.2, 21.3, 21.4, 21.5_
 
-  - [ ] 15.3 Implement Cosmetic Purchase flow
+  - [x] 15.3 Implement Cosmetic Purchase flow
     - Tap locked item → `PurchaseDialog.java`: item image, price in coins, Cancel/Buy buttons
     - If sufficient coins: deduct cost, mark unlocked in User_Cosmetic, INSERT Coin_Transaction
     - If insufficient: display "Not enough coins" message, disable Buy button

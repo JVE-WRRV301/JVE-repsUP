@@ -6,6 +6,10 @@ android {
     namespace 'com.jve.repsup'
     compileSdk 36
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "com.jve.repsup"
         minSdk 26
@@ -14,6 +18,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Database connection config (override in local.properties for real values)
+        buildConfigField "String", "DB_HOST", "\"10.0.2.2\""
+        buildConfigField "String", "DB_PORT", "\"3306\""
+        buildConfigField "String", "DB_NAME", "\"repsup\""
+        buildConfigField "String", "DB_USER", "\"root\""
+        buildConfigField "String", "DB_PASSWORD", "\"password\""
     }
 
     buildTypes {

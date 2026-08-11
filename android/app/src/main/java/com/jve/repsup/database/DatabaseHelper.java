@@ -34,11 +34,7 @@ public class DatabaseHelper {
                 + BuildConfig.DB_HOST + ":"
                 + BuildConfig.DB_PORT + "/"
                 + BuildConfig.DB_NAME
-<<<<<<< Updated upstream
-                + "?useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=5000";
-=======
                 + "?useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=5000&useUnicode=true&characterEncoding=UTF-8";
->>>>>>> Stashed changes
     }
 
     /**
