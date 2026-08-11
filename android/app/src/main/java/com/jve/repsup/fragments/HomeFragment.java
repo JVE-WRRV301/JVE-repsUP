@@ -1,35 +1,20 @@
 package com.jve.repsup.fragments;
 
-<<<<<<< HEAD
-=======
 import android.content.Intent;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-=======
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
-<<<<<<< HEAD
-
-/**
- * Placeholder HomeFragment — displays "Home" text centered.
- * Will be replaced with today's workout card and goal card in a future task.
- */
-public class HomeFragment extends Fragment {
-
-=======
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Goal;
@@ -72,26 +57,20 @@ public class HomeFragment extends Fragment {
 
     private ScheduledWorkout todaysWorkout;
 
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     public HomeFragment() {
         // Required empty public constructor
     }
 
-<<<<<<< HEAD
-=======
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
 
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
-<<<<<<< HEAD
-=======
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -296,5 +275,4 @@ public class HomeFragment extends Fragment {
                 todaysWorkout.getWorkoutId());
         startActivity(intent);
     }
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 }

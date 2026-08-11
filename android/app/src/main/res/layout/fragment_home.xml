@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dark_grey">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Home"
-        android:textColor="@color/white"
-        android:textSize="24sp" />
-
-</FrameLayout>
-=======
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -304,4 +288,3 @@
     </LinearLayout>
 
 </ScrollView>
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f

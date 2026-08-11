@@ -1,36 +1,20 @@
 package com.jve.repsup.fragments;
 
-<<<<<<< HEAD
-=======
 import android.app.AlertDialog;
 import android.content.Intent;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-=======
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-<<<<<<< HEAD
-
-import com.jve.repsup.R;
-
-/**
- * Placeholder WorkoutFragment — displays "Workout" text centered.
- * Will be replaced with Saved/Library sub-tabs and workout browsing in a future task.
- */
-public class WorkoutFragment extends Fragment {
-=======
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -90,27 +74,21 @@ public class WorkoutFragment extends Fragment implements
     // Data
     private WorkoutRepository workoutRepository;
     private SessionManager sessionManager;
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
     public WorkoutFragment() {
         // Required empty public constructor
     }
 
-<<<<<<< HEAD
-=======
     public static WorkoutFragment newInstance() {
         return new WorkoutFragment();
     }
 
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_workout, container, false);
     }
-<<<<<<< HEAD
-=======
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -142,9 +120,6 @@ public class WorkoutFragment extends Fragment implements
         btnLibraryBack.setOnClickListener(v -> showMuscleGroupGrid());
     }
 
-    /**
-     * Sets up the TabLayout with Saved and Library tabs.
-     */
     private void setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.workout_tab_saved));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.workout_tab_library));
@@ -161,75 +136,50 @@ public class WorkoutFragment extends Fragment implements
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                // No action needed
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // No action needed
             }
         });
     }
 
-    /**
-     * Sets up RecyclerView adapters for saved workouts, muscle groups, and exercises.
-     */
     private void setupAdapters() {
-        // Saved workouts adapter
         workoutCardAdapter = new WorkoutCardAdapter(this);
         rvSavedWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
         rvSavedWorkouts.setAdapter(workoutCardAdapter);
 
-        // Muscle group grid adapter
         muscleGroupAdapter = new MuscleGroupAdapter(MUSCLE_GROUPS, this);
         rvMuscleGroups.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvMuscleGroups.setAdapter(muscleGroupAdapter);
 
-        // Exercise list adapter
         exerciseListAdapter = new ExerciseListAdapter(this);
         rvExerciseList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvExerciseList.setAdapter(exerciseListAdapter);
     }
 
-    /**
-     * Shows the Saved tab content and hides Library.
-     */
     private void showSavedTab() {
         flSavedContent.setVisibility(View.VISIBLE);
         flLibraryContent.setVisibility(View.GONE);
     }
 
-    /**
-     * Shows the Library tab content and hides Saved.
-     */
     private void showLibraryTab() {
         flSavedContent.setVisibility(View.GONE);
         flLibraryContent.setVisibility(View.VISIBLE);
         showMuscleGroupGrid();
     }
 
-    /**
-     * Shows the muscle group grid and hides the exercise list.
-     */
     private void showMuscleGroupGrid() {
         rvMuscleGroups.setVisibility(View.VISIBLE);
         llExerciseListContainer.setVisibility(View.GONE);
     }
 
-    /**
-     * Shows the exercise list for a muscle group and hides the grid.
-     */
     private void showExerciseList(String muscleGroup) {
         rvMuscleGroups.setVisibility(View.GONE);
         llExerciseListContainer.setVisibility(View.VISIBLE);
         tvLibraryGroupTitle.setText(muscleGroup);
     }
 
-    // ─── Data Loading ───
-
-    /**
-     * Loads the user's saved workouts from the database.
-     */
     private void loadSavedWorkouts() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
@@ -263,9 +213,6 @@ public class WorkoutFragment extends Fragment implements
         });
     }
 
-    /**
-     * Loads exercises filtered by muscle group from the database.
-     */
     private void loadExercisesForGroup(String muscleGroup) {
         workoutRepository.getExercisesByMuscleGroup(muscleGroup, new ConnectionManager.DatabaseCallback<List<Exercise>>() {
             @Override
@@ -288,36 +235,25 @@ public class WorkoutFragment extends Fragment implements
         });
     }
 
-    // ─── Navigation ───
-
-    /**
-     * Navigates to the Create User Workout flow.
-     */
     private void navigateToCreateWorkout() {
-        Intent intent = new Intent(getContext(), com.jve.repsup.activities.CreateWorkoutActivity.class);
+        Intent intent = new Intent(getContext(), CreateWorkoutActivity.class);
         startActivity(intent);
     }
-
-    // ─── MuscleGroupAdapter.OnMuscleGroupClickListener ───
 
     @Override
     public void onMuscleGroupClick(String muscleGroup) {
         loadExercisesForGroup(muscleGroup);
     }
 
-    // ─── ExerciseListAdapter.OnExerciseClickListener ───
-
     @Override
     public void onExerciseClick(Exercise exercise, int position) {
         // Exercise detail view — future enhancement
     }
 
-    // ─── WorkoutCardAdapter.OnWorkoutActionListener ───
-
     @Override
     public void onWorkoutShare(Workout workout, int position) {
         StringBuilder shareText = new StringBuilder();
-        shareText.append("Check out my workout: ").append(workout.getName()).append(" on Reps Up! 💪\n\n");
+        shareText.append("Check out my workout: ").append(workout.getName()).append(" on Reps Up! \uD83D\uDCAA\n\n");
 
         List<WorkoutExercise> exercises = workout.getExercises();
         if (exercises != null && !exercises.isEmpty()) {
@@ -325,8 +261,8 @@ public class WorkoutFragment extends Fragment implements
             for (int i = 0; i < exercises.size(); i++) {
                 WorkoutExercise we = exercises.get(i);
                 String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
-                shareText.append("• ").append(exerciseName)
-                        .append(" — ").append(we.getSets()).append(" sets × ")
+                shareText.append("\u2022 ").append(exerciseName)
+                        .append(" \u2014 ").append(we.getSets()).append(" sets \u00d7 ")
                         .append(we.getReps()).append(" reps\n");
             }
         }
@@ -379,12 +315,7 @@ public class WorkoutFragment extends Fragment implements
         showReorderDialog(workout, exercises);
     }
 
-    /**
-     * Displays a dialog with a draggable list of exercises for reordering.
-     * Uses ItemTouchHelper for drag-and-drop functionality.
-     */
     private void showReorderDialog(Workout workout, List<WorkoutExercise> exercises) {
-        // Create a simple list of exercise names for the reorder dialog
         List<WorkoutExercise> reorderableList = new java.util.ArrayList<>(exercises);
 
         View dialogView = LayoutInflater.from(requireContext())
@@ -392,11 +323,9 @@ public class WorkoutFragment extends Fragment implements
         RecyclerView rvReorder = dialogView.findViewById(R.id.rvReorderExercises);
         rvReorder.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Simple adapter showing exercise names with drag handles
         ReorderExerciseAdapter reorderAdapter = new ReorderExerciseAdapter(reorderableList);
         rvReorder.setAdapter(reorderAdapter);
 
-        // Set up drag-and-drop
         ItemTouchHelper.SimpleCallback touchCallback = new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
             @Override
@@ -412,7 +341,6 @@ public class WorkoutFragment extends Fragment implements
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // No swipe action
             }
         };
         new ItemTouchHelper(touchCallback).attachToRecyclerView(rvReorder);
@@ -427,11 +355,7 @@ public class WorkoutFragment extends Fragment implements
                 .show();
     }
 
-    /**
-     * Saves the new exercise order to the database.
-     */
     private void saveReorderedExercises(Workout workout, List<WorkoutExercise> reorderedExercises) {
-        // Update order indices
         for (int i = 0; i < reorderedExercises.size(); i++) {
             reorderedExercises.get(i).setOrderIndex(i + 1);
         }
@@ -458,9 +382,6 @@ public class WorkoutFragment extends Fragment implements
         });
     }
 
-    /**
-     * Simple adapter for the reorder dialog showing exercise names.
-     */
     private static class ReorderExerciseAdapter extends RecyclerView.Adapter<ReorderExerciseAdapter.ViewHolder> {
 
         private final List<WorkoutExercise> exercises;
@@ -539,13 +460,9 @@ public class WorkoutFragment extends Fragment implements
                 .show();
     }
 
-    /**
-     * Refreshes data when fragment becomes visible again.
-     */
     @Override
     public void onResume() {
         super.onResume();
         loadSavedWorkouts();
     }
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 }

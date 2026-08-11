@@ -2,25 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-<<<<<<< HEAD
-// Read database credentials from local.properties
-def localProps = new Properties()
-def localPropsFile = rootProject.file('local.properties')
-if (localPropsFile.exists()) {
-    localProps.load(new FileInputStream(localPropsFile))
-}
-
-def dbHost = localProps.getProperty('db.host')
-def dbPort = localProps.getProperty('db.port')
-def dbName = localProps.getProperty('db.name')
-def dbUser = localProps.getProperty('db.user')
-def dbPassword = localProps.getProperty('db.password')
-
-if (!dbHost || !dbPort || !dbName || !dbUser || !dbPassword) {
-    throw new GradleException(
-        "Missing required database properties in local.properties. " +
-        "Please add: db.host, db.port, db.name, db.user, db.password"
-=======
 // ─── Load database credentials from local.properties ───
 // Required fields: db.host, db.port, db.user, db.password, db.name
 // Example local.properties entries:
@@ -58,7 +39,6 @@ if (!missingFields.isEmpty()) {
         "  db.user=your_db_user\n" +
         "  db.password=your_db_password\n" +
         "  db.name=your_db_name"
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     )
 }
 
@@ -75,14 +55,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-<<<<<<< HEAD
-        // Database connection config injected from local.properties
-        buildConfigField "String", "DB_HOST", "\"${dbHost}\""
-        buildConfigField "String", "DB_PORT", "\"${dbPort}\""
-        buildConfigField "String", "DB_NAME", "\"${dbName}\""
-        buildConfigField "String", "DB_USER", "\"${dbUser}\""
-        buildConfigField "String", "DB_PASSWORD", "\"${dbPassword}\""
-=======
         // Inject database credentials as BuildConfig string fields
         buildConfigField "String", "DB_HOST", "\"${dbHost}\""
         buildConfigField "String", "DB_PORT", "\"${dbPort}\""
@@ -93,7 +65,6 @@ android {
 
     buildFeatures {
         buildConfig true
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
     }
 
     buildTypes {
@@ -128,16 +99,11 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.material
 
-<<<<<<< HEAD
-    // MySQL JDBC connector for direct database access
-    implementation 'com.mysql:mysql-connector-j:8.2.0'
-=======
     // ViewPager2 for swipeable fragments
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
     // MySQL JDBC Connector (5.1.x — compatible with Android's java.sql subset)
     implementation 'mysql:mysql-connector-java:5.1.49'
->>>>>>> 581670146b11a91bfebf3cb43d1120e2cf8fcc8f
 
     testImplementation libs.junit
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'

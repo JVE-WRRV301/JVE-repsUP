@@ -295,7 +295,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
         }
 
-        Bitmap avatarBitmap = AvatarCompositor.composite(this, userAvatar, tempSlot, equippedList);
+        Bitmap avatarBitmap = AvatarCompositor.composite(this, userAvatar, tempSlot);
         imgAvatarPreview.setImageBitmap(avatarBitmap);
     }
 
