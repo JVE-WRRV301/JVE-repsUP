@@ -82,7 +82,7 @@ INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, unlock_type, lvl_requir
 -- ADMIN ACCOUNT (required) - so admins can create default workouts
 
 INSERT INTO Admins (admin_username, admin_password) VALUES
-    ('Dean', '$2a$10$placeholder');
+    ('Admin', 'admin123');
 
 
 -- TEST USERS (development only)
