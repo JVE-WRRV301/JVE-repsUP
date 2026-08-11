@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+
+    <LinearLayout
+        android:id="@+id/cosmetic_item_container"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/bg_cosmetic_item"
+        android:padding="8dp">
+
+        <!-- Cosmetic item image -->
+        <ImageView
+            android:id="@+id/img_cosmetic"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Cosmetic item"
+            tools:src="@drawable/ic_launcher_foreground" />
+
+        <!-- Item name -->
+        <TextView
+            android:id="@+id/txt_cosmetic_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="Blue Top" />
+
+    </LinearLayout>
+
+    <!-- Coin price overlay badge (visible only for locked items) -->
+    <LinearLayout
+        android:id="@+id/badge_coin_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_coin_badge"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_coin"
+            android:contentDescription="Coins" />
+
+        <TextView
+            android:id="@+id/txt_coin_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:textColor="@color/yellow"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="150" />
+
+    </LinearLayout>
+
+    <!-- Equipped indicator (checkmark over selected item) -->
+    <ImageView
+        android:id="@+id/img_equipped_check"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="8dp"
+        android:src="@drawable/ic_check"
+        android:contentDescription="Equipped"
+        android:visibility="gone" />
+
+</FrameLayout>
