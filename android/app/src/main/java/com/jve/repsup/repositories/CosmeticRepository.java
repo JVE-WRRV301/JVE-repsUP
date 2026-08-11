@@ -2,6 +2,7 @@ package com.jve.repsup.repositories;
 
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
+import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.models.OutfitSlot;
 import com.jve.repsup.models.UserCosmetic;
@@ -13,6 +14,23 @@ import java.util.List;
  * Wraps SQL queries against Cosmetic_Item, User_Cosmetic, and Outfit_Slot tables.
  */
 public class CosmeticRepository {
+
+    /**
+     * Gets the user's avatar record from the database.
+     */
+    public void getAvatar(int userId, DatabaseCallback<Avatar> callback) {
+        String sql = "SELECT avatar_id, user_id, skin_tone, body_shape, facial_details " +
+                "FROM avatar WHERE user_id = ?";
+        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
+            Avatar avatar = new Avatar();
+            avatar.setAvatarId(rs.getInt("avatar_id"));
+            avatar.setUserId(rs.getInt("user_id"));
+            avatar.setSkinTone(rs.getString("skin_tone"));
+            avatar.setBodyShape(rs.getString("body_shape"));
+            avatar.setFacialDetails(rs.getString("facial_details"));
+            return avatar;
+        }, callback);
+    }
 
     /**
      * Gets all cosmetic items (both owned and locked) for the user.

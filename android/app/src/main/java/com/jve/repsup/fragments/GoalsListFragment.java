@@ -93,7 +93,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
         goalRepository.getUserGoals(userId, new ConnectionManager.DatabaseCallback<List<Goal>>() {
             @Override
             public void onSuccess(List<Goal> result) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     if (result != null && !result.isEmpty()) {
                         rvGoals.setVisibility(View.VISIBLE);
@@ -108,7 +108,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
 
             @Override
             public void onError(Exception e) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     rvGoals.setVisibility(View.GONE);
                     tvGoalsEmpty.setVisibility(View.VISIBLE);
@@ -133,7 +133,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
         goalRepository.completeGoal(goal.getGoalId(), new ConnectionManager.DatabaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
 
                 // Step 2: Update User.xp
                 userRepository.updateXp(userId, xpEarned, new ConnectionManager.DatabaseCallback<Integer>() {
@@ -145,7 +145,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                                 new ConnectionManager.DatabaseCallback<Long>() {
                                     @Override
                                     public void onSuccess(Long logId) {
-                                        if (getActivity() == null) return;
+                                        if (getActivity() == null || !isAdded()) return;
                                         getActivity().runOnUiThread(() -> {
                                             // Update local goal state
                                             goal.setCompleted(true);
@@ -159,7 +159,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                                     @Override
                                     public void onError(Exception e) {
                                         // XP_Log insert failed but goal is completed — show dialog anyway
-                                        if (getActivity() == null) return;
+                                        if (getActivity() == null || !isAdded()) return;
                                         getActivity().runOnUiThread(() -> {
                                             goal.setCompleted(true);
                                             adapter.notifyItemChanged(position);
@@ -171,7 +171,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
 
                     @Override
                     public void onError(Exception e) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), R.string.goal_complete_error,
                                     Toast.LENGTH_SHORT).show();
@@ -182,7 +182,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
 
             @Override
             public void onError(Exception e) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), R.string.goal_complete_error,
                             Toast.LENGTH_SHORT).show();
@@ -237,7 +237,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
         goalRepository.deleteGoal(goal.getGoalId(), new ConnectionManager.DatabaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     adapter.removeGoal(position);
                     Toast.makeText(getContext(), R.string.goal_delete_success,
@@ -253,7 +253,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
 
             @Override
             public void onError(Exception e) {
-                if (getActivity() == null) return;
+                if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), R.string.goal_delete_error,
                             Toast.LENGTH_SHORT).show();

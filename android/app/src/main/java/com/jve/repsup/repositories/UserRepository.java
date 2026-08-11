@@ -126,15 +126,16 @@ public class UserRepository {
     }
 
     /**
-     * Retrieves a full user record by user_id.
+     * Retrieves a full user record by user_id, including the rank display name.
      *
      * @param userId   the user's ID
      * @param callback receives the User object or null if not found
      */
     public void getUserById(int userId, ConnectionManager.DatabaseCallback<User> callback) {
-        String sql = "SELECT user_id, first_name, email, username, set_password, xp, coins, " +
-                "current_level, rank_id, current_streak, avatar_id, measurment_system, set_language " +
-                "FROM user WHERE user_id = ?";
+        String sql = "SELECT u.user_id, u.first_name, u.email, u.username, u.set_password, u.xp, u.coins, " +
+                "u.current_level, u.rank_id, u.current_streak, u.avatar_id, u.measurment_system, u.set_language, " +
+                "CONCAT(r.tier, ' ', r.subtier) AS rank_name " +
+                "FROM user u LEFT JOIN ranks r ON u.rank_id = r.rank_id WHERE u.user_id = ?";
 
         ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
             User user = new User();
@@ -151,6 +152,7 @@ public class UserRepository {
             user.setAvatarId(rs.getInt("avatar_id"));
             user.setMeasurementSystem(rs.getString("measurment_system"));
             user.setLanguage(rs.getString("set_language"));
+            user.setRankName(rs.getString("rank_name"));
             return user;
         }, callback);
     }

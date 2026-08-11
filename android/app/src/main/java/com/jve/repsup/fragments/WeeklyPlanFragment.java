@@ -126,7 +126,7 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                 new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
                     @Override
                     public void onSuccess(List<ScheduledWorkout> result) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
                             Date weekStart = new Date(currentWeekStart.getTimeInMillis());
                             adapter.setWeekData(weekStart, result);
@@ -144,7 +144,7 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
 
                     @Override
                     public void onError(Exception e) {
-                        if (getActivity() == null) return;
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
                             tvEmptyState.setVisibility(View.VISIBLE);
                             rvWeeklyPlan.setVisibility(View.GONE);

@@ -399,6 +399,13 @@
     <string name="rank_up_close">Close</string>
     <string name="rank_up_share_text">I just reached %1$s rank on Reps Up! 🏅 +100 bonus coins!</string>
 
+    <!-- Me Fragment -->
+    <string name="me_locker_description">Open locker</string>
+    <string name="me_rank_description">Gym rank</string>
+    <string name="me_rank_default">Bronze I</string>
+    <string name="me_level_label">LEVEL PROGRESS</string>
+    <string name="me_level_progress_format">Level %1$d — %2$d / %3$d XP</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_section_user">USER</string>
