@@ -373,7 +373,7 @@ This plan implements the Reps Up gamified fitness Android application in Java us
     - Test dialogs: LevelUp, RankUp, StreakMilestone render with correct data
     - _Requirements: 2.3, 3.3, 3.4, 18.3, 19.2_
 
-- [~] 19. Final Checkpoint — Full integration verification
+- [ ] 19. Final Checkpoint — Full integration verification
   - Ensure all tests pass, all flows work end-to-end (Register → Assess → Home → Schedule → Start Workout → Complete → XP → Level Up → Rank Up), admin portal fully functional, error states handled gracefully. Ask the user if questions arise.
 
 ## Notes

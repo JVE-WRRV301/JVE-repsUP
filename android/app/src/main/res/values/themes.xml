@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.RepsUp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.RepsUp" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Background -->
         <item name="android:windowBackground">@color/dark_grey</item>
         <item name="colorPrimary">@color/light_blue</item>
@@ -19,10 +19,14 @@
 
         <!-- Status bar -->
         <item name="android:statusBarColor">@color/dark_grey</item>
+
+        <!-- AlertDialog always dark -->
+        <item name="alertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
     </style>
 
     <!-- DatePicker dialog styled for dark theme -->
-    <style name="DatePickerTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Dialog">
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorOnPrimary">@color/dark_text</item>
         <item name="android:windowBackground">@color/dark_grey_surface</item>
@@ -30,11 +34,26 @@
     </style>
 
     <!-- Dialog theme for popups (GoalComplete, LevelUp, etc.) -->
-    <style name="Theme.RepsUp.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+    <style name="Theme.RepsUp.Dialog" parent="Theme.MaterialComponents.Dialog">
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorOnPrimary">@color/dark_text</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!-- AlertDialog dark theme to match app's always-dark design -->
+    <style name="Theme.RepsUp.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorSurface">@color/dark_grey_variant</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/muted</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
+    </style>
+
+    <style name="Theme.RepsUp.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/light_blue</item>
     </style>
 </resources>
