@@ -113,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (user != null) {
                     runOnUiThread(() -> {
                         // User authentication successful — store session and navigate
-                        sessionManager.createSession(user.getUserId(), user.getUsername());
+                        sessionManager.createSession(user.getUserId(), user.getUsername(), user.getFirstName());
                         navigateToMain();
                     });
                 } else {
