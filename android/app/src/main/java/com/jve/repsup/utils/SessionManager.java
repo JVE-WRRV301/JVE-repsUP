@@ -12,6 +12,7 @@ public class SessionManager {
     private static final String PREF_NAME = "RepsUpSession";
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USERNAME = "username";
+    private static final String KEY_NAME = "name";
     private static final String KEY_IS_ADMIN = "is_admin";
     private static final int DEFAULT_USER_ID = -1;
 
@@ -22,13 +23,21 @@ public class SessionManager {
     }
 
     /**
-     * Creates a new session with the given user ID and username.
+     * Creates a new session with the given user ID, username, and first name.
      */
-    public void createSession(int userId, String username) {
+    public void createSession(int userId, String username, String name) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(KEY_USER_ID, userId);
         editor.putString(KEY_USERNAME, username);
+        editor.putString(KEY_NAME, name);
         editor.apply();
+    }
+
+    /**
+     * Creates a new session with the given user ID and username (backward compatible).
+     */
+    public void createSession(int userId, String username) {
+        createSession(userId, username, null);
     }
 
     /**
@@ -50,6 +59,13 @@ public class SessionManager {
      */
     public String getUsername() {
         return preferences.getString(KEY_USERNAME, null);
+    }
+
+    /**
+     * Returns the stored first name, or null if not set.
+     */
+    public String getName() {
+        return preferences.getString(KEY_NAME, null);
     }
 
     /**

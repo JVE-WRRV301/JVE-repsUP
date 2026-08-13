@@ -3,7 +3,9 @@ package com.jve.repsup.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -27,21 +29,38 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     private LinearLayout llProgressSegments;
     private Button btnBack;
     private Button btnNext;
+    private ImageButton btnAssessmentBack;
     private AssessmentPagerAdapter adapter;
     private AssessmentData assessmentData;
     private View[] progressSegments;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Full-screen immersive
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        );
+
         setContentView(R.layout.activity_fitness_assessment);
 
         assessmentData = new AssessmentData();
+
+        // Retrieve user name from intent or session
+        userName = getIntent().getStringExtra("user_name");
+        if (userName == null || userName.isEmpty()) {
+            SessionManager sessionManager = new SessionManager(this);
+            userName = sessionManager.getName();
+        }
 
         vpAssessment = findViewById(R.id.vpAssessment);
         llProgressSegments = findViewById(R.id.llProgressSegments);
         btnBack = findViewById(R.id.btnBack);
         btnNext = findViewById(R.id.btnNext);
+        btnAssessmentBack = findViewById(R.id.btnAssessmentBack);
 
         adapter = new AssessmentPagerAdapter(this);
         vpAssessment.setAdapter(adapter);
@@ -50,6 +69,9 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
         setupProgressBar();
         updateProgressBar(0);
         updateButtons(0);
+
+        // Assessment back button (step 0 only) — navigates back to Register
+        btnAssessmentBack.setOnClickListener(v -> finish());
 
         btnBack.setOnClickListener(v -> {
             int current = vpAssessment.getCurrentItem();
@@ -113,19 +135,41 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates button text and visibility based on the current step.
+     * Updates button text, visibility, and top bar based on the current step.
+     * Step 0: show assessment back arrow, hide progress, hide bottom Back, show "Lets Go" button.
+     * Other steps: hide assessment back, show progress, show normal Back/Next.
      */
     private void updateButtons(int currentStep) {
-        // Hide Back on first step
-        btnBack.setVisibility(currentStep == 0 ? View.INVISIBLE : View.VISIBLE);
+        LinearLayout.LayoutParams nextParams = (LinearLayout.LayoutParams) btnNext.getLayoutParams();
 
-        // Change Next text on first step to "Get Started" and last step to "Finish"
         if (currentStep == 0) {
-            btnNext.setText(R.string.assessment_get_started);
-        } else if (currentStep == AssessmentPagerAdapter.TOTAL_STEPS - 1) {
-            btnNext.setText(R.string.assessment_finish);
+            // Step 0: Welcome page — full-width button
+            btnAssessmentBack.setVisibility(View.VISIBLE);
+            llProgressSegments.setVisibility(View.GONE);
+            btnBack.setVisibility(View.GONE);
+            btnNext.setText(R.string.btn_lets_go);
+
+            // Make button span full width
+            nextParams.weight = 2;
+            nextParams.setMargins(0, 0, 0, 0);
+            btnNext.setLayoutParams(nextParams);
         } else {
-            btnNext.setText(R.string.assessment_next);
+            // Other steps: normal navigation
+            btnAssessmentBack.setVisibility(View.GONE);
+            llProgressSegments.setVisibility(View.VISIBLE);
+            btnBack.setVisibility(View.VISIBLE);
+
+            // Restore half-width
+            nextParams.weight = 1;
+            int marginPx = (int) (6 * getResources().getDisplayMetrics().density);
+            nextParams.setMargins(marginPx, 0, 0, 0);
+            btnNext.setLayoutParams(nextParams);
+
+            if (currentStep == AssessmentPagerAdapter.TOTAL_STEPS - 1) {
+                btnNext.setText(R.string.assessment_finish);
+            } else {
+                btnNext.setText(R.string.assessment_next);
+            }
         }
     }
 
@@ -186,5 +230,12 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
      */
     public AssessmentData getAssessmentData() {
         return assessmentData;
+    }
+
+    /**
+     * Returns the user's first name for the welcome fragment display.
+     */
+    public String getUserName() {
+        return userName;
     }
 }

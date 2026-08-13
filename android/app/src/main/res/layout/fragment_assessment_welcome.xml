@@ -1,42 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
     android:background="@color/dark_grey">
 
+    <!-- Welcome title with glow effect -->
     <TextView
-        android:id="@+id/tvWelcomeTitle"
-        android:layout_width="match_parent"
+        android:id="@+id/tvWelcomeName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/assessment_welcome_title"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:fontFamily="@font/orbitron_bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:shadowColor="@color/white"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="15"
+        android:text="@string/assessment_welcome_personalized"
         android:textColor="@color/white"
-        android:fontFamily="@font/orbitron"
-        android:textSize="26sp"
-        android:gravity="center" />
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Subtitle -->
     <TextView
-        android:id="@+id/tvWelcomeSubtitle"
-        android:layout_width="match_parent"
+        android:id="@+id/tvCompleteTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/assessment_welcome_subtitle"
-        android:textColor="@color/muted"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:fontFamily="@font/inter"
+        android:gravity="center"
+        android:text="@string/assessment_complete_title"
+        android:textColor="@color/white"
         android:textSize="16sp"
-        android:gravity="center" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcomeName" />
 
+    <!-- Description -->
     <TextView
-        android:id="@+id/tvWelcomeDescription"
-        android:layout_width="match_parent"
+        android:id="@+id/tvDescription"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/assessment_welcome_description"
-        android:textColor="@color/muted"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:fontFamily="@font/inter"
+        android:gravity="center"
+        android:text="@string/assessment_welcome_detail"
+        android:textColor="@color/muted"
         android:textSize="14sp"
-        android:gravity="center" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvCompleteTitle" />
 
-</LinearLayout>
+    <!-- Arm image centered (includes decorative dots in the image) -->
+    <ImageView
+        android:id="@+id/ivArm"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:contentDescription="@string/assessment_welcome_title"
+        android:src="@drawable/ic_fitness_assessment"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvDescription" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
