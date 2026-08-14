@@ -25,25 +25,29 @@
         android:textSize="22sp"
         android:layout_marginTop="24dp" />
 
-    <TextView
-        android:id="@+id/tvAgeValue"
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/etAgeValue"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="25"
+        android:layout_gravity="center_horizontal"
+        android:background="@android:color/transparent"
         android:textColor="@color/light_blue"
         android:fontFamily="@font/orbitron"
         android:textSize="48sp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:inputType="number"
+        android:maxLength="2"
+        android:text="18" />
 
     <SeekBar
         android:id="@+id/sbAge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:min="14"
+        android:min="0"
         android:max="99"
-        android:progress="11"
+        android:progress="18"
         android:progressTint="@color/light_blue"
         android:thumbTint="@color/light_blue"
         android:progressBackgroundTint="@color/dark_grey_surface" />

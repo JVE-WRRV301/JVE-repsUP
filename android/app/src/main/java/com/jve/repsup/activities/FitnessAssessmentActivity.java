@@ -95,6 +95,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 updateProgressBar(position);
                 updateButtons(position);
+                validateCurrentStep();
             }
         });
     }
@@ -171,6 +172,48 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
                 btnNext.setText(R.string.assessment_next);
             }
         }
+        validateCurrentStep();
+    }
+
+    /**
+     * Enables or disables the Next button with appropriate styling.
+     */
+    public void setNextEnabled(boolean enabled) {
+        if (enabled) {
+            btnNext.setEnabled(true);
+            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_blue));
+            btnNext.setTextColor(ContextCompat.getColor(this, R.color.dark_text));
+        } else {
+            btnNext.setEnabled(false);
+            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.dark_grey_surface));
+            btnNext.setTextColor(ContextCompat.getColor(this, R.color.muted));
+        }
+    }
+
+    /**
+     * Validates whether the current step has enough data to proceed.
+     */
+    public void validateCurrentStep() {
+        int step = vpAssessment.getCurrentItem();
+        switch (step) {
+            case 0: setNextEnabled(true); break; // Welcome always valid
+            case 1: setNextEnabled(assessmentData.getGender() != null); break;
+            case 2: setNextEnabled(true); break; // Age always has a value
+            case 3: setNextEnabled(true); break; // Weight always has a value
+            case 4: setNextEnabled(true); break; // Height always has a value
+            case 5: setNextEnabled(assessmentData.getBodyType() != null); break;
+            case 6: setNextEnabled(assessmentData.getWorkoutLevel() != null); break;
+            case 7: setNextEnabled(true); break; // Schedule always has a value
+            case 8: setNextEnabled(!assessmentData.getFitnessGoals().isEmpty()); break;
+            default: setNextEnabled(true);
+        }
+    }
+
+    /**
+     * Called by fragments when they update assessment data, to re-validate the Next button.
+     */
+    public void notifyDataChanged() {
+        validateCurrentStep();
     }
 
     /**

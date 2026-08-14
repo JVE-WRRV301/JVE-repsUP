@@ -4,24 +4,43 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
- * Step 6: Body type selection in a 2x3 grid.
+ * Step 6: Body type selection in a 2x3 grid with gender-aware images.
+ * Body types: Skinny, Average, Toned, Muscular, Chubby, Overweight.
  */
 public class AssessmentBodyTypeFragment extends Fragment {
 
-    private LinearLayout llEctomorph, llMesomorph, llEndomorph, llAthletic, llStocky, llSlim;
-    private LinearLayout[] allOptions;
-    private String[] bodyTypeNames = {"Ectomorph", "Mesomorph", "Endomorph", "Athletic", "Stocky", "Slim"};
+    private ImageView[] bodyTypeViews;
+    private String[] bodyTypeNames = {"Skinny", "Average", "Toned", "Muscular", "Chubby", "Overweight"};
+
+    // Male image resources
+    private int[] maleImages = {
+            R.drawable.ic_bodytype_male_skinny,
+            R.drawable.ic_bodytype_male_average,
+            R.drawable.ic_bodytype_male_toned,
+            R.drawable.ic_bodytype_male_muscular,
+            R.drawable.ic_bodytype_male_chubby,
+            R.drawable.ic_bodytype_male_overweight
+    };
+
+    // Female image resources
+    private int[] femaleImages = {
+            R.drawable.ic_bodytype_female_skinny,
+            R.drawable.ic_bodytype_female_average,
+            R.drawable.ic_bodytype_female_toned,
+            R.drawable.ic_bodytype_female_muscular,
+            R.drawable.ic_bodytype_female_chubby,
+            R.drawable.ic_bodytype_female_overweight
+    };
 
     @Nullable
     @Override
@@ -35,19 +54,25 @@ public class AssessmentBodyTypeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        llEctomorph = view.findViewById(R.id.llEctomorph);
-        llMesomorph = view.findViewById(R.id.llMesomorph);
-        llEndomorph = view.findViewById(R.id.llEndomorph);
-        llAthletic = view.findViewById(R.id.llAthletic);
-        llStocky = view.findViewById(R.id.llStocky);
-        llSlim = view.findViewById(R.id.llSlim);
+        bodyTypeViews = new ImageView[]{
+                view.findViewById(R.id.ivBodyType0),
+                view.findViewById(R.id.ivBodyType1),
+                view.findViewById(R.id.ivBodyType2),
+                view.findViewById(R.id.ivBodyType3),
+                view.findViewById(R.id.ivBodyType4),
+                view.findViewById(R.id.ivBodyType5)
+        };
 
-        allOptions = new LinearLayout[]{llEctomorph, llMesomorph, llEndomorph, llAthletic, llStocky, llSlim};
+        // Determine gender for image selection
+        String gender = getAssessmentActivity().getAssessmentData().getGender();
+        boolean isFemale = "Female".equals(gender);
+        int[] images = isFemale ? femaleImages : maleImages;
 
-        // Set click listeners
-        for (int i = 0; i < allOptions.length; i++) {
+        // Set images and click listeners
+        for (int i = 0; i < bodyTypeViews.length; i++) {
+            bodyTypeViews[i].setImageResource(images[i]);
             final int index = i;
-            allOptions[i].setOnClickListener(v -> selectBodyType(index));
+            bodyTypeViews[i].setOnClickListener(v -> selectBodyType(index));
         }
 
         // Restore saved selection
@@ -65,14 +90,15 @@ public class AssessmentBodyTypeFragment extends Fragment {
     private void selectBodyType(int index) {
         getAssessmentActivity().getAssessmentData().setBodyType(bodyTypeNames[index]);
         highlightSelected(index);
+        getAssessmentActivity().notifyDataChanged();
     }
 
     private void highlightSelected(int selectedIndex) {
-        for (int i = 0; i < allOptions.length; i++) {
+        for (int i = 0; i < bodyTypeViews.length; i++) {
             if (i == selectedIndex) {
-                allOptions[i].setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_blue));
+                bodyTypeViews[i].setBackgroundResource(R.drawable.bg_bodytype_selected);
             } else {
-                allOptions[i].setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.dark_grey_surface));
+                bodyTypeViews[i].setBackgroundResource(R.drawable.bg_bodytype_unselected);
             }
         }
     }

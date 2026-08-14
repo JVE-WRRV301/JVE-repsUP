@@ -4,12 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:paddingTop="36dp"
     android:background="@color/dark_grey">
 
     <!-- Top bar: back button (step 0 only) + progress segments -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="36dp">
 
         <!-- Back arrow for step 0 -->
         <ImageButton

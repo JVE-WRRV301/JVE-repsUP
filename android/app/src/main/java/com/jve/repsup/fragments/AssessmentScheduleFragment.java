@@ -4,23 +4,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
- * Step 8: Workout schedule — how many days per week.
+ * Step 8: Workout schedule — how many days per week (button-based selection 1-7).
  */
 public class AssessmentScheduleFragment extends Fragment {
 
-    private TextView tvScheduleValue;
-    private SeekBar sbSchedule;
+    private Button[] allButtons;
 
     @Nullable
     @Override
@@ -34,28 +33,42 @@ public class AssessmentScheduleFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvScheduleValue = view.findViewById(R.id.tvScheduleValue);
-        sbSchedule = view.findViewById(R.id.sbSchedule);
+        allButtons = new Button[]{
+                view.findViewById(R.id.btnSchedule1),
+                view.findViewById(R.id.btnSchedule2),
+                view.findViewById(R.id.btnSchedule3),
+                view.findViewById(R.id.btnSchedule4),
+                view.findViewById(R.id.btnSchedule5),
+                view.findViewById(R.id.btnSchedule6),
+                view.findViewById(R.id.btnSchedule7)
+        };
 
-        // Restore saved value
+        for (int i = 0; i < allButtons.length; i++) {
+            final int days = i + 1;
+            allButtons[i].setOnClickListener(v -> selectSchedule(days));
+        }
+
+        // Restore saved selection
         int savedDays = getAssessmentActivity().getAssessmentData().getWorkoutsPerWeek();
-        tvScheduleValue.setText(String.valueOf(savedDays));
-        sbSchedule.setProgress(savedDays - 1); // min is 1
+        highlightSelected(savedDays);
+    }
 
-        sbSchedule.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int days = progress + 1;
-                tvScheduleValue.setText(String.valueOf(days));
-                getAssessmentActivity().getAssessmentData().setWorkoutsPerWeek(days);
+    private void selectSchedule(int days) {
+        getAssessmentActivity().getAssessmentData().setWorkoutsPerWeek(days);
+        highlightSelected(days);
+        getAssessmentActivity().notifyDataChanged();
+    }
+
+    private void highlightSelected(int selectedDays) {
+        for (int i = 0; i < allButtons.length; i++) {
+            if (i + 1 == selectedDays) {
+                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
+                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
+            } else {
+                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
+                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
+        }
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {
