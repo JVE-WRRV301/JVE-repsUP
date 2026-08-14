@@ -62,6 +62,7 @@ public class AssessmentWorkoutLevelFragment extends Fragment {
     private void selectLevel(int index) {
         getAssessmentActivity().getAssessmentData().setWorkoutLevel(levelValues[index]);
         highlightSelected(index);
+        getAssessmentActivity().notifyDataChanged();
     }
 
     private void highlightSelected(int selectedIndex) {

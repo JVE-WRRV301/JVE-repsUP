@@ -10,7 +10,7 @@ import java.util.List;
 public class AssessmentData {
 
     private String gender;
-    private int age = 25;
+    private int age = 18;
     private double weight = 70.0;
     private boolean weightInKg = true;
     private double height = 170.0;
@@ -62,12 +62,13 @@ public class AssessmentData {
 
     /**
      * Returns the height converted to cm for database storage.
+     * When heightInCm is false, height stores total inches, so multiply by 2.54.
      */
     public double getHeightInCmValue() {
         if (heightInCm) {
             return height;
         }
-        return height * 30.48;
+        return height * 2.54;
     }
 
     /**

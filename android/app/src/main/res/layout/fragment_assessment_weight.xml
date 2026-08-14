@@ -56,17 +56,21 @@
 
     </LinearLayout>
 
-    <!-- Weight value display -->
-    <TextView
-        android:id="@+id/tvWeightValue"
-        android:layout_width="match_parent"
+    <!-- Weight value EditText for manual input -->
+    <EditText
+        android:id="@+id/etWeightValue"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="70"
+        android:layout_gravity="center_horizontal"
+        android:background="@android:color/transparent"
         android:textColor="@color/light_blue"
         android:fontFamily="@font/orbitron"
         android:textSize="48sp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:inputType="number"
+        android:maxLength="3"
+        android:text="70" />
 
     <TextView
         android:id="@+id/tvWeightUnit"
@@ -84,9 +88,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:min="20"
+        android:min="0"
         android:max="500"
-        android:progress="40"
+        android:progress="70"
         android:progressTint="@color/light_blue"
         android:thumbTint="@color/light_blue"
         android:progressBackgroundTint="@color/dark_grey_surface" />

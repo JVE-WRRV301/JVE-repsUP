@@ -66,6 +66,7 @@ public class AssessmentGenderFragment extends Fragment {
             btnMale.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
             btnMale.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         }
+        getAssessmentActivity().notifyDataChanged();
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

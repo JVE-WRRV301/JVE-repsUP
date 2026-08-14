@@ -162,6 +162,24 @@
     <string name="assessment_goal_get_fitter">Get fitter</string>
     <string name="assessment_goal_improve_endurance">Improve endurance</string>
 
+    <!-- Body Type (new names) -->
+    <string name="assessment_body_type_subtitle">Choose which one best depicts you.</string>
+    <string name="assessment_body_skinny">Skinny</string>
+    <string name="assessment_body_average">Average</string>
+    <string name="assessment_body_toned">Toned</string>
+    <string name="assessment_body_muscular">Muscular</string>
+    <string name="assessment_body_chubby">Chubby</string>
+    <string name="assessment_body_overweight">Overweight</string>
+
+    <!-- Schedule buttons -->
+    <string name="schedule_1_day">1 day / week</string>
+    <string name="schedule_2_days">2 days / week</string>
+    <string name="schedule_3_days">3 days / week</string>
+    <string name="schedule_4_days">4 days / week</string>
+    <string name="schedule_5_days">5 days / week</string>
+    <string name="schedule_6_days">6 days / week</string>
+    <string name="schedule_every_day">Every day</string>
+
     <!-- Avatar Generation -->
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
     <string name="avatar_continue">Continue</string>

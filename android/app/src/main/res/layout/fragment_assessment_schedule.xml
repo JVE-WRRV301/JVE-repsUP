@@ -1,61 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/dark_grey">
+    android:background="@color/dark_grey"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tvSectionTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/assessment_section_fitness"
-        android:textColor="@color/muted"
-        android:fontFamily="@font/inter"
-        android:textSize="14sp" />
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView
-        android:id="@+id/tvQuestion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assessment_schedule_question"
-        android:textColor="@color/white"
-        android:fontFamily="@font/orbitron"
-        android:textSize="22sp"
-        android:layout_marginTop="24dp" />
+        <TextView
+            android:id="@+id/tvSectionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_section_fitness"
+            android:textColor="@color/muted"
+            android:fontFamily="@font/inter"
+            android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/tvScheduleValue"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="3"
-        android:textColor="@color/light_blue"
-        android:fontFamily="@font/orbitron"
-        android:textSize="48sp"
-        android:gravity="center" />
+        <TextView
+            android:id="@+id/tvQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_schedule_question"
+            android:textColor="@color/white"
+            android:fontFamily="@font/orbitron"
+            android:textSize="22sp"
+            android:layout_marginTop="24dp" />
 
-    <TextView
-        android:id="@+id/tvScheduleLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assessment_schedule_days_per_week"
-        android:textColor="@color/muted"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp"
-        android:gravity="center" />
+        <Button
+            android:id="@+id/btnSchedule1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/schedule_1_day"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
 
-    <SeekBar
-        android:id="@+id/sbSchedule"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:min="1"
-        android:max="7"
-        android:progress="2"
-        android:progressTint="@color/light_blue"
-        android:thumbTint="@color/light_blue"
-        android:progressBackgroundTint="@color/dark_grey_surface" />
+        <Button
+            android:id="@+id/btnSchedule2"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_2_days"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnSchedule3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_3_days"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
+
+        <Button
+            android:id="@+id/btnSchedule4"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_4_days"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
+
+        <Button
+            android:id="@+id/btnSchedule5"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_5_days"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
+
+        <Button
+            android:id="@+id/btnSchedule6"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_6_days"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
+
+        <Button
+            android:id="@+id/btnSchedule7"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/schedule_every_day"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="28dp" />
+
+    </LinearLayout>
+
+</ScrollView>
