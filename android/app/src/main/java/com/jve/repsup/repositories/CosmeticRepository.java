@@ -299,4 +299,12 @@ public class CosmeticRepository {
             });
         }
     }
+
+    /**
+     * Gets the user's current coin balance.
+     */
+    public void getCoinBalance(int userId, DatabaseCallback<Integer> callback) {
+        String sql = "SELECT coins FROM user WHERE user_id = ?";
+        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> rs.getInt("coins"), callback);
+    }
 }

@@ -1,37 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@drawable/bg_weekly_plan_card"
+    android:orientation="vertical"
     android:padding="12dp"
     android:layout_marginBottom="8dp">
 
-    <!-- Workout name -->
-    <TextView
-        android:id="@+id/tvWorkoutName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:textStyle="bold" />
-
-    <!-- Exercise count -->
-    <TextView
-        android:id="@+id/tvExerciseInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/muted"
-        android:textSize="12sp"
-        android:layout_marginTop="4dp" />
-
-    <!-- Status or START button row -->
+    <!-- Workout name and 3-dot menu row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvWorkoutName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/orbitron"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivWorkoutMenu"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/workout_menu_description"
+            android:src="@drawable/ic_more_vert"
+            app:tint="@color/muted" />
+    </LinearLayout>
+
+    <!-- Exercise list container (shows up to 3 exercises) -->
+    <LinearLayout
+        android:id="@+id/llExerciseList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical" />
+
+    <!-- "and X more" expandable text -->
+    <TextView
+        android:id="@+id/tvAndMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/muted"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <!-- Status / START button row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
 
         <!-- Status text (Completed, Missed, Scheduled) -->
         <TextView

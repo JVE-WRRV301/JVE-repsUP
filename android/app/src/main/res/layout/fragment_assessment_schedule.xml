@@ -19,7 +19,8 @@
             android:text="@string/assessment_section_fitness"
             android:textColor="@color/muted"
             android:fontFamily="@font/inter"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/tvQuestion"
@@ -29,7 +30,8 @@
             android:textColor="@color/white"
             android:fontFamily="@font/orbitron"
             android:textSize="22sp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="24dp"
+            android:gravity="center" />
 
         <Button
             android:id="@+id/btnSchedule1"

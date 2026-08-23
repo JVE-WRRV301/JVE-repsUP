@@ -86,6 +86,12 @@ public class HomeFragment extends Fragment {
         loadNextGoal();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadTodaysWorkout();
+    }
+
     private void initViews(View view) {
         llWeekStrip = view.findViewById(R.id.llWeekStrip);
 
@@ -165,6 +171,7 @@ public class HomeFragment extends Fragment {
 
     /**
      * Displays the workout card with name, date, and exercises.
+     * Shows "Completed" status if the workout has already been finished.
      */
     private void showWorkoutCard(ScheduledWorkout scheduledWorkout) {
         llTodayContent.setVisibility(View.VISIBLE);
@@ -174,6 +181,17 @@ public class HomeFragment extends Fragment {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
         tvWorkoutDate.setText(dateFormat.format(scheduledWorkout.getScheduledDate()));
+
+        // Show START button or Completed status
+        if (scheduledWorkout.isCompleted()) {
+            btnStart.setText(R.string.calendar_status_completed);
+            btnStart.setEnabled(false);
+            btnStart.setAlpha(0.7f);
+        } else {
+            btnStart.setText(R.string.home_start);
+            btnStart.setEnabled(true);
+            btnStart.setAlpha(1.0f);
+        }
 
         // Populate exercise list
         llExerciseList.removeAllViews();
@@ -266,7 +284,7 @@ public class HomeFragment extends Fragment {
      * Navigates to WorkoutExecutionActivity with the scheduled workout data.
      */
     private void startWorkout() {
-        if (todaysWorkout == null) return;
+        if (todaysWorkout == null || todaysWorkout.isCompleted()) return;
 
         Intent intent = new Intent(getContext(), WorkoutExecutionActivity.class);
         intent.putExtra(WorkoutExecutionActivity.EXTRA_SCHEDULED_WORKOUT_ID,

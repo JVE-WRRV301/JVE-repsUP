@@ -177,4 +177,20 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <!-- ==================== LOCKER TABS ==================== -->
+
+    <!-- Locker main tab text style -->
+    <style name="LockerTabText" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/inter_medium</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Locker sub-tab text style -->
+    <style name="LockerSubTabText" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
 </resources>

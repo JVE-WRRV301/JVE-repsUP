@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,21 +18,22 @@ import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
+import com.jve.repsup.utils.RulerSliderView;
 
 /**
  * Step 5: Height input with ruler slider, cm/ft toggle, and manual EditText input.
- * In cm mode: SeekBar 0-300 (cm), EditText accepts number.
- * In ft mode: SeekBar 0-96 (total inches), EditText accepts format like 5'8, display is feet'inches".
+ * Features a blue underline under the value and a custom ruler with numbered tick marks.
+ * In cm mode: range 50-300 cm. In ft mode: range 24-96 (total inches), display as feet'inches".
  */
 public class AssessmentHeightFragment extends Fragment {
 
     private EditText etHeightValue;
     private TextView tvHeightUnit;
-    private SeekBar sbHeight;
+    private RulerSliderView rulerSlider;
     private Button btnCm;
     private Button btnFt;
     private boolean isCm = true;
-    private boolean isUpdatingFromSeekbar = false;
+    private boolean isUpdatingFromSlider = false;
     private boolean isUpdatingFromEditText = false;
 
     @Nullable
@@ -50,7 +50,7 @@ public class AssessmentHeightFragment extends Fragment {
 
         etHeightValue = view.findViewById(R.id.etHeightValue);
         tvHeightUnit = view.findViewById(R.id.tvHeightUnit);
-        sbHeight = view.findViewById(R.id.sbHeight);
+        rulerSlider = view.findViewById(R.id.rulerSlider);
         btnCm = view.findViewById(R.id.btnCm);
         btnFt = view.findViewById(R.id.btnFt);
 
@@ -58,16 +58,16 @@ public class AssessmentHeightFragment extends Fragment {
         isCm = getAssessmentActivity().getAssessmentData().isHeightInCm();
         double savedHeight = getAssessmentActivity().getAssessmentData().getHeight();
 
-        setupForMode();
+        setupRulerForMode();
         updateUnitToggle();
 
         if (isCm) {
             int cm = (int) savedHeight;
-            sbHeight.setProgress(cm);
+            rulerSlider.setValue(cm);
             updateDisplay(cm);
         } else {
             int totalInches = (int) savedHeight;
-            sbHeight.setProgress(totalInches);
+            rulerSlider.setValue(totalInches);
             updateDisplay(totalInches);
         }
 
@@ -79,12 +79,12 @@ public class AssessmentHeightFragment extends Fragment {
                 isCm = true;
                 getAssessmentActivity().getAssessmentData().setHeightInCm(true);
                 getAssessmentActivity().getAssessmentData().setHeight(cmValue);
-                setupForMode();
+                setupRulerForMode();
                 updateUnitToggle();
-                isUpdatingFromSeekbar = true;
-                sbHeight.setProgress(cmValue);
+                isUpdatingFromSlider = true;
+                rulerSlider.setValue(cmValue);
                 updateDisplay(cmValue);
-                isUpdatingFromSeekbar = false;
+                isUpdatingFromSlider = false;
             }
         });
 
@@ -96,30 +96,21 @@ public class AssessmentHeightFragment extends Fragment {
                 isCm = false;
                 getAssessmentActivity().getAssessmentData().setHeightInCm(false);
                 getAssessmentActivity().getAssessmentData().setHeight(totalInches);
-                setupForMode();
+                setupRulerForMode();
                 updateUnitToggle();
-                isUpdatingFromSeekbar = true;
-                sbHeight.setProgress(totalInches);
+                isUpdatingFromSlider = true;
+                rulerSlider.setValue(totalInches);
                 updateDisplay(totalInches);
-                isUpdatingFromSeekbar = false;
+                isUpdatingFromSlider = false;
             }
         });
 
-        sbHeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (isUpdatingFromEditText) return;
-                isUpdatingFromSeekbar = true;
-                updateDisplay(progress);
-                getAssessmentActivity().getAssessmentData().setHeight(progress);
-                isUpdatingFromSeekbar = false;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+        rulerSlider.setOnValueChangedListener(value -> {
+            if (isUpdatingFromEditText) return;
+            isUpdatingFromSlider = true;
+            updateDisplay(value);
+            getAssessmentActivity().getAssessmentData().setHeight(value);
+            isUpdatingFromSlider = false;
         });
 
         etHeightValue.addTextChangedListener(new TextWatcher() {
@@ -131,7 +122,7 @@ public class AssessmentHeightFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isUpdatingFromSeekbar) return;
+                if (isUpdatingFromSlider) return;
                 isUpdatingFromEditText = true;
                 String text = s.toString().trim();
                 if (!text.isEmpty()) {
@@ -139,7 +130,7 @@ public class AssessmentHeightFragment extends Fragment {
                         try {
                             int cm = Integer.parseInt(text);
                             if (cm > 300) cm = 300;
-                            sbHeight.setProgress(cm);
+                            rulerSlider.setValue(cm);
                             getAssessmentActivity().getAssessmentData().setHeight(cm);
                         } catch (NumberFormatException ignored) {}
                     } else {
@@ -147,7 +138,7 @@ public class AssessmentHeightFragment extends Fragment {
                         int totalInches = parseFeetInches(text);
                         if (totalInches >= 0) {
                             if (totalInches > 96) totalInches = 96;
-                            sbHeight.setProgress(totalInches);
+                            rulerSlider.setValue(totalInches);
                             getAssessmentActivity().getAssessmentData().setHeight(totalInches);
                         }
                     }
@@ -158,15 +149,17 @@ public class AssessmentHeightFragment extends Fragment {
     }
 
     /**
-     * Configures SeekBar range and EditText input type for the current mode.
+     * Configures ruler range and EditText input type for the current mode.
      */
-    private void setupForMode() {
+    private void setupRulerForMode() {
         if (isCm) {
-            sbHeight.setMax(300);
+            rulerSlider.setRange(50, 300);
+            rulerSlider.setMajorTickInterval(10);
             etHeightValue.setInputType(InputType.TYPE_CLASS_NUMBER);
             etHeightValue.setMaxEms(3);
         } else {
-            sbHeight.setMax(96);
+            rulerSlider.setRange(24, 96);
+            rulerSlider.setMajorTickInterval(12);
             // Allow text input for feet'inches format
             etHeightValue.setInputType(InputType.TYPE_CLASS_TEXT);
             etHeightValue.setMaxEms(5);
@@ -179,7 +172,7 @@ public class AssessmentHeightFragment extends Fragment {
      */
     private void updateDisplay(int value) {
         if (!isUpdatingFromEditText) {
-            isUpdatingFromSeekbar = true;
+            isUpdatingFromSlider = true;
             if (isCm) {
                 etHeightValue.setText(String.valueOf(value));
             } else {
@@ -188,7 +181,7 @@ public class AssessmentHeightFragment extends Fragment {
                 etHeightValue.setText(feet + "'" + inches);
             }
             etHeightValue.setSelection(etHeightValue.getText().length());
-            isUpdatingFromSeekbar = false;
+            isUpdatingFromSlider = false;
         }
         tvHeightUnit.setText(isCm ? getString(R.string.assessment_unit_cm) : getString(R.string.assessment_unit_ft));
     }

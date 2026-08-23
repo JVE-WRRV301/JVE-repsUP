@@ -359,9 +359,7 @@ public class RegisterActivity extends AppCompatActivity {
                     // Navigate to FitnessAssessmentActivity with name extra
                     Intent intent = new Intent(RegisterActivity.this, FitnessAssessmentActivity.class);
                     intent.putExtra("user_name", name);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    finish();
                 });
             }
 

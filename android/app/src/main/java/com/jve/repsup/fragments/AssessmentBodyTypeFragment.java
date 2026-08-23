@@ -96,9 +96,9 @@ public class AssessmentBodyTypeFragment extends Fragment {
     private void highlightSelected(int selectedIndex) {
         for (int i = 0; i < bodyTypeViews.length; i++) {
             if (i == selectedIndex) {
-                bodyTypeViews[i].setBackgroundResource(R.drawable.bg_bodytype_selected);
+                bodyTypeViews[i].setForeground(getResources().getDrawable(R.drawable.bg_bodytype_selected, null));
             } else {
-                bodyTypeViews[i].setBackgroundResource(R.drawable.bg_bodytype_unselected);
+                bodyTypeViews[i].setForeground(getResources().getDrawable(R.drawable.bg_bodytype_unselected, null));
             }
         }
     }

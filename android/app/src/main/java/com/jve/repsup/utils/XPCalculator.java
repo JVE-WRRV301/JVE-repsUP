@@ -61,26 +61,28 @@ public class XPCalculator {
 
     /**
      * Determines the XP threshold needed for the next level.
-     * Level N requires N * 100 XP to advance to N+1.
+     * Level 1→2 requires 500 XP, level 2→3 requires 1000 XP,
+     * level 3→4 requires 2000 XP, etc. (doubles each level).
+     * Formula: 500 * 2^(currentLevel - 1)
      *
      * @param currentLevel the user's current level (must be >= 1)
      * @return XP required to advance from currentLevel to currentLevel+1
      */
     public static int xpForNextLevel(int currentLevel) {
-        return currentLevel * 100;
+        return 500 * (int) Math.pow(2, currentLevel - 1);
     }
 
     /**
      * Checks if total XP meets or exceeds the cumulative threshold for the current level.
-     * The cumulative threshold for level N is the sum of (i * 100) for i = 1 to currentLevel,
-     * which equals currentLevel * (currentLevel + 1) * 50.
+     * The cumulative threshold to reach level N+1 is 500 * (2^N - 1),
+     * which is the sum of the doubling series: 500 + 1000 + 2000 + ...
      *
      * @param totalXp      the user's total accumulated XP
      * @param currentLevel the user's current level (must be >= 1)
      * @return true if the user has enough XP to level up
      */
     public static boolean shouldLevelUp(int totalXp, int currentLevel) {
-        int cumulativeThreshold = currentLevel * (currentLevel + 1) * 50;
+        int cumulativeThreshold = 500 * ((int) Math.pow(2, currentLevel) - 1);
         return totalXp >= cumulativeThreshold;
     }
 

@@ -15,15 +15,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateGoalActivity;
 import com.jve.repsup.adapters.GoalCardAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.dialogs.GoalCompleteDialog;
+import com.jve.repsup.dialogs.LevelUpDialog;
 import com.jve.repsup.models.Goal;
+import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
 
@@ -120,7 +124,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
     /**
      * Called when the user taps the completion checkbox on a goal.
      * Marks the goal as completed, awards XP, inserts XP_Log, updates User.xp,
-     * and displays the CONGRATULATIONS! popup.
+     * checks for level-up, and displays the CONGRATULATIONS! popup.
      */
     @Override
     public void onGoalComplete(Goal goal, int position) {
@@ -146,25 +150,16 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                                     @Override
                                     public void onSuccess(Long logId) {
                                         if (getActivity() == null || !isAdded()) return;
-                                        getActivity().runOnUiThread(() -> {
-                                            // Update local goal state
-                                            goal.setCompleted(true);
-                                            adapter.notifyItemChanged(position);
 
-                                            // Show CONGRATULATIONS! dialog
-                                            showGoalCompleteDialog(goal.getDescription(), xpEarned);
-                                        });
+                                        // Step 4: Check for level-up
+                                        checkLevelUpAfterGoal(userId, goal, position, xpEarned);
                                     }
 
                                     @Override
                                     public void onError(Exception e) {
-                                        // XP_Log insert failed but goal is completed — show dialog anyway
+                                        // XP_Log insert failed but goal is completed — still check level-up
                                         if (getActivity() == null || !isAdded()) return;
-                                        getActivity().runOnUiThread(() -> {
-                                            goal.setCompleted(true);
-                                            adapter.notifyItemChanged(position);
-                                            showGoalCompleteDialog(goal.getDescription(), xpEarned);
-                                        });
+                                        checkLevelUpAfterGoal(userId, goal, position, xpEarned);
                                     }
                                 });
                     }
@@ -192,6 +187,76 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
     }
 
     /**
+     * Checks if the user should level up after goal XP was awarded.
+     * If so, increments the level, awards 50 coins, and shows a LevelUpDialog
+     * before the goal completion dialog.
+     */
+    private void checkLevelUpAfterGoal(int userId, Goal goal, int position, int xpEarned) {
+        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null || getActivity() == null || !isAdded()) return;
+
+                int currentLevel = user.getCurrentLevel();
+                int totalXp = user.getXp();
+
+                // Check if user should level up (possibly multiple levels)
+                int newLevel = currentLevel;
+                while (XPCalculator.shouldLevelUp(totalXp, newLevel)) {
+                    newLevel++;
+                }
+
+                if (newLevel > currentLevel) {
+                    int finalLevel = newLevel;
+                    // Update level in database
+                    userRepository.updateLevel(userId, finalLevel, null);
+                    // Award 50 coins per level gained
+                    int coinsEarned = (finalLevel - currentLevel) * 50;
+                    userRepository.updateCoins(userId, coinsEarned, null);
+
+                    getActivity().runOnUiThread(() -> {
+                        // Update local goal state
+                        goal.setCompleted(true);
+                        adapter.notifyItemChanged(position);
+
+                        // Refresh top bar to show new level
+                        refreshTopBar();
+
+                        // Show Level Up dialog, then goal complete dialog after dismiss
+                        LevelUpDialog levelUpDialog = new LevelUpDialog(getContext(), finalLevel);
+                        levelUpDialog.setOnDismissListener(d -> {
+                            showGoalCompleteDialog(goal.getDescription(), xpEarned);
+                        });
+                        levelUpDialog.show();
+                    });
+                } else {
+                    getActivity().runOnUiThread(() -> {
+                        // No level-up — just show goal complete dialog
+                        goal.setCompleted(true);
+                        adapter.notifyItemChanged(position);
+
+                        // Refresh top bar to show updated XP/coins
+                        refreshTopBar();
+
+                        showGoalCompleteDialog(goal.getDescription(), xpEarned);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Couldn't check level — still show goal complete dialog
+                if (getActivity() == null || !isAdded()) return;
+                getActivity().runOnUiThread(() -> {
+                    goal.setCompleted(true);
+                    adapter.notifyItemChanged(position);
+                    showGoalCompleteDialog(goal.getDescription(), xpEarned);
+                });
+            }
+        });
+    }
+
+    /**
      * Displays the "CONGRATULATIONS!" popup with goal title, XP earned, Share/Close.
      */
     private void showGoalCompleteDialog(String goalTitle, int xpEarned) {
@@ -201,13 +266,34 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
     }
 
     /**
+     * Refreshes the MainActivity top bar to reflect updated level/coins/streak.
+     */
+    private void refreshTopBar() {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).loadTopBarData();
+        }
+    }
+
+    /**
      * Opens CreateGoalActivity pre-populated with goal data for editing.
      */
     @Override
     public void onGoalEdit(Goal goal, int position) {
         Intent intent = new Intent(getContext(), CreateGoalActivity.class);
         intent.putExtra("goal_id", goal.getGoalId());
-        intent.putExtra("goal_title", goal.getDescription());
+
+        // Split description into title and notes
+        String description = goal.getDescription();
+        String title = description;
+        String notes = "";
+        if (description != null && description.contains("\n---\n")) {
+            int separatorIndex = description.indexOf("\n---\n");
+            title = description.substring(0, separatorIndex);
+            notes = description.substring(separatorIndex + 5);
+        }
+
+        intent.putExtra("goal_title", title);
+        intent.putExtra("goal_notes", notes);
         intent.putExtra("goal_priority", goal.getPriority());
         if (goal.getDeadline() != null) {
             intent.putExtra("goal_deadline", goal.getDeadline().getTime());

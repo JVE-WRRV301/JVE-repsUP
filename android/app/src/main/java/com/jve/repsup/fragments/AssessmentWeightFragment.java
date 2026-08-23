@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,19 +17,21 @@ import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
+import com.jve.repsup.utils.RulerSliderView;
 
 /**
  * Step 4: Weight input with ruler slider, kg/lbs toggle, and manual EditText input.
+ * Features a blue underline under the value and a custom ruler with numbered tick marks.
  */
 public class AssessmentWeightFragment extends Fragment {
 
     private EditText etWeightValue;
     private TextView tvWeightUnit;
-    private SeekBar sbWeight;
+    private RulerSliderView rulerSlider;
     private Button btnKg;
     private Button btnLbs;
     private boolean isKg = true;
-    private boolean isUpdatingFromSeekbar = false;
+    private boolean isUpdatingFromSlider = false;
     private boolean isUpdatingFromEditText = false;
 
     @Nullable
@@ -47,16 +48,18 @@ public class AssessmentWeightFragment extends Fragment {
 
         etWeightValue = view.findViewById(R.id.etWeightValue);
         tvWeightUnit = view.findViewById(R.id.tvWeightUnit);
-        sbWeight = view.findViewById(R.id.sbWeight);
+        rulerSlider = view.findViewById(R.id.rulerSlider);
         btnKg = view.findViewById(R.id.btnKg);
         btnLbs = view.findViewById(R.id.btnLbs);
 
         // Restore saved values
         isKg = getAssessmentActivity().getAssessmentData().isWeightInKg();
         double savedWeight = getAssessmentActivity().getAssessmentData().getWeight();
+
+        setupRulerForMode();
         updateUnitToggle();
         updateDisplay((int) savedWeight);
-        sbWeight.setProgress((int) savedWeight);
+        rulerSlider.setValue((int) savedWeight);
 
         btnKg.setOnClickListener(v -> {
             if (!isKg) {
@@ -65,10 +68,11 @@ public class AssessmentWeightFragment extends Fragment {
                 isKg = true;
                 getAssessmentActivity().getAssessmentData().setWeightInKg(true);
                 getAssessmentActivity().getAssessmentData().setWeight(kgValue);
-                isUpdatingFromSeekbar = true;
-                sbWeight.setProgress(kgValue);
+                setupRulerForMode();
+                isUpdatingFromSlider = true;
+                rulerSlider.setValue(kgValue);
                 updateDisplay(kgValue);
-                isUpdatingFromSeekbar = false;
+                isUpdatingFromSlider = false;
                 updateUnitToggle();
             }
         });
@@ -80,29 +84,21 @@ public class AssessmentWeightFragment extends Fragment {
                 isKg = false;
                 getAssessmentActivity().getAssessmentData().setWeightInKg(false);
                 getAssessmentActivity().getAssessmentData().setWeight(lbsValue);
-                isUpdatingFromSeekbar = true;
-                sbWeight.setProgress(Math.min(lbsValue, 500));
+                setupRulerForMode();
+                isUpdatingFromSlider = true;
+                rulerSlider.setValue(lbsValue);
                 updateDisplay(lbsValue);
-                isUpdatingFromSeekbar = false;
+                isUpdatingFromSlider = false;
                 updateUnitToggle();
             }
         });
 
-        sbWeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (isUpdatingFromEditText) return;
-                isUpdatingFromSeekbar = true;
-                updateDisplay(progress);
-                getAssessmentActivity().getAssessmentData().setWeight(progress);
-                isUpdatingFromSeekbar = false;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+        rulerSlider.setOnValueChangedListener(value -> {
+            if (isUpdatingFromEditText) return;
+            isUpdatingFromSlider = true;
+            updateDisplay(value);
+            getAssessmentActivity().getAssessmentData().setWeight(value);
+            isUpdatingFromSlider = false;
         });
 
         etWeightValue.addTextChangedListener(new TextWatcher() {
@@ -114,14 +110,15 @@ public class AssessmentWeightFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isUpdatingFromSeekbar) return;
+                if (isUpdatingFromSlider) return;
                 isUpdatingFromEditText = true;
                 String text = s.toString().trim();
                 if (!text.isEmpty()) {
                     try {
                         int weight = Integer.parseInt(text);
-                        if (weight > 500) weight = 500;
-                        sbWeight.setProgress(weight);
+                        int max = isKg ? 300 : 660;
+                        if (weight > max) weight = max;
+                        rulerSlider.setValue(weight);
                         getAssessmentActivity().getAssessmentData().setWeight(weight);
                     } catch (NumberFormatException ignored) {}
                 }
@@ -130,12 +127,22 @@ public class AssessmentWeightFragment extends Fragment {
         });
     }
 
+    private void setupRulerForMode() {
+        if (isKg) {
+            rulerSlider.setRange(20, 300);
+            rulerSlider.setMajorTickInterval(10);
+        } else {
+            rulerSlider.setRange(44, 660);
+            rulerSlider.setMajorTickInterval(10);
+        }
+    }
+
     private void updateDisplay(int weight) {
         if (!isUpdatingFromEditText) {
-            isUpdatingFromSeekbar = true;
+            isUpdatingFromSlider = true;
             etWeightValue.setText(String.valueOf(weight));
             etWeightValue.setSelection(etWeightValue.getText().length());
-            isUpdatingFromSeekbar = false;
+            isUpdatingFromSlider = false;
         }
         tvWeightUnit.setText(isKg ? getString(R.string.assessment_unit_kg) : getString(R.string.assessment_unit_lbs));
     }

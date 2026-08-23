@@ -1,18 +1,29 @@
 package com.jve.repsup.activities;
 
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.widget.GridView;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
-import com.jve.repsup.adapters.CosmeticGridAdapter;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
 import com.jve.repsup.models.Avatar;
@@ -31,54 +42,90 @@ import java.util.Set;
 
 /**
  * Avatar customization screen (Locker).
- * Displays avatar preview at top, coin balance, category tabs (Body, Face, Hair, Clothing),
- * and a grid of owned/locked cosmetic items.
+ * Displays avatar preview at top (expandable), coin balance, category tabs (Body, Face, Hair, Clothing),
+ * sub-tabs for Face and Clothing, and a grid of placeholder items.
  *
- * Validates: Requirements 21.1, 21.2, 21.3, 21.4, 21.5
+ * Body tab: skin colour picker row + 6 body type placeholders (all unlocked).
+ * Face tab: subtabs (Nose, Eyes, Mouth, Eyebrows) — 9 placeholders each, all unlocked.
+ * Hair tab: 9 placeholders, first 3 free, rest locked.
+ * Clothing tab: subtabs (Top, Bottom, Shoes, Accessories, Special) — 9 placeholders each,
+ *   first 3 free in regular subtabs; all locked in Special with higher prices.
  */
 public class CustomizeAvatarActivity extends AppCompatActivity {
 
     private static final String[] CATEGORIES = {"Body", "Face", "Hair", "Clothing"};
+    private static final String[] FACE_SUBTABS = {"Nose", "Eyes", "Mouth", "Eyebrows"};
+    private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes", "Accessories", "Special"};
 
-    // Category to cosmetic_type mapping
-    private static final Map<String, String[]> CATEGORY_TYPES = new HashMap<>();
-    static {
-        CATEGORY_TYPES.put("Body", new String[]{"skin", "body"});
-        CATEGORY_TYPES.put("Face", new String[]{"face"});
-        CATEGORY_TYPES.put("Hair", new String[]{"hair"});
-        CATEGORY_TYPES.put("Clothing", new String[]{"top", "bottom", "shoes"});
-    }
+    // Skin tone colours (broad range of shades)
+    private static final String[] SKIN_COLORS = {
+            "#3C2415", "#4A2C17", "#5C3A1E", "#6B4423", "#7B4F28",
+            "#8D5B32", "#A0683B", "#B07844", "#C08A50", "#D19B5B",
+            "#DBA96A", "#E5BA7A", "#F0CB8B", "#F5D6A0", "#FAE0B5",
+            "#FFE8C8", "#FFEFD5", "#FFF3E0", "#FFF8F0", "#FFFAF5"
+    };
 
+    // Clothing prices for locked items (positions 3-8)
+    private static final int[] CLOTHING_PRICES = {50, 75, 100, 150, 200, 300};
+    // Special tab prices (all 9 items locked)
+    private static final int[] SPECIAL_PRICES = {500, 600, 700, 800, 900, 1000, 1200, 1500, 2000};
+    // Hair prices for locked items (positions 3-8)
+    private static final int[] HAIR_PRICES = {50, 75, 100, 150, 200, 300};
+
+    // Views
     private ImageView imgAvatarPreview;
+    private FrameLayout avatarPreviewContainer;
     private TextView txtCoinBalance;
     private TabLayout tabCategories;
-    private GridView gridCosmetics;
+    private TabLayout tabSubcategories;
+    private GridLayout gridItems;
+    private HorizontalScrollView skinColorScroll;
+    private LinearLayout skinColorRow;
+    private LinearLayout lockerPanel;
+    private LinearLayout btnExpandCollapse;
+    private ImageView imgExpandArrow;
     private ImageButton btnBack;
     private ImageButton btnSave;
 
-    private CosmeticGridAdapter adapter;
     private CosmeticRepository cosmeticRepository;
     private SessionManager sessionManager;
 
     private int userId;
     private Avatar userAvatar;
-    private OutfitSlot currentOutfitSlot;
     private int coinBalance;
-
-    // All cosmetics loaded from DB
-    private List<CosmeticItem> allCosmetics = new ArrayList<>();
-    private Set<Integer> ownedCosmeticIds = new HashSet<>();
-
-    // Locally equipped items (not yet persisted)
-    private Map<String, CosmeticItem> localEquipped = new HashMap<>();
-    private boolean hasUnsavedChanges = false;
+    private boolean isExpanded = false;
 
     private String currentCategory = "Body";
+    private String currentSubcategory = "";
+    private int selectedSkinColorIndex = 0;
+
+    // Track locally equipped items (by type)
+    private Map<String, CosmeticItem> localEquipped = new HashMap<>();
+    private Set<Integer> ownedCosmeticIds = new HashSet<>();
+    private List<CosmeticItem> allCosmetics = new ArrayList<>();
+    private boolean hasUnsavedChanges = false;
+
+    // Track selected placeholder index per tab/subtab key
+    private Map<String, Integer> selectedIndexPerTab = new HashMap<>();
+
+    // Track which placeholder items have been unlocked (purchased) per tab key
+    private Map<String, Set<Integer>> unlockedIndexPerTab = new HashMap<>();
+
+    // Avatar preview heights
+    private static final int AVATAR_HEIGHT_COLLAPSED = 200; // dp
+    private static final int AVATAR_HEIGHT_EXPANDED = 420; // dp
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customize_avatar);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                discardAndFinish();
+            }
+        });
 
         sessionManager = new SessionManager(this);
         cosmeticRepository = new CosmeticRepository();
@@ -86,29 +133,28 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
         initViews();
         setupTabs();
+        setupExpandCollapse();
         setupClickListeners();
         loadData();
+
+        // Show Body tab content by default
+        showBodyTab();
     }
 
     private void initViews() {
         imgAvatarPreview = findViewById(R.id.img_avatar_preview);
+        avatarPreviewContainer = findViewById(R.id.avatar_preview_container);
         txtCoinBalance = findViewById(R.id.txt_coin_balance);
         tabCategories = findViewById(R.id.tab_categories);
-        gridCosmetics = findViewById(R.id.grid_cosmetics);
+        tabSubcategories = findViewById(R.id.tab_subcategories);
+        gridItems = findViewById(R.id.grid_items);
+        skinColorScroll = findViewById(R.id.skin_color_scroll);
+        skinColorRow = findViewById(R.id.skin_color_row);
+        lockerPanel = findViewById(R.id.locker_panel);
+        btnExpandCollapse = findViewById(R.id.btn_expand_collapse);
+        imgExpandArrow = findViewById(R.id.img_expand_arrow);
         btnBack = findViewById(R.id.btn_back);
         btnSave = findViewById(R.id.btn_save);
-
-        adapter = new CosmeticGridAdapter(this);
-        gridCosmetics.setAdapter(adapter);
-
-        adapter.setOnItemClickListener((item, isOwned) -> {
-            if (isOwned) {
-                equipLocally(item);
-            } else {
-                // Locked item tapped: show purchase dialog
-                showPurchaseDialog(item);
-            }
-        });
     }
 
     private void setupTabs() {
@@ -120,7 +166,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 currentCategory = CATEGORIES[tab.getPosition()];
-                filterAndDisplayItems();
+                onCategoryChanged();
             }
 
             @Override
@@ -131,16 +177,385 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         });
     }
 
+    private void setupExpandCollapse() {
+        btnExpandCollapse.setOnClickListener(v -> toggleExpand());
+    }
+
+    private void toggleExpand() {
+        isExpanded = !isExpanded;
+
+        float density = getResources().getDisplayMetrics().density;
+        int startHeight = isExpanded
+                ? (int) (AVATAR_HEIGHT_COLLAPSED * density)
+                : (int) (AVATAR_HEIGHT_EXPANDED * density);
+        int endHeight = isExpanded
+                ? (int) (AVATAR_HEIGHT_EXPANDED * density)
+                : (int) (AVATAR_HEIGHT_COLLAPSED * density);
+
+        ValueAnimator animator = ValueAnimator.ofInt(startHeight, endHeight);
+        animator.setDuration(300);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(animation -> {
+            int value = (int) animation.getAnimatedValue();
+            ViewGroup.LayoutParams params = avatarPreviewContainer.getLayoutParams();
+            params.height = value;
+            avatarPreviewContainer.setLayoutParams(params);
+        });
+        animator.start();
+
+        // Rotate the arrow
+        imgExpandArrow.animate()
+                .rotation(isExpanded ? 180f : 0f)
+                .setDuration(300)
+                .start();
+    }
+
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> discardAndFinish());
         btnSave.setOnClickListener(v -> saveEquippedItems());
     }
 
-    private void loadData() {
-        // Load user coin balance
-        loadCoinBalance();
+    // ==================== TAB SWITCHING ====================
 
-        // Load user avatar record
+    private void onCategoryChanged() {
+        switch (currentCategory) {
+            case "Body":
+                showBodyTab();
+                break;
+            case "Face":
+                showFaceTab();
+                break;
+            case "Hair":
+                showHairTab();
+                break;
+            case "Clothing":
+                showClothingTab();
+                break;
+        }
+    }
+
+    private void showBodyTab() {
+        tabSubcategories.setVisibility(View.GONE);
+        skinColorScroll.setVisibility(View.VISIBLE);
+        populateSkinColors();
+        populateBodyPlaceholders();
+    }
+
+    private void showFaceTab() {
+        skinColorScroll.setVisibility(View.GONE);
+        setupSubTabs(FACE_SUBTABS);
+        tabSubcategories.setVisibility(View.VISIBLE);
+        currentSubcategory = FACE_SUBTABS[0];
+        populateFacePlaceholders();
+    }
+
+    private void showHairTab() {
+        tabSubcategories.setVisibility(View.GONE);
+        skinColorScroll.setVisibility(View.GONE);
+        populateHairPlaceholders();
+    }
+
+    private void showClothingTab() {
+        skinColorScroll.setVisibility(View.GONE);
+        setupSubTabs(CLOTHING_SUBTABS);
+        tabSubcategories.setVisibility(View.VISIBLE);
+        currentSubcategory = CLOTHING_SUBTABS[0];
+        populateClothingPlaceholders();
+    }
+
+    private void setupSubTabs(String[] subtabs) {
+        tabSubcategories.removeAllTabs();
+        tabSubcategories.clearOnTabSelectedListeners();
+
+        for (String subtab : subtabs) {
+            tabSubcategories.addTab(tabSubcategories.newTab().setText(subtab));
+        }
+
+        tabSubcategories.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                currentSubcategory = subtabs[tab.getPosition()];
+                onSubcategoryChanged();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    private void onSubcategoryChanged() {
+        if ("Face".equals(currentCategory)) {
+            populateFacePlaceholders();
+        } else if ("Clothing".equals(currentCategory)) {
+            populateClothingPlaceholders();
+        }
+    }
+
+    // ==================== BODY TAB ====================
+
+    private void populateSkinColors() {
+        skinColorRow.removeAllViews();
+
+        float density = getResources().getDisplayMetrics().density;
+        int size = (int) (40 * density);
+        int margin = (int) (6 * density);
+
+        for (int i = 0; i < SKIN_COLORS.length; i++) {
+            View colorView = new View(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMargins(margin, margin, margin, margin);
+            colorView.setLayoutParams(params);
+
+            GradientDrawable circle = new GradientDrawable();
+            circle.setShape(GradientDrawable.OVAL);
+            circle.setColor(android.graphics.Color.parseColor(SKIN_COLORS[i]));
+
+            if (i == selectedSkinColorIndex) {
+                circle.setStroke((int) (3 * density),
+                        ContextCompat.getColor(this, R.color.light_blue));
+            }
+
+            colorView.setBackground(circle);
+
+            final int index = i;
+            colorView.setOnClickListener(v -> {
+                selectedSkinColorIndex = index;
+                hasUnsavedChanges = true;
+                populateSkinColors(); // Refresh selection
+            });
+
+            skinColorRow.addView(colorView);
+        }
+    }
+
+    private void populateBodyPlaceholders() {
+        gridItems.removeAllViews();
+
+        // 6 body type placeholders, 3 per row, all unlocked
+        for (int i = 0; i < 6; i++) {
+            View item = createPlaceholderItem(false, 0, i);
+            gridItems.addView(item);
+        }
+    }
+
+    // ==================== FACE TAB ====================
+
+    private void populateFacePlaceholders() {
+        gridItems.removeAllViews();
+
+        // 9 placeholders per face subtab, all unlocked
+        for (int i = 0; i < 9; i++) {
+            View item = createPlaceholderItem(false, 0, i);
+            gridItems.addView(item);
+        }
+    }
+
+    // ==================== HAIR TAB ====================
+
+    private void populateHairPlaceholders() {
+        gridItems.removeAllViews();
+
+        for (int i = 0; i < 9; i++) {
+            if (i < 3) {
+                // First 3 are free/unlocked
+                View item = createPlaceholderItem(false, 0, i);
+                gridItems.addView(item);
+            } else {
+                // Rest are locked with prices
+                int price = HAIR_PRICES[i - 3];
+                View item = createPlaceholderItem(true, price, i);
+                gridItems.addView(item);
+            }
+        }
+    }
+
+    // ==================== CLOTHING TAB ====================
+
+    private void populateClothingPlaceholders() {
+        gridItems.removeAllViews();
+
+        boolean isSpecial = "Special".equals(currentSubcategory);
+
+        for (int i = 0; i < 9; i++) {
+            if (isSpecial) {
+                // All items in Special tab are locked and expensive
+                int price = SPECIAL_PRICES[i];
+                View item = createPlaceholderItem(true, price, i);
+                gridItems.addView(item);
+            } else {
+                if (i < 3) {
+                    // First 3 are free/unlocked
+                    View item = createPlaceholderItem(false, 0, i);
+                    gridItems.addView(item);
+                } else {
+                    // Rest are locked with prices
+                    int price = CLOTHING_PRICES[i - 3];
+                    View item = createPlaceholderItem(true, price, i);
+                    gridItems.addView(item);
+                }
+            }
+        }
+    }
+
+    // ==================== PLACEHOLDER ITEM CREATION ====================
+
+    /**
+     * Returns a key string for tracking selection state in the current tab/subtab.
+     */
+    private String getCurrentTabKey() {
+        if ("Face".equals(currentCategory) || "Clothing".equals(currentCategory)) {
+            return currentCategory + "_" + currentSubcategory;
+        }
+        return currentCategory;
+    }
+
+    /**
+     * Creates a placeholder rounded square item for the grid.
+     *
+     * @param isLocked Whether the item shows a lock overlay with price
+     * @param price    The coin price (only relevant if isLocked is true)
+     * @param index    The position index of this item in the current grid
+     * @return The inflated and configured view
+     */
+    private View createPlaceholderItem(boolean isLocked, int price, int index) {
+        View view = LayoutInflater.from(this)
+                .inflate(R.layout.item_locker_placeholder, gridItems, false);
+
+        // Set grid layout params for 3-column layout
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.width = 0;
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f);
+        params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
+        view.setLayoutParams(params);
+
+        View lockOverlay = view.findViewById(R.id.lock_overlay);
+        TextView txtPrice = view.findViewById(R.id.txt_price);
+        LinearLayout container = view.findViewById(R.id.placeholder_container);
+        ImageView imgCheck = view.findViewById(R.id.img_selected_check);
+
+        // Check if this item was purchased during this session
+        String tabKey = getCurrentTabKey();
+        Set<Integer> unlocked = unlockedIndexPerTab.get(tabKey);
+        boolean effectivelyLocked = isLocked && (unlocked == null || !unlocked.contains(index));
+
+        // Check if this item is currently selected
+        Integer selectedIdx = selectedIndexPerTab.get(tabKey);
+        if (selectedIdx != null && selectedIdx == index && !effectivelyLocked) {
+            container.setBackgroundResource(R.drawable.bg_placeholder_item_selected);
+            imgCheck.setVisibility(View.VISIBLE);
+        } else {
+            container.setBackgroundResource(R.drawable.bg_placeholder_item);
+            imgCheck.setVisibility(View.GONE);
+        }
+
+        if (effectivelyLocked) {
+            lockOverlay.setVisibility(View.VISIBLE);
+            txtPrice.setText(String.valueOf(price));
+
+            // Tap locked item to show purchase dialog
+            final int itemPrice = price;
+            final int itemIndex = index;
+            view.setOnClickListener(v -> showPurchaseDialogForPlaceholder(itemPrice, itemIndex));
+        } else {
+            lockOverlay.setVisibility(View.GONE);
+
+            // Tap unlocked item — select it (blue outline)
+            final int itemIndex = index;
+            view.setOnClickListener(v -> {
+                selectedIndexPerTab.put(tabKey, itemIndex);
+                hasUnsavedChanges = true;
+                refreshCurrentGrid();
+            });
+        }
+
+        return view;
+    }
+
+    /**
+     * Shows the PurchaseDialog for a locked placeholder item.
+     */
+    private void showPurchaseDialogForPlaceholder(int price, int index) {
+        // Create a placeholder CosmeticItem to pass to the dialog
+        CosmeticItem placeholderItem = new CosmeticItem();
+        placeholderItem.setCosmeticId(-(index + 1)); // Negative ID for placeholder
+        placeholderItem.setName(currentCategory + " Item " + (index + 1));
+        placeholderItem.setType(currentCategory.toLowerCase());
+        placeholderItem.setCoinCost(price);
+        placeholderItem.setImageData(null);
+
+        String tabKey = getCurrentTabKey();
+
+        PurchaseDialog dialog = PurchaseDialog.newInstance(placeholderItem, coinBalance, purchasedItem -> {
+            // Deduct coins locally and mark item as unlocked
+            coinBalance -= purchasedItem.getCoinCost();
+
+            // Track this item as unlocked
+            Set<Integer> unlocked = unlockedIndexPerTab.get(tabKey);
+            if (unlocked == null) {
+                unlocked = new HashSet<>();
+                unlockedIndexPerTab.put(tabKey, unlocked);
+            }
+            unlocked.add(index);
+
+            runOnUiThread(() -> {
+                txtCoinBalance.setText(String.valueOf(coinBalance));
+                Toast.makeText(this,
+                        getString(R.string.locker_item_purchased, purchasedItem.getName()),
+                        Toast.LENGTH_SHORT).show();
+                refreshCurrentGrid();
+            });
+        });
+        dialog.show(getSupportFragmentManager(), "PurchaseDialog");
+    }
+
+    /**
+     * Refreshes the current grid based on active category/subcategory.
+     */
+    private void refreshCurrentGrid() {
+        switch (currentCategory) {
+            case "Body":
+                populateBodyPlaceholders();
+                break;
+            case "Face":
+                populateFacePlaceholders();
+                break;
+            case "Hair":
+                populateHairPlaceholders();
+                break;
+            case "Clothing":
+                populateClothingPlaceholders();
+                break;
+        }
+    }
+
+    // ==================== DATA LOADING ====================
+
+    private void loadData() {
+        loadCoinBalance();
+        loadAvatar();
+    }
+
+    private void loadCoinBalance() {
+        cosmeticRepository.getCoinBalance(userId, new DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) {
+                coinBalance = result != null ? result : 0;
+                runOnUiThread(() -> txtCoinBalance.setText(String.valueOf(coinBalance)));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                coinBalance = 0;
+                runOnUiThread(() -> txtCoinBalance.setText("0"));
+            }
+        });
+    }
+
+    private void loadAvatar() {
         cosmeticRepository.getAvatar(userId, new DatabaseCallback<Avatar>() {
             @Override
             public void onSuccess(Avatar result) {
@@ -150,159 +565,20 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                // Use a fallback avatar if loading fails
                 userAvatar = new Avatar();
                 userAvatar.setUserId(userId);
-                userAvatar.setSkinTone("male");
-                userAvatar.setBodyShape("mesomorph");
                 runOnUiThread(() -> updateAvatarPreview());
             }
         });
-
-        // Load all cosmetics
-        cosmeticRepository.getUserCosmetics(userId, new DatabaseCallback<List<CosmeticItem>>() {
-            @Override
-            public void onSuccess(List<CosmeticItem> result) {
-                allCosmetics = result != null ? result : new ArrayList<>();
-                // Load owned items
-                loadOwnedCosmetics();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() ->
-                        Toast.makeText(CustomizeAvatarActivity.this,
-                                "Failed to load cosmetics", Toast.LENGTH_SHORT).show());
-            }
-        });
-
-        // Load outfit slot for initial equipped state
-        cosmeticRepository.getOutfitSlot(userId, new DatabaseCallback<OutfitSlot>() {
-            @Override
-            public void onSuccess(OutfitSlot result) {
-                currentOutfitSlot = result;
-                if (result != null) {
-                    initializeEquippedFromOutfit(result);
-                }
-                runOnUiThread(() -> updateAvatarPreview());
-            }
-
-            @Override
-            public void onError(Exception e) {
-                // No outfit slot yet, that's fine
-                currentOutfitSlot = new OutfitSlot();
-                currentOutfitSlot.setUserId(userId);
-            }
-        });
     }
 
-    private void loadCoinBalance() {
-        String sql = "SELECT coins FROM User WHERE user_id = ?";
-        com.jve.repsup.database.ConnectionManager.querySingle(sql, new Object[]{userId},
-                rs -> rs.getInt("coins"),
-                new DatabaseCallback<Integer>() {
-                    @Override
-                    public void onSuccess(Integer result) {
-                        coinBalance = result != null ? result : 0;
-                        runOnUiThread(() -> txtCoinBalance.setText(String.valueOf(coinBalance)));
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        runOnUiThread(() -> txtCoinBalance.setText("0"));
-                    }
-                });
-    }
-
-    private void loadOwnedCosmetics() {
-        cosmeticRepository.getOwnedCosmetics(userId, new DatabaseCallback<List<CosmeticItem>>() {
-            @Override
-            public void onSuccess(List<CosmeticItem> result) {
-                ownedCosmeticIds.clear();
-                if (result != null) {
-                    for (CosmeticItem item : result) {
-                        ownedCosmeticIds.add(item.getCosmeticId());
-                    }
-                }
-                runOnUiThread(() -> filterAndDisplayItems());
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> filterAndDisplayItems());
-            }
-        });
-    }
-
-    private void initializeEquippedFromOutfit(OutfitSlot outfit) {
-        // Map outfit slot IDs to actual cosmetic items once all cosmetics are loaded
-        for (CosmeticItem item : allCosmetics) {
-            int id = item.getCosmeticId();
-            if ((outfit.getTopId() != null && outfit.getTopId() == id) ||
-                    (outfit.getBottomId() != null && outfit.getBottomId() == id) ||
-                    (outfit.getShoesId() != null && outfit.getShoesId() == id) ||
-                    (outfit.getAccessoriesId() != null && outfit.getAccessoriesId() == id)) {
-                localEquipped.put(item.getType(), item);
-            }
-        }
-    }
-
-    /**
-     * Filters all cosmetics by the currently selected category tab and updates the grid.
-     */
-    private void filterAndDisplayItems() {
-        String[] types = CATEGORY_TYPES.get(currentCategory);
-        if (types == null) return;
-
-        List<CosmeticItem> filtered = new ArrayList<>();
-        for (CosmeticItem item : allCosmetics) {
-            for (String type : types) {
-                if (type.equals(item.getType())) {
-                    filtered.add(item);
-                    break;
-                }
-            }
-        }
-
-        // Build equipped IDs set for adapter
-        Set<Integer> equippedIds = new HashSet<>();
-        for (CosmeticItem equipped : localEquipped.values()) {
-            equippedIds.add(equipped.getCosmeticId());
-        }
-
-        adapter.setItems(filtered);
-        adapter.setOwnedIds(ownedCosmeticIds);
-        adapter.setEquippedIds(equippedIds);
-    }
-
-    /**
-     * Equips an owned item locally (no DB write yet) and updates the avatar preview.
-     * Only one item per type can be equipped at a time.
-     */
-    private void equipLocally(CosmeticItem item) {
-        // Replace any existing item of the same type
-        localEquipped.put(item.getType(), item);
-        hasUnsavedChanges = true;
-
-        // Update grid to show new equipped state
-        filterAndDisplayItems();
-
-        // Update avatar preview in real-time
-        updateAvatarPreview();
-    }
-
-    /**
-     * Updates the avatar preview using AvatarCompositor with currently equipped items.
-     */
     private void updateAvatarPreview() {
         if (userAvatar == null) return;
 
-        List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
-
-        // Build a temporary outfit slot for the compositor
         OutfitSlot tempSlot = new OutfitSlot();
         tempSlot.setUserId(userId);
-        for (CosmeticItem item : equippedList) {
+
+        for (CosmeticItem item : localEquipped.values()) {
             switch (item.getType()) {
                 case "top":
                     tempSlot.setTopId(item.getCosmeticId());
@@ -320,9 +596,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         imgAvatarPreview.setImageBitmap(avatarBitmap);
     }
 
-    /**
-     * Persists equipped items to User_Cosmetic and Outfit_Slot tables.
-     */
+    // ==================== SAVE / DISCARD ====================
+
     private void saveEquippedItems() {
         List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
 
@@ -332,7 +607,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
                 hasUnsavedChanges = false;
                 runOnUiThread(() -> {
                     Toast.makeText(CustomizeAvatarActivity.this,
-                            "Outfit saved!", Toast.LENGTH_SHORT).show();
+                            getString(R.string.locker_outfit_saved), Toast.LENGTH_SHORT).show();
                     finish();
                 });
             }
@@ -341,66 +616,19 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 runOnUiThread(() ->
                         Toast.makeText(CustomizeAvatarActivity.this,
-                                "Failed to save outfit", Toast.LENGTH_SHORT).show());
+                                getString(R.string.locker_save_error), Toast.LENGTH_SHORT).show());
             }
         });
     }
 
-    /**
-     * Shows the purchase dialog for a locked cosmetic item.
-     * Validates: Requirements 22.1, 22.3
-     */
-    private void showPurchaseDialog(CosmeticItem item) {
-        PurchaseDialog dialog = PurchaseDialog.newInstance(item, coinBalance, purchasedItem -> {
-            // User confirmed purchase — execute the purchase flow
-            cosmeticRepository.purchaseCosmetic(userId, purchasedItem.getCosmeticId(),
-                    purchasedItem.getCoinCost(), new DatabaseCallback<Integer>() {
-                        @Override
-                        public void onSuccess(Integer result) {
-                            runOnUiThread(() -> onPurchaseSuccess(purchasedItem));
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            runOnUiThread(() ->
-                                    Toast.makeText(CustomizeAvatarActivity.this,
-                                            "Purchase failed", Toast.LENGTH_SHORT).show());
-                        }
-                    });
-        });
-        dialog.show(getSupportFragmentManager(), "PurchaseDialog");
-    }
-
-    /**
-     * Handles successful purchase: updates coin balance, marks item as owned, refreshes grid.
-     * Validates: Requirement 22.2
-     */
-    private void onPurchaseSuccess(CosmeticItem item) {
-        // Deduct cost from local coin balance and update display
-        coinBalance -= item.getCoinCost();
-        txtCoinBalance.setText(String.valueOf(coinBalance));
-
-        // Mark item as owned locally
-        ownedCosmeticIds.add(item.getCosmeticId());
-
-        // Refresh the grid to show the item as unlocked
-        filterAndDisplayItems();
-
-        Toast.makeText(this, "Purchased " + item.getName() + "!", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Discards unsaved changes and finishes the activity.
-     */
     private void discardAndFinish() {
-        // Simply finish without saving — changes are discarded
         hasUnsavedChanges = false;
         finish();
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onBackPressed() {
-        discardAndFinish();
+    // ==================== UTILITY ====================
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }
