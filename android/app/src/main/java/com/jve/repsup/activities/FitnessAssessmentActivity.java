@@ -101,11 +101,12 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     }
 
     /**
-     * Creates 9 segmented progress indicators.
+     * Creates 8 segmented progress indicators (one for each question step, excluding welcome).
      */
     private void setupProgressBar() {
-        progressSegments = new View[AssessmentPagerAdapter.TOTAL_STEPS];
-        for (int i = 0; i < AssessmentPagerAdapter.TOTAL_STEPS; i++) {
+        int questionSteps = AssessmentPagerAdapter.TOTAL_STEPS - 1; // Exclude welcome
+        progressSegments = new View[questionSteps];
+        for (int i = 0; i < questionSteps; i++) {
             View segment = new View(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     0, (int) (6 * getResources().getDisplayMetrics().density));
@@ -122,10 +123,12 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
 
     /**
      * Updates the segmented progress bar colors based on the current step.
+     * Only the current question's segment is highlighted (currentStep - 1 since step 0 is welcome).
      */
     private void updateProgressBar(int currentStep) {
+        int questionIndex = currentStep - 1; // Offset by 1 (welcome is step 0)
         for (int i = 0; i < progressSegments.length; i++) {
-            if (i <= currentStep) {
+            if (i <= questionIndex) {
                 progressSegments[i].setBackgroundColor(
                         ContextCompat.getColor(this, R.color.light_blue));
             } else {
@@ -250,9 +253,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
                             assessmentData.getGender());
                     intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE,
                             assessmentData.getBodyType());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    finish();
                 });
             }
 

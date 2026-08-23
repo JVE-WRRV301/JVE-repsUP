@@ -6,12 +6,9 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -28,6 +25,7 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
+import com.jve.repsup.utils.XPCalculator;
 
 /**
  * Main activity hosting the navigation shell with BottomNavigationView
@@ -70,14 +68,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        // Let the app draw behind the status bar (top bar extends behind it)
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        setContentView(R.layout.activity_main);
 
         userRepository = new UserRepository();
         fragmentManager = getSupportFragmentManager();
@@ -109,8 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Loads user data from the database to populate the persistent top bar.
+     * Public so child fragments can trigger a refresh after level-up or XP changes.
      */
-    private void loadTopBarData() {
+    public void loadTopBarData() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
@@ -118,8 +113,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(User user) {
                 if (user == null) return;
+
+                // Compute the correct level based on total XP
+                int totalXp = user.getXp();
+                int correctLevel = 1;
+                while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
+                    correctLevel++;
+                }
+
+                // Fix DB if level is wrong (either too low or too high)
+                if (correctLevel != user.getCurrentLevel()) {
+                    userRepository.updateLevel(userId, correctLevel, null);
+                }
+
+                int displayLevel = correctLevel;
                 runOnUiThread(() -> {
-                    tvLevel.setText("Lv. " + user.getCurrentLevel());
+                    tvLevel.setText("Lv. " + displayLevel);
                     tvStreak.setText(String.valueOf(user.getCurrentStreak()));
                     tvCoins.setText(String.valueOf(user.getCoins()));
                 });

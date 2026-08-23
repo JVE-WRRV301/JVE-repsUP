@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,7 @@ import com.jve.repsup.R;
 
 /**
  * "CONGRATULATIONS!" dialog displayed when a user completes a goal.
- * Shows the goal title, XP earned, and Share/Close buttons.
+ * Shows the bicep icon, goal title, XP earned, and Share/Close circular buttons.
  */
 public class GoalCompleteDialog extends Dialog {
 
@@ -38,11 +39,11 @@ public class GoalCompleteDialog extends Dialog {
 
         TextView tvGoalTitle = findViewById(R.id.tvGoalTitle);
         TextView tvXpEarned = findViewById(R.id.tvXpEarned);
-        TextView btnShare = findViewById(R.id.btnShare);
-        TextView btnClose = findViewById(R.id.btnClose);
+        ImageView btnShare = findViewById(R.id.btnShare);
+        ImageView btnClose = findViewById(R.id.btnClose);
 
         tvGoalTitle.setText(goalTitle);
-        tvXpEarned.setText(String.valueOf(xpEarned));
+        tvXpEarned.setText("+" + xpEarned + "XP");
 
         btnShare.setOnClickListener(v -> shareGoalCompletion());
         btnClose.setOnClickListener(v -> dismiss());

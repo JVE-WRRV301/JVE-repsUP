@@ -139,6 +139,9 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                                 tvEmptyState.setVisibility(View.GONE);
                                 rvWeeklyPlan.setVisibility(View.VISIBLE);
                             }
+
+                            // Auto-scroll to today's position
+                            scrollToToday();
                         });
                     }
 
@@ -165,6 +168,21 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
         String startStr = format.format(currentWeekStart.getTime());
         String endStr = format.format(weekEnd.getTime());
         tvWeekRange.setText(startStr + " - " + endStr);
+    }
+
+    /**
+     * Scrolls the RecyclerView to today's day header position.
+     */
+    private void scrollToToday() {
+        int todayPos = adapter.getTodayPosition();
+        if (todayPos >= 0) {
+            rvWeeklyPlan.post(() -> {
+                RecyclerView.LayoutManager lm = rvWeeklyPlan.getLayoutManager();
+                if (lm instanceof LinearLayoutManager) {
+                    ((LinearLayoutManager) lm).scrollToPositionWithOffset(todayPos, 0);
+                }
+            });
+        }
     }
 
     /**

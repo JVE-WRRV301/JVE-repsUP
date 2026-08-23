@@ -12,6 +12,7 @@
     <!-- Emphasis -->
     <color name="red">#FFFF5050</color>
     <color name="yellow">#FFFAD942</color>
+    <color name="burnt_orange">#FFCC6B2C</color>
 
     <!-- Text -->
     <color name="white">#FFFFFFFF</color>

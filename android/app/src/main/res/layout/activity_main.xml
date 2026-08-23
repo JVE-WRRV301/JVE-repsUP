@@ -10,14 +10,21 @@
     tools:context=".MainActivity">
 
     <!-- Persistent Top Bar -->
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:background="@color/dark_grey_variant"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:gravity="center_vertical">
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <!-- Inner content row -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:gravity="center_vertical">
 
         <!-- Avatar thumbnail (left) -->
         <ImageView
@@ -89,6 +96,7 @@
             android:contentDescription="Streak" />
 
     </RelativeLayout>
+    </LinearLayout>
 
     <!-- Fragment container (fills remaining space) -->
     <FrameLayout

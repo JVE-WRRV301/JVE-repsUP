@@ -1,41 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_grey_surface"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:layout_marginBottom="4dp">
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_card_blue_border"
+    android:padding="16dp">
 
-    <!-- Blue left border indicator -->
-    <View
-        android:layout_width="4dp"
-        android:layout_height="match_parent"
-        android:background="@color/light_blue"
-        android:layout_marginEnd="12dp" />
-
-    <LinearLayout
+    <!-- Workout name -->
+    <TextView
+        android:id="@+id/tvContentName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:fontFamily="@font/inter_bold"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvContentName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+    <!-- Exercise count label -->
+    <TextView
+        android:id="@+id/tvExerciseCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/muted"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvContentName" />
 
+    <!-- Exercise preview container -->
+    <LinearLayout
+        android:id="@+id/llExercisePreview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvExerciseCount" />
+
+    <!-- "and X more" text -->
+    <TextView
+        android:id="@+id/tvAndMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/muted"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llExercisePreview" />
+
+    <!-- Status / Start button row -->
+    <LinearLayout
+        android:id="@+id/llStatusRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAndMore">
+
+        <!-- Status text (Completed, Missed, Scheduled) -->
         <TextView
             android:id="@+id/tvContentStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/inter"
+            android:textSize="13sp" />
+
+        <!-- START button -->
+        <TextView
+            android:id="@+id/btnStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
+            android:background="@drawable/bg_start_button"
+            android:fontFamily="@font/inter_bold"
+            android:paddingStart="20dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="6dp"
+            android:text="@string/home_start"
+            android:textColor="@color/dark_text"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

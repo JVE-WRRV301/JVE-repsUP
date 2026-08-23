@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
+    android:gravity="center_horizontal"
     android:background="@color/dark_grey">
 
     <TextView
@@ -13,7 +14,8 @@
         android:text="@string/assessment_section_body"
         android:textColor="@color/muted"
         android:fontFamily="@font/inter"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/tvQuestion"
@@ -23,76 +25,90 @@
         android:textColor="@color/white"
         android:fontFamily="@font/orbitron"
         android:textSize="22sp"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        android:gravity="center" />
 
     <!-- Unit toggle -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnCm"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
+            android:layout_width="80dp"
+            android:layout_height="36dp"
             android:text="@string/assessment_unit_cm"
             android:backgroundTint="@color/light_blue"
             android:textColor="@color/dark_text"
             android:fontFamily="@font/inter"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp" />
 
         <Button
             android:id="@+id/btnFt"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="80dp"
+            android:layout_height="36dp"
             android:text="@string/assessment_unit_ft"
             android:backgroundTint="@color/dark_grey_surface"
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp" />
 
     </LinearLayout>
 
-    <!-- Height value EditText for manual input -->
-    <EditText
-        android:id="@+id/etHeightValue"
-        android:layout_width="150dp"
+    <!-- Height value display with underline -->
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@android:color/transparent"
-        android:textColor="@color/light_blue"
-        android:fontFamily="@font/orbitron"
-        android:textSize="48sp"
-        android:gravity="center"
-        android:inputType="number"
-        android:maxLength="3"
-        android:text="170" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="40dp">
 
-    <TextView
-        android:id="@+id/tvHeightUnit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assessment_unit_cm"
-        android:textColor="@color/muted"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp"
-        android:gravity="center" />
+        <EditText
+            android:id="@+id/etHeightValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:textColor="@color/white"
+            android:fontFamily="@font/orbitron"
+            android:textSize="52sp"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="3"
+            android:minWidth="100dp"
+            android:text="170" />
+
+        <TextView
+            android:id="@+id/tvHeightUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_unit_cm"
+            android:textColor="@color/muted"
+            android:fontFamily="@font/inter"
+            android:textSize="24sp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Blue underline -->
+    <View
+        android:layout_width="200dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/light_blue" />
 
     <!-- Ruler slider -->
-    <SeekBar
-        android:id="@+id/sbHeight"
+    <com.jve.repsup.utils.RulerSliderView
+        android:id="@+id/rulerSlider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:min="0"
-        android:max="300"
-        android:progress="170"
-        android:progressTint="@color/light_blue"
-        android:thumbTint="@color/light_blue"
-        android:progressBackgroundTint="@color/dark_grey_surface" />
+        android:layout_height="70dp"
+        android:layout_marginTop="32dp" />
 
 </LinearLayout>

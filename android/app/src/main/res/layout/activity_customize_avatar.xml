@@ -8,15 +8,19 @@
     android:background="@color/dark_grey"
     tools:context=".activities.CustomizeAvatarActivity">
 
-    <!-- Top bar: back button, title, coin balance, save button -->
+    <!-- Top bar: back button, coin balance, save button -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:background="@color/dark_grey_variant">
+        android:paddingTop="32dp"
+        android:paddingBottom="8dp"
+        android:minHeight="56dp"
+        android:background="@color/dark_grey"
+        android:fitsSystemWindows="true">
 
         <!-- Back button -->
         <ImageButton
@@ -25,21 +29,13 @@
             android:layout_height="40dp"
             android:src="@drawable/ic_back"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back" />
+            android:contentDescription="@string/back" />
 
-        <!-- Title -->
-        <TextView
+        <!-- Spacer -->
+        <View
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="LOCKER"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/orbitron"
-            android:gravity="center"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <!-- Coin balance -->
         <LinearLayout
@@ -53,7 +49,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_coin"
-                android:contentDescription="Coins" />
+                android:contentDescription="@string/coins_description" />
 
             <TextView
                 android:id="@+id/txt_coin_balance"
@@ -74,49 +70,132 @@
             android:layout_height="40dp"
             android:src="@drawable/ic_check"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Save outfit" />
+            android:contentDescription="@string/locker_save_outfit" />
 
     </LinearLayout>
 
-    <!-- Avatar preview area -->
+    <!-- Avatar preview area (expandable) -->
     <FrameLayout
+        android:id="@+id/avatar_preview_container"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="@drawable/bg_avatar_preview"
-        android:layout_margin="16dp">
+        android:background="@color/dark_grey"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
 
         <ImageView
             android:id="@+id/img_avatar_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerInside"
-            android:contentDescription="Avatar preview" />
+            android:contentDescription="@string/avatar_description" />
 
     </FrameLayout>
 
-    <!-- Category tabs -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_categories"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@color/dark_grey_variant"
-        app:tabTextColor="@color/muted"
-        app:tabSelectedTextColor="@color/light_blue"
-        app:tabIndicatorColor="@color/light_blue"
-        app:tabMode="fixed"
-        app:tabGravity="fill" />
-
-    <!-- Grid of cosmetic items -->
-    <GridView
-        android:id="@+id/grid_cosmetics"
+    <!-- Locker panel (sliding section) -->
+    <LinearLayout
+        android:id="@+id/locker_panel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:numColumns="3"
-        android:verticalSpacing="8dp"
-        android:horizontalSpacing="8dp"
-        android:padding="12dp"
-        android:clipToPadding="false"
-        android:stretchMode="columnWidth" />
+        android:orientation="vertical"
+        android:background="@drawable/bg_locker_panel">
+
+        <!-- Pull-down arrow handle -->
+        <LinearLayout
+            android:id="@+id/btn_expand_collapse"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/img_expand_arrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_chevron_down"
+                android:contentDescription="@string/locker_expand_collapse" />
+
+        </LinearLayout>
+
+        <!-- Main category tabs (Body, Face, Hair, Clothing) -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_categories"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@color/transparent"
+            app:tabTextColor="@color/muted"
+            app:tabSelectedTextColor="@color/light_blue"
+            app:tabIndicatorColor="@color/light_blue"
+            app:tabMode="fixed"
+            app:tabGravity="fill"
+            app:tabTextAppearance="@style/LockerTabText" />
+
+        <!-- Sub-category tabs (shown for Face and Clothing) -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_subcategories"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:background="@color/transparent"
+            android:visibility="gone"
+            app:tabTextColor="@color/muted"
+            app:tabSelectedTextColor="@color/white"
+            app:tabIndicatorColor="@color/light_blue"
+            app:tabIndicatorHeight="2dp"
+            app:tabMode="scrollable"
+            app:tabGravity="fill"
+            app:tabTextAppearance="@style/LockerSubTabText" />
+
+        <!-- Content area (scrollable) -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:id="@+id/content_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Skin colour row (only visible in Body tab) -->
+                <HorizontalScrollView
+                    android:id="@+id/skin_color_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:id="@+id/skin_color_row"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
+
+                </HorizontalScrollView>
+
+                <!-- Grid of placeholder items -->
+                <GridLayout
+                    android:id="@+id/grid_items"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="3"
+                    android:alignmentMode="alignMargins"
+                    android:useDefaultMargins="true" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
 
 </LinearLayout>

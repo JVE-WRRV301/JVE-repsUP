@@ -17,20 +17,46 @@
         <!-- Fonts -->
         <item name="android:fontFamily">@font/inter</item>
 
-        <!-- Status bar -->
-        <item name="android:statusBarColor">@color/dark_grey</item>
+        <!-- Status bar — transparent so top bar extends behind it -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- Navigation bar — matches bottom nav background for seamless look -->
+        <item name="android:navigationBarColor">@color/dark_grey_variant</item>
 
         <!-- AlertDialog always dark -->
         <item name="alertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
         <item name="materialAlertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
+
+        <!-- Popup menu style -->
+        <item name="popupMenuStyle">@style/Theme.RepsUp.PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/Theme.RepsUp.PopupMenu</item>
+    </style>
+
+    <!-- Popup menu: dark grey background with light outline and rounded corners -->
+    <style name="Theme.RepsUp.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
     </style>
 
     <!-- DatePicker dialog styled for dark theme -->
-    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Dialog">
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorOnPrimary">@color/dark_text</item>
+        <item name="colorAccent">@color/light_blue</item>
         <item name="android:windowBackground">@color/dark_grey_surface</item>
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/muted</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/DatePickerButton.Negative</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/DatePickerButton.Positive</item>
+    </style>
+
+    <!-- Cancel button: light grey text, positioned left -->
+    <style name="DatePickerButton.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/muted</item>
+    </style>
+
+    <!-- OK button: blue text -->
+    <style name="DatePickerButton.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/light_blue</item>
     </style>
 
     <!-- Dialog theme for popups (GoalComplete, LevelUp, etc.) -->

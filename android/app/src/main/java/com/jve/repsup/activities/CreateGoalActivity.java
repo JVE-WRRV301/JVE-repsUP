@@ -71,8 +71,13 @@ public class CreateGoalActivity extends AppCompatActivity {
             isEditMode = editGoalId != -1;
 
             if (isEditMode) {
+                // Update title to "Edit Goal"
+                TextView tvTitle = findViewById(R.id.tvTitle);
+                tvTitle.setText(R.string.edit_goal_title);
+
                 String title = getIntent().getStringExtra("goal_title");
                 String priority = getIntent().getStringExtra("goal_priority");
+                String notes = getIntent().getStringExtra("goal_notes");
                 long deadlineMillis = getIntent().getLongExtra("goal_deadline", -1);
 
                 if (title != null) {
@@ -80,6 +85,9 @@ public class CreateGoalActivity extends AppCompatActivity {
                 }
                 if (priority != null) {
                     selectedPriority = priority;
+                }
+                if (notes != null) {
+                    etGoalNotes.setText(notes);
                 }
                 if (deadlineMillis != -1) {
                     selectedDate = new Date(deadlineMillis);
@@ -185,8 +193,8 @@ public class CreateGoalActivity extends AppCompatActivity {
             return;
         }
 
-        // Combine title and notes into description
-        String description = notes.isEmpty() ? title : title + " - " + notes;
+        // Store title and notes separated by a delimiter so they can be split later
+        String description = notes.isEmpty() ? title : title + "\n---\n" + notes;
 
         // Disable save button while processing
         btnSave.setEnabled(false);

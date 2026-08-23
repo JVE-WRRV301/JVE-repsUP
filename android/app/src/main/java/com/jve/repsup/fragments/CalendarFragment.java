@@ -17,10 +17,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateGoalActivity;
+import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.CalendarDayAdapter;
 import com.jve.repsup.adapters.DayContentAdapter;
 import com.jve.repsup.database.ConnectionManager;
@@ -52,7 +52,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     private TextView tvSelectedDayTitle;
     private RecyclerView rvDayContent;
     private TabLayout tabLayout;
-    private FloatingActionButton fabAdd;
+    private ImageView btnAddSchedule;
 
     private CalendarDayAdapter calendarDayAdapter;
     private DayContentAdapter dayContentAdapter;
@@ -109,7 +109,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         tvSelectedDayTitle = view.findViewById(R.id.tvSelectedDayTitle);
         rvDayContent = view.findViewById(R.id.rvDayContent);
         tabLayout = view.findViewById(R.id.tabLayoutCalendar);
-        fabAdd = view.findViewById(R.id.fabAdd);
+        btnAddSchedule = view.findViewById(R.id.btnAddSchedule);
 
         ivPrevMonth.setOnClickListener(v -> navigateMonth(-1));
         ivNextMonth.setOnClickListener(v -> navigateMonth(1));
@@ -121,6 +121,15 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         rvCalendarGrid.setAdapter(calendarDayAdapter);
 
         dayContentAdapter = new DayContentAdapter();
+        dayContentAdapter.setOnStartClickListener(scheduledWorkout -> {
+            if (getContext() == null || scheduledWorkout == null) return;
+            Intent intent = new Intent(getContext(), WorkoutExecutionActivity.class);
+            intent.putExtra(WorkoutExecutionActivity.EXTRA_SCHEDULED_WORKOUT_ID,
+                    scheduledWorkout.getScheduledWorkoutId());
+            intent.putExtra(WorkoutExecutionActivity.EXTRA_WORKOUT_ID,
+                    scheduledWorkout.getWorkoutId());
+            startActivity(intent);
+        });
         rvDayContent.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDayContent.setAdapter(dayContentAdapter);
     }
@@ -156,7 +165,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     }
 
     private void setupFab() {
-        fabAdd.setOnClickListener(v -> showAddOptions());
+        btnAddSchedule.setOnClickListener(v -> showAddOptions());
     }
 
     private void navigateMonth(int offset) {
@@ -283,6 +292,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                         getActivity().runOnUiThread(() -> {
                             if (result != null && !result.isEmpty()) {
                                 llDayContent.setVisibility(View.VISIBLE);
+                                dayContentAdapter.setSelectedDate(selectedDate);
                                 dayContentAdapter.setItems(result);
                             } else {
                                 llDayContent.setVisibility(View.GONE);

@@ -7,7 +7,7 @@
     android:background="@drawable/bg_card_red_border"
     android:padding="16dp">
 
-    <!-- Deadline -->
+    <!-- Deadline (e.g. "15 Sunday") -->
     <TextView
         android:id="@+id/tvGoalDeadline"
         android:layout_width="0dp"
@@ -39,7 +39,8 @@
         android:fontFamily="@font/inter_medium"
         android:textColor="@color/white"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@id/cbGoalComplete"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvGoalDeadline" />
 
@@ -49,39 +50,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:background="@drawable/bg_priority_badge"
         android:fontFamily="@font/inter"
-        android:paddingStart="8dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="2dp"
-        android:textColor="@color/white"
-        android:textSize="11sp"
+        android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvGoalTitle" />
 
-    <!-- Description -->
+    <!-- Notes / Description -->
     <TextView
         android:id="@+id/tvGoalDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/inter"
-        android:maxLines="2"
+        android:maxLines="3"
         android:textColor="@color/muted"
         android:textSize="13sp"
         app:layout_constraintEnd_toStartOf="@id/cbGoalComplete"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvGoalPriority" />
 
-    <!-- Completion checkbox -->
+    <!-- Completion checkbox - bottom right -->
     <CheckBox
         android:id="@+id/cbGoalComplete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:buttonTint="@color/red"
+        android:layout_marginTop="8dp"
+        android:buttonTint="@color/muted"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvGoalTitle" />
+        app:layout_constraintTop_toBottomOf="@id/tvGoalPriority" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

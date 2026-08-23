@@ -1,13 +1,9 @@
 package com.jve.repsup.fragments;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,16 +11,15 @@ import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
+import com.jve.repsup.utils.AgePickerView;
 
 /**
- * Step 3: Age selection via SeekBar with manual EditText input.
+ * Step 3: Age selection via vertical number scroll picker.
+ * Numbers are displayed vertically with the selected age centered, larger, and highlighted.
  */
 public class AssessmentAgeFragment extends Fragment {
 
-    private EditText etAgeValue;
-    private SeekBar sbAge;
-    private boolean isUpdatingFromSeekbar = false;
-    private boolean isUpdatingFromEditText = false;
+    private AgePickerView agePickerView;
 
     @Nullable
     @Override
@@ -38,56 +33,14 @@ public class AssessmentAgeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etAgeValue = view.findViewById(R.id.etAgeValue);
-        sbAge = view.findViewById(R.id.sbAge);
+        agePickerView = view.findViewById(R.id.agePickerView);
 
         // Restore saved age
         int savedAge = getAssessmentActivity().getAssessmentData().getAge();
-        etAgeValue.setText(String.valueOf(savedAge));
-        sbAge.setProgress(savedAge);
+        agePickerView.setSelectedAge(savedAge);
 
-        sbAge.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (isUpdatingFromEditText) return;
-                isUpdatingFromSeekbar = true;
-                int age = progress;
-                etAgeValue.setText(String.valueOf(age));
-                etAgeValue.setSelection(etAgeValue.getText().length());
-                getAssessmentActivity().getAssessmentData().setAge(age);
-                isUpdatingFromSeekbar = false;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        etAgeValue.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (isUpdatingFromSeekbar) return;
-                isUpdatingFromEditText = true;
-                String text = s.toString().trim();
-                if (!text.isEmpty()) {
-                    try {
-                        int age = Integer.parseInt(text);
-                        if (age > 99) age = 99;
-                        sbAge.setProgress(age);
-                        getAssessmentActivity().getAssessmentData().setAge(age);
-                    } catch (NumberFormatException ignored) {}
-                }
-                isUpdatingFromEditText = false;
-            }
-        });
+        agePickerView.setOnAgeSelectedListener(age ->
+                getAssessmentActivity().getAssessmentData().setAge(age));
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

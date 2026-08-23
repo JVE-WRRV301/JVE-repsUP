@@ -67,6 +67,57 @@ public class AvatarCompositor {
     }
 
     /**
+     * Returns the full-body initial avatar resource for the "Meet Your Avatar" screen.
+     * This is a single pre-rendered image (greyscale, default outfit, waving pose)
+     * based on gender and body type only.
+     *
+     * Body types: skinny, average, toned, built, chubby, overweight
+     *
+     * @param gender   "male" or "female"
+     * @param bodyType "skinny", "average", "toned", "built", "chubby", or "overweight"
+     * @return Drawable resource ID for the full initial avatar
+     */
+    public static int getInitialAvatarResource(String gender, String bodyType) {
+        if (gender == null || bodyType == null) {
+            return R.drawable.avatar_male_average;
+        }
+
+        String g = gender.toLowerCase().trim();
+        String bt = bodyType.toLowerCase().trim();
+
+        String key = g + "_" + bt;
+        switch (key) {
+            case "male_skinny":
+                return R.drawable.avatar_male_skinny;
+            case "male_average":
+                return R.drawable.avatar_male_average;
+            case "male_toned":
+                return R.drawable.avatar_male_toned;
+            case "male_built":
+                return R.drawable.avatar_male_built;
+            case "male_chubby":
+                return R.drawable.avatar_male_chubby;
+            case "male_overweight":
+                return R.drawable.avatar_male_overweight;
+            case "female_skinny":
+                return R.drawable.avatar_female_skinny;
+            case "female_average":
+                return R.drawable.avatar_female_average;
+            case "female_toned":
+                return R.drawable.avatar_female_toned;
+            case "female_built":
+                return R.drawable.avatar_female_built;
+            case "female_chubby":
+                return R.drawable.avatar_female_chubby;
+            case "female_overweight":
+                return R.drawable.avatar_female_overweight;
+            default:
+                // Default to male average if unknown combination
+                return R.drawable.avatar_male_average;
+        }
+    }
+
+    /**
      * Returns the resource ID for the base body image given gender and body type.
      * Since real PNG assets don't exist yet, all combinations fall back to the default placeholder.
      * The structure is ready for real assets — just add drawables matching the naming pattern:
