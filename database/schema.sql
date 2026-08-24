@@ -161,6 +161,7 @@ CREATE TABLE Workout_Exercise (
     num_sets INT NOT NULL DEFAULT 3,
     num_reps INT NOT NULL DEFAULT 12,
     workout_exercise_order_index INT NOT NULL DEFAULT 0,
+    target_weight DECIMAL(6,2) NOT NULL DEFAULT 0.00,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (workout_id, exercise_id),
     FOREIGN KEY (workout_id) REFERENCES Workout(workout_id) ON DELETE CASCADE,

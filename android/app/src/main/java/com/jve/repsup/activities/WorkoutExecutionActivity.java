@@ -186,7 +186,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             defaultSets = 3; // fallback
         }
         for (int i = 0; i < defaultSets; i++) {
-            addSetRow(workoutExercise.getReps());
+            addSetRow(workoutExercise.getReps(), workoutExercise.getTargetWeight());
         }
 
         // Reset next button state
@@ -198,13 +198,13 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
      * Adds a new set row with empty reps/weight fields.
      */
     private void addSetRow() {
-        addSetRow(0);
+        addSetRow(0, 0.0);
     }
 
     /**
-     * Adds a new set row with pre-populated default reps.
+     * Adds a new set row with pre-populated default reps and weight.
      */
-    private void addSetRow(int defaultReps) {
+    private void addSetRow(int defaultReps, double defaultWeight) {
         View setRow = LayoutInflater.from(this)
                 .inflate(R.layout.item_set_row, llSetRows, false);
 
@@ -219,6 +219,10 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
         if (defaultReps > 0) {
             etReps.setText(String.valueOf(defaultReps));
+        }
+
+        if (defaultWeight > 0) {
+            etWeight.setText(String.valueOf(defaultWeight));
         }
 
         // Monitor checkbox changes to update Next button state
