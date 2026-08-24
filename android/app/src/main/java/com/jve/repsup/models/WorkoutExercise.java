@@ -13,6 +13,7 @@ public class WorkoutExercise {
     private int sets;
     private int reps;
     private int orderIndex;
+    private double targetWeight;
     private Timestamp updatedAt;
 
     // Transient: exercise details (populated by joins)
@@ -21,13 +22,14 @@ public class WorkoutExercise {
     public WorkoutExercise() {}
 
     public WorkoutExercise(int workoutId, int exerciseId, int sets, int reps,
-                           int orderIndex, Timestamp updatedAt) {
+                           int orderIndex, Timestamp updatedAt, double targetWeight) {
         this.workoutId = workoutId;
         this.exerciseId = exerciseId;
         this.sets = sets;
         this.reps = reps;
         this.orderIndex = orderIndex;
         this.updatedAt = updatedAt;
+        this.targetWeight = targetWeight;
     }
 
     // Getters and Setters
@@ -46,6 +48,9 @@ public class WorkoutExercise {
 
     public int getOrderIndex() { return orderIndex; }
     public void setOrderIndex(int orderIndex) { this.orderIndex = orderIndex; }
+
+    public double getTargetWeight() { return targetWeight; }
+    public void setTargetWeight(double targetWeight) { this.targetWeight = targetWeight; }
 
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
