@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,8 +14,8 @@ import androidx.annotation.NonNull;
 import com.jve.repsup.R;
 
 /**
- * "STREAK MILESTONE!" dialog displayed when the user reaches a 14-day streak milestone.
- * Shows a fire icon, streak count, XP multiplier value, and Share/Close buttons.
+ * Streak milestone dialog showing congratulations, fire icon, streak count,
+ * XP multiplier, and share/close buttons.
  */
 public class StreakMilestoneDialog extends Dialog {
 
@@ -34,25 +36,30 @@ public class StreakMilestoneDialog extends Dialog {
 
         if (getWindow() != null) {
             getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT);
         }
 
+        TextView tvMilestoneSubtitle = findViewById(R.id.tvMilestoneSubtitle);
         TextView tvStreakCount = findViewById(R.id.tvStreakCount);
         TextView tvXpMultiplier = findViewById(R.id.tvXpMultiplier);
-        TextView btnShare = findViewById(R.id.btnShare);
-        TextView btnClose = findViewById(R.id.btnClose);
+        ImageButton btnShare = findViewById(R.id.btnShare);
+        ImageButton btnClose = findViewById(R.id.btnClose);
 
         String multiplierFormatted = String.format("%.1f", xpMultiplier);
 
-        tvStreakCount.setText(getContext().getString(R.string.streak_milestone_days, streakCount));
-        tvXpMultiplier.setText(getContext().getString(R.string.streak_milestone_multiplier, multiplierFormatted));
+        // Calculate weeks for subtitle
+        int weeks = streakCount / 7;
+        String weeksText = weeks == 1 ? "1 week" : weeks + " weeks";
+        tvMilestoneSubtitle.setText(getContext().getString(R.string.streak_milestone_subtitle, weeksText));
+
+        tvStreakCount.setText(getContext().getString(R.string.streak_milestone_day_streak, streakCount));
+        tvXpMultiplier.setText(getContext().getString(R.string.streak_milestone_xp_value, multiplierFormatted));
 
         btnShare.setOnClickListener(v -> shareStreakMilestone());
         btnClose.setOnClickListener(v -> dismiss());
     }
 
-    /**
-     * Invokes native Android share intent with streak count and XP multiplier.
-     */
     private void shareStreakMilestone() {
         String multiplierFormatted = String.format("%.1f", xpMultiplier);
         String shareText = getContext().getString(R.string.streak_share_text, streakCount, multiplierFormatted);
