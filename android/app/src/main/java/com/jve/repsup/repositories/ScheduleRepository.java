@@ -293,6 +293,21 @@ public class ScheduleRepository {
     }
 
     /**
+     * Counts how many scheduled workouts for today have already been marked as completed
+     * (excluding the specified scheduledWorkoutId which was just completed).
+     * Used to determine if the streak has already been incremented for today.
+     */
+    public void countOtherCompletedToday(int userId, int excludeScheduledWorkoutId,
+                                          ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "SELECT COUNT(*) AS cnt FROM scheduled_workout " +
+                "WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1 " +
+                "AND scheduled_workout_id != ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId, excludeScheduledWorkoutId},
+                rs -> rs.getInt("cnt"), callback);
+    }
+
+    /**
      * Marks a scheduled workout as completed with earned XP, sets, and reps.
      * Returns the number of affected rows.
      */
@@ -420,5 +435,13 @@ public class ScheduleRepository {
 
             return results;
         }, callback);
+    }
+
+    /**
+     * Deletes a scheduled workout by its ID.
+     */
+    public void deleteScheduledWorkout(int scheduledWorkoutId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "DELETE FROM scheduled_workout WHERE scheduled_workout_id = ?";
+        ConnectionManager.executeUpdate(sql, new Object[]{scheduledWorkoutId}, callback);
     }
 }

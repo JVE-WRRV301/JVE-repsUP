@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.WeeklyPlanAdapter;
 import com.jve.repsup.database.ConnectionManager;
@@ -94,6 +95,41 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
 
     private void setupRecyclerView() {
         adapter = new WeeklyPlanAdapter(this);
+        adapter.setOnMenuActionListener(new WeeklyPlanAdapter.OnMenuActionListener() {
+            @Override
+            public void onEditScheduledWorkout(ScheduledWorkout scheduledWorkout) {
+                if (getContext() == null) return;
+                Intent intent = new Intent(getContext(), CreateWorkoutActivity.class);
+                intent.putExtra(CreateWorkoutActivity.EXTRA_EDIT_WORKOUT_ID, scheduledWorkout.getWorkoutId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDeleteScheduledWorkout(ScheduledWorkout scheduledWorkout) {
+                if (getContext() == null) return;
+                new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                        .setTitle(R.string.weekly_plan_delete_title)
+                        .setMessage(R.string.weekly_plan_delete_message)
+                        .setPositiveButton(R.string.workout_action_delete, (dialog, which) -> {
+                            scheduleRepository.deleteScheduledWorkout(
+                                    scheduledWorkout.getScheduledWorkoutId(),
+                                    new ConnectionManager.DatabaseCallback<Integer>() {
+                                        @Override
+                                        public void onSuccess(Integer result) {
+                                            if (getActivity() == null || !isAdded()) return;
+                                            getActivity().runOnUiThread(() -> loadWeekData());
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e) {
+                                            // Silent fail
+                                        }
+                                    });
+                        })
+                        .setNegativeButton(R.string.admin_action_cancel, null)
+                        .show();
+            }
+        });
         rvWeeklyPlan.setLayoutManager(new LinearLayoutManager(getContext()));
         rvWeeklyPlan.setAdapter(adapter);
     }

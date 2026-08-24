@@ -27,8 +27,12 @@
 
         <ImageView
             android:id="@+id/ivWorkoutMenu"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/workout_menu_description"
             android:src="@drawable/ic_more_vert"
             app:tint="@color/muted" />
