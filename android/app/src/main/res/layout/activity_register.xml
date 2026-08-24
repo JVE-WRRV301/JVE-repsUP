@@ -146,22 +146,36 @@
                 android:visibility="gone" />
 
             <!-- Password Field -->
-            <EditText
-                android:id="@+id/etPassword"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_field_rounded"
-                android:drawableStart="@drawable/ic_lock"
-                android:drawablePadding="12dp"
-                android:fontFamily="@font/inter_regular"
-                android:hint="@string/hint_password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/muted"
-                android:textSize="15sp" />
+                app:boxBackgroundColor="@color/dark_grey_surface"
+                app:boxStrokeColor="@color/light_blue"
+                app:boxStrokeWidth="0dp"
+                app:boxCornerRadiusTopStart="26dp"
+                app:boxCornerRadiusTopEnd="26dp"
+                app:boxCornerRadiusBottomStart="26dp"
+                app:boxCornerRadiusBottomEnd="26dp"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/muted"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/muted"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/tvPasswordError"
@@ -175,22 +189,36 @@
                 android:visibility="gone" />
 
             <!-- Confirm Password Field -->
-            <EditText
-                android:id="@+id/etConfirmPassword"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilConfirmPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_field_rounded"
-                android:drawableStart="@drawable/ic_lock"
-                android:drawablePadding="12dp"
-                android:fontFamily="@font/inter_regular"
-                android:hint="@string/hint_confirm_password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/muted"
-                android:textSize="15sp" />
+                app:boxBackgroundColor="@color/dark_grey_surface"
+                app:boxStrokeColor="@color/light_blue"
+                app:boxStrokeWidth="0dp"
+                app:boxCornerRadiusTopStart="26dp"
+                app:boxCornerRadiusTopEnd="26dp"
+                app:boxCornerRadiusBottomStart="26dp"
+                app:boxCornerRadiusBottomEnd="26dp"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/muted"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/muted">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etConfirmPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/hint_confirm_password"
+                    android:inputType="textPassword"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/muted"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/tvConfirmPasswordError"
