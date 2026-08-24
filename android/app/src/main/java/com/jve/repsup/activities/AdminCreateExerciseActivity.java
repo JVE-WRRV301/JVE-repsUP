@@ -87,6 +87,7 @@ public class AdminCreateExerciseActivity extends AppCompatActivity {
      * Sets up click listeners.
      */
     private void setupListeners() {
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSaveExercise.setOnClickListener(v -> attemptSave());
     }
 
