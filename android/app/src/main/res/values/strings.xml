@@ -318,6 +318,9 @@
 
     <!-- Admin Create Exercise -->
     <string name="admin_create_exercise_title">Create Exercise</string>
+    <string name="admin_exercise_name_hint">Name</string>
+    <string name="admin_add_demonstration">Add Demonstration</string>
+    <string name="admin_select_difficulty">Select Difficulty</string>
     <string name="hint_exercise_name">Exercise Name</string>
     <string name="hint_muscle_group">Muscle Group</string>
     <string name="hint_difficulty">Difficulty</string>
