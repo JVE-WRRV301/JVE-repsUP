@@ -72,9 +72,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         extractExtras();
         initViews();
         calculateResults();
-        displaySummary();
         loadMuscleGroups();
-        persistCompletion();
     }
 
     private void extractExtras() {
@@ -114,6 +112,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> displaySummary());
+                persistCompletion();  // Now safe — totalXp is assigned
             }
 
             @Override
@@ -131,6 +130,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> displaySummary());
+                persistCompletion();  // Now safe — totalXp is assigned with fallback multiplier
             }
         });
     }
