@@ -36,30 +36,50 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipEasy"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/inter"
             android:text="@string/difficulty_easy"
-            android:textColor="@color/white"
-            app:chipBackgroundColor="@color/dark_grey_surface" />
+            android:textColor="@color/chip_difficulty_text"
+            app:chipBackgroundColor="@color/chip_difficulty_background"
+            app:chipStrokeColor="@color/light_blue"
+            app:chipStrokeWidth="1dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMedium"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/inter"
             android:text="@string/difficulty_medium"
-            android:textColor="@color/white"
-            app:chipBackgroundColor="@color/dark_grey_surface" />
+            android:textColor="@color/chip_difficulty_text"
+            app:chipBackgroundColor="@color/chip_difficulty_background"
+            app:chipStrokeColor="@color/light_blue"
+            app:chipStrokeWidth="1dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipHard"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checkable="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/inter"
             android:text="@string/difficulty_hard"
-            android:textColor="@color/white"
-            app:chipBackgroundColor="@color/dark_grey_surface" />
+            android:textColor="@color/chip_difficulty_text"
+            app:chipBackgroundColor="@color/chip_difficulty_background"
+            app:chipStrokeColor="@color/light_blue"
+            app:chipStrokeWidth="1dp" />
 
     </com.google.android.material.chip.ChipGroup>
 

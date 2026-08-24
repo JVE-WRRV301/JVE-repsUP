@@ -243,6 +243,10 @@
     <string name="weekly_plan_status_missed">Missed</string>
     <string name="weekly_plan_status_scheduled">Scheduled</string>
     <string name="weekly_plan_exercises_format">%d exercises</string>
+    <string name="weekly_plan_delete_title">Delete Scheduled Workout</string>
+    <string name="weekly_plan_delete_message">Are you sure you want to remove this scheduled workout?</string>
+    <string name="workout_action_edit">Edit</string>
+    <string name="workout_action_delete">Delete</string>
 
     <!-- Schedule Workout -->
     <string name="schedule_workout_title">Schedule Workout</string>

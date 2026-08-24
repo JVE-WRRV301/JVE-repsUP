@@ -115,23 +115,45 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Highlights today's day in the week strip with light_blue background.
+     * Populates the week strip with dates for the current week
+     * and highlights today's column with light_blue color.
      */
     private void highlightToday() {
         Calendar calendar = Calendar.getInstance();
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        // Calendar.SUNDAY = 1, MONDAY = 2, ..., SATURDAY = 7
-        // Our strip order: S M T W T F S (indices 0-6)
-        int index = dayOfWeek - Calendar.SUNDAY;
+        int todayDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        // Calendar.SUNDAY = 1, so index in our strip is dayOfWeek - 1
+        int todayIndex = todayDayOfWeek - Calendar.SUNDAY;
+
+        // Calculate the start of the week (Sunday)
+        Calendar weekStart = (Calendar) calendar.clone();
+        weekStart.add(Calendar.DAY_OF_YEAR, -(todayDayOfWeek - Calendar.SUNDAY));
+
+        int highlightColor = getResources().getColor(R.color.light_blue, null);
+        int mutedColor = getResources().getColor(R.color.muted, null);
 
         for (int i = 0; i < llWeekStrip.getChildCount(); i++) {
-            TextView dayView = (TextView) llWeekStrip.getChildAt(i);
-            if (i == index) {
-                dayView.setBackgroundResource(R.drawable.bg_day_highlighted);
-                dayView.setTextColor(getResources().getColor(R.color.dark_text, null));
-            } else {
-                dayView.setBackground(null);
-                dayView.setTextColor(getResources().getColor(R.color.muted, null));
+            View child = llWeekStrip.getChildAt(i);
+            if (child instanceof LinearLayout) {
+                LinearLayout dayColumn = (LinearLayout) child;
+                if (dayColumn.getChildCount() >= 2) {
+                    TextView labelView = (TextView) dayColumn.getChildAt(0);
+                    TextView dateView = (TextView) dayColumn.getChildAt(1);
+
+                    // Set the date number
+                    Calendar dayCalendar = (Calendar) weekStart.clone();
+                    dayCalendar.add(Calendar.DAY_OF_YEAR, i);
+                    int dayOfMonth = dayCalendar.get(Calendar.DAY_OF_MONTH);
+                    dateView.setText(String.valueOf(dayOfMonth));
+
+                    // Highlight today
+                    if (i == todayIndex) {
+                        labelView.setTextColor(highlightColor);
+                        dateView.setTextColor(highlightColor);
+                    } else {
+                        labelView.setTextColor(mutedColor);
+                        dateView.setTextColor(mutedColor);
+                    }
+                }
             }
         }
     }

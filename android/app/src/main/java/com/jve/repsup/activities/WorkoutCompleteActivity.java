@@ -219,30 +219,61 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                     }
                 });
 
-        // 4. Update streak — user completed today's scheduled workout
-        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer streak) {
-                int currentStreak = streak != null ? streak : 0;
-                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
-                userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
+        // 4. Update streak — only increment if this is the first completed workout today
+        scheduleRepository.countOtherCompletedToday(userId, scheduledWorkoutId,
+                new ConnectionManager.DatabaseCallback<Integer>() {
                     @Override
-                    public void onSuccess(Integer result) {
-                        // Streak updated successfully
+                    public void onSuccess(Integer otherCompletedCount) {
+                        int alreadyCompletedToday = otherCompletedCount != null ? otherCompletedCount : 0;
+                        if (alreadyCompletedToday > 0) {
+                            // Streak was already incremented today — skip
+                            return;
+                        }
+                        // This is the first completion today — increment streak
+                        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+                            @Override
+                            public void onSuccess(Integer streak) {
+                                int currentStreak = streak != null ? streak : 0;
+                                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
+                                userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
+                                    @Override
+                                    public void onSuccess(Integer result) {
+                                        // Streak updated successfully
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        // Log error but don't block user
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                // Log error but don't block user
+                            }
+                        });
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Log error but don't block user
+                        // Log error but don't block user — default to incrementing
+                        // (better to over-count once than silently fail)
+                        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+                            @Override
+                            public void onSuccess(Integer streak) {
+                                int currentStreak = streak != null ? streak : 0;
+                                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
+                                userRepository.updateStreak(userId, newStreak, null);
+                            }
+
+                            @Override
+                            public void onError(Exception e2) {
+                                // Silent fail
+                            }
+                        });
                     }
                 });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                // Log error but don't block user
-            }
-        });
     }
 
     /**

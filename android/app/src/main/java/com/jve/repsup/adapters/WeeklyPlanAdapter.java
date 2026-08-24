@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,9 +50,23 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         void onStartClick(ScheduledWorkout scheduledWorkout);
     }
 
+    /**
+     * Listener for the overflow menu actions (edit/delete) on a scheduled workout card.
+     */
+    public interface OnMenuActionListener {
+        void onEditScheduledWorkout(ScheduledWorkout scheduledWorkout);
+        void onDeleteScheduledWorkout(ScheduledWorkout scheduledWorkout);
+    }
+
     public WeeklyPlanAdapter(OnStartClickListener listener) {
         this.startClickListener = listener;
         this.today = new Date(System.currentTimeMillis());
+    }
+
+    private OnMenuActionListener menuActionListener;
+
+    public void setOnMenuActionListener(OnMenuActionListener listener) {
+        this.menuActionListener = listener;
     }
 
     /**
@@ -209,8 +224,33 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.llExerciseList.setVisibility(View.GONE);
             holder.tvStatus.setVisibility(View.GONE);
             holder.btnStart.setVisibility(View.GONE);
+            holder.ivWorkoutMenu.setVisibility(View.GONE);
             return;
         }
+
+        // Show menu for real workouts
+        holder.ivWorkoutMenu.setVisibility(View.VISIBLE);
+
+        // Three-dot menu click listener
+        holder.ivWorkoutMenu.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(context, v);
+            popup.getMenu().add(0, 1, 0, R.string.workout_action_edit);
+            popup.getMenu().add(0, 2, 1, R.string.workout_action_delete);
+            popup.setOnMenuItemClickListener(menuItem -> {
+                if (menuActionListener == null) return false;
+                switch (menuItem.getItemId()) {
+                    case 1:
+                        menuActionListener.onEditScheduledWorkout(sw);
+                        return true;
+                    case 2:
+                        menuActionListener.onDeleteScheduledWorkout(sw);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            popup.show();
+        });
 
         holder.llExerciseList.setVisibility(View.VISIBLE);
 
@@ -363,6 +403,7 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         final TextView tvAndMore;
         final TextView tvStatus;
         final TextView btnStart;
+        final ImageView ivWorkoutMenu;
 
         WorkoutCardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -371,6 +412,7 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvAndMore = itemView.findViewById(R.id.tvAndMore);
             tvStatus = itemView.findViewById(R.id.tvStatus);
             btnStart = itemView.findViewById(R.id.btnStart);
+            ivWorkoutMenu = itemView.findViewById(R.id.ivWorkoutMenu);
         }
     }
 
