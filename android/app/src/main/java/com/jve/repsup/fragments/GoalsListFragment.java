@@ -22,7 +22,9 @@ import com.jve.repsup.adapters.GoalCardAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.dialogs.GoalCompleteDialog;
 import com.jve.repsup.dialogs.LevelUpDialog;
+import com.jve.repsup.dialogs.RankUpDialog;
 import com.jve.repsup.models.Goal;
+import com.jve.repsup.models.Rank;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.UserRepository;
@@ -187,71 +189,124 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
     }
 
     /**
-     * Checks if the user should level up after goal XP was awarded.
-     * If so, increments the level, awards 50 coins, and shows a LevelUpDialog
-     * before the goal completion dialog.
+     * After goal XP is persisted, shows the Goal Complete dialog first,
+     * then checks for level-up and rank-up on dismiss.
+     * Dialog order: Goal Complete → Level Up → Rank Up
      */
     private void checkLevelUpAfterGoal(int userId, Goal goal, int position, int xpEarned) {
         userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
-                if (user == null || getActivity() == null || !isAdded()) return;
+                if (getActivity() == null || !isAdded()) return;
 
-                int currentLevel = user.getCurrentLevel();
-                int totalXp = user.getXp();
+                getActivity().runOnUiThread(() -> {
+                    // Update local goal state
+                    goal.setCompleted(true);
+                    adapter.notifyItemChanged(position);
+                    refreshTopBar();
 
-                // Check if user should level up (possibly multiple levels)
-                int newLevel = currentLevel;
-                while (XPCalculator.shouldLevelUp(totalXp, newLevel)) {
-                    newLevel++;
-                }
+                    // Show Goal Complete dialog FIRST
+                    if (getContext() == null) return;
+                    GoalCompleteDialog goalDialog = new GoalCompleteDialog(getContext(), goal.getDescription(), xpEarned);
+                    goalDialog.setOnDismissListener(d -> {
+                        // After goal dialog dismissed, check level-up
+                        if (user == null) return;
+                        int currentLevel = user.getCurrentLevel();
+                        int totalXp = user.getXp();
 
-                if (newLevel > currentLevel) {
-                    int finalLevel = newLevel;
-                    // Update level in database
-                    userRepository.updateLevel(userId, finalLevel, null);
-                    // Award 50 coins per level gained
-                    int coinsEarned = (finalLevel - currentLevel) * 50;
-                    userRepository.updateCoins(userId, coinsEarned, null);
+                        // Check for multiple level-ups
+                        int newLevel = currentLevel;
+                        while (XPCalculator.shouldLevelUp(totalXp, newLevel)) {
+                            newLevel++;
+                        }
 
-                    getActivity().runOnUiThread(() -> {
-                        // Update local goal state
-                        goal.setCompleted(true);
-                        adapter.notifyItemChanged(position);
+                        if (newLevel > currentLevel) {
+                            int finalLevel = newLevel;
+                            int coinsEarned = (finalLevel - currentLevel) * 50;
 
-                        // Refresh top bar to show new level
-                        refreshTopBar();
+                            // Update level in DB
+                            userRepository.updateLevel(userId, finalLevel, null);
+                            userRepository.updateCoins(userId, coinsEarned, null);
 
-                        // Show Level Up dialog, then goal complete dialog after dismiss
-                        LevelUpDialog levelUpDialog = new LevelUpDialog(getContext(), finalLevel);
-                        levelUpDialog.setOnDismissListener(d -> {
-                            showGoalCompleteDialog(goal.getDescription(), xpEarned);
-                        });
-                        levelUpDialog.show();
+                            // Show Level Up dialog
+                            if (getContext() == null) return;
+                            LevelUpDialog levelDialog = new LevelUpDialog(getContext(), finalLevel);
+                            levelDialog.setOnDismissListener(ld -> {
+                                refreshTopBar();
+                                // Check rank promotion
+                                checkRankPromotionAfterGoal(userId, finalLevel);
+                            });
+                            levelDialog.show();
+                        } else {
+                            // No level-up, still refresh
+                            refreshTopBar();
+                        }
                     });
-                } else {
-                    getActivity().runOnUiThread(() -> {
-                        // No level-up — just show goal complete dialog
-                        goal.setCompleted(true);
-                        adapter.notifyItemChanged(position);
-
-                        // Refresh top bar to show updated XP/coins
-                        refreshTopBar();
-
-                        showGoalCompleteDialog(goal.getDescription(), xpEarned);
-                    });
-                }
+                    goalDialog.show();
+                });
             }
 
             @Override
             public void onError(Exception e) {
-                // Couldn't check level — still show goal complete dialog
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     goal.setCompleted(true);
                     adapter.notifyItemChanged(position);
                     showGoalCompleteDialog(goal.getDescription(), xpEarned);
                 });
+            }
+        });
+    }
+
+    /**
+     * Checks if the user qualifies for a rank promotion after levelling up from goal completion.
+     * Shows RankUpDialog if a promotion is available.
+     */
+    private void checkRankPromotionAfterGoal(int userId, int newLevel) {
+        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null || getActivity() == null || !isAdded()) return;
+
+                int currentRankId = user.getRankId() != null ? user.getRankId() : 0;
+
+                userRepository.getNextRank(newLevel, currentRankId, new ConnectionManager.DatabaseCallback<Rank>() {
+                    @Override
+                    public void onSuccess(Rank nextRank) {
+                        if (nextRank == null || getActivity() == null || !isAdded()) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> refreshTopBar());
+                            }
+                            return;
+                        }
+
+                        // Update rank in DB
+                        userRepository.updateRank(userId, nextRank.getRankId(), null);
+                        // Award 100 bonus coins
+                        userRepository.updateCoins(userId, 100, null);
+
+                        getActivity().runOnUiThread(() -> {
+                            if (getContext() == null) return;
+                            RankUpDialog dialog = new RankUpDialog(getContext(), nextRank.getDisplayName());
+                            dialog.setOnDismissListener(d -> refreshTopBar());
+                            dialog.show();
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> refreshTopBar());
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> refreshTopBar());
+                }
             }
         });
     }
