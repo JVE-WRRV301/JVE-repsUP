@@ -14,6 +14,7 @@
     <string name="tab_me">Me</string>
 
     <!-- Top bar content descriptions -->
+    <string name="back">Back</string>
     <string name="avatar_description">User avatar</string>
     <string name="level_description">Current level</string>
     <string name="streak_description">Current streak</string>
@@ -32,6 +33,9 @@
 
     <!-- Welcome Screen -->
     <string name="welcome_title">Welcome to REPS UP</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="welcome_reps_up">REPS UP.</string>
+    <string name="welcome_have_account">Have an account already? Login</string>
     <string name="btn_sign_up">Sign Up</string>
     <string name="btn_login">Login</string>
 
@@ -43,10 +47,17 @@
     <string name="hint_password">Password</string>
     <string name="hint_confirm_password">Confirm Password</string>
     <string name="btn_get_started">Get Started</string>
+    <string name="register_sign_up_title">Sign Up</string>
     <string name="error_fields_required">All fields are required</string>
     <string name="error_password_mismatch">Passwords do not match</string>
-    <string name="error_username_taken">Username is already taken</string>
+    <string name="error_username_taken">Username is taken</string>
     <string name="error_registration_failed">Registration failed. Please try again.</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_password_too_short">Password must be at least 6 characters</string>
+    <string name="error_username_checking">Checking…</string>
+    <string name="error_username_available">Username is available</string>
+    <string name="register_have_account">Have an account? Login</string>
+    <string name="register_login_word">Login</string>
 
     <!-- Home Fragment -->
     <string name="home_today">TODAY</string>
@@ -66,8 +77,17 @@
     <string name="day_fri">F</string>
     <string name="day_sat">S</string>
 
+    <!-- My Schedule -->
+    <string name="my_schedule_heading">MY SCHEDULE</string>
+    <string name="edit_goal_title">Edit Goal</string>
+    <string name="goal_complete_subtitle">You have completed your goal.</string>
+    <string name="importance_top_priority">Top Priority</string>
+    <string name="importance_medium_priority">Medium Priority</string>
+    <string name="importance_low_priority">Low Priority</string>
+    <string name="weekly_plan_and_more_format">and %d more</string>
+
     <!-- Create Goal -->
-    <string name="create_goal_title">New Goal</string>
+    <string name="create_goal_title">Create New Goal</string>
     <string name="hint_goal_title">Title</string>
     <string name="hint_goal_date">Deadline</string>
     <string name="hint_goal_notes">Notes (optional)</string>
@@ -90,6 +110,10 @@
     <string name="assessment_welcome_title">Fitness Assessment</string>
     <string name="assessment_welcome_subtitle">Let\'s get to know you</string>
     <string name="assessment_welcome_description">Answer a few quick questions so we can personalise your experience and build your avatar.</string>
+    <string name="assessment_welcome_personalized">WELCOME %s!</string>
+    <string name="assessment_complete_title">Complete your fitness assessment</string>
+    <string name="assessment_welcome_detail">Answer a few questions so we can personalise your experience and build your avatar.</string>
+    <string name="btn_lets_go">Lets Go</string>
 
     <!-- Assessment Sections -->
     <string name="assessment_section_body">About your body.</string>
@@ -148,8 +172,28 @@
     <string name="assessment_goal_get_fitter">Get fitter</string>
     <string name="assessment_goal_improve_endurance">Improve endurance</string>
 
+    <!-- Body Type (new names) -->
+    <string name="assessment_body_type_subtitle">Choose which one best depicts you.</string>
+    <string name="assessment_body_skinny">Skinny</string>
+    <string name="assessment_body_average">Average</string>
+    <string name="assessment_body_toned">Toned</string>
+    <string name="assessment_body_muscular">Muscular</string>
+    <string name="assessment_body_chubby">Chubby</string>
+    <string name="assessment_body_overweight">Overweight</string>
+
+    <!-- Schedule buttons -->
+    <string name="schedule_1_day">1 day / week</string>
+    <string name="schedule_2_days">2 days / week</string>
+    <string name="schedule_3_days">3 days / week</string>
+    <string name="schedule_4_days">4 days / week</string>
+    <string name="schedule_5_days">5 days / week</string>
+    <string name="schedule_6_days">6 days / week</string>
+    <string name="schedule_every_day">Every day</string>
+
     <!-- Avatar Generation -->
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
+    <string name="avatar_subtitle_male">We\'ll customize him later</string>
+    <string name="avatar_subtitle_female">We\'ll customize her later</string>
     <string name="avatar_continue">Continue</string>
     <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
 
@@ -184,6 +228,7 @@
     <string name="calendar_option_schedule_workout">Schedule Workout</string>
     <string name="calendar_option_create_goal">Create Goal</string>
     <string name="calendar_status_completed">Completed</string>
+    <string name="calendar_status_missed">Missed</string>
     <string name="calendar_status_scheduled">Scheduled</string>
     <string name="calendar_schedule_coming_soon">Schedule Workout coming soon</string>
     <string name="calendar_my_plan_placeholder">Weekly plan coming soon</string>
@@ -399,10 +444,38 @@
     <string name="rank_up_close">Close</string>
     <string name="rank_up_share_text">I just reached %1$s rank on Reps Up! 🏅 +100 bonus coins!</string>
 
+    <!-- Locker / Customize Avatar -->
+    <string name="locker_title">LOCKER</string>
+    <string name="locker_save_outfit">Save outfit</string>
+    <string name="locker_expand_collapse">Expand or collapse avatar preview</string>
+    <string name="locker_item_selected">Item selected</string>
+    <string name="locker_purchase_prompt">Purchase for %d coins?</string>
+    <string name="locker_not_enough_coins">Not enough coins</string>
+    <string name="locker_item_purchased">Purchased %s!</string>
+    <string name="locker_outfit_saved">Outfit saved!</string>
+    <string name="locker_save_error">Failed to save outfit</string>
+    <string name="locker_tab_body">Body</string>
+    <string name="locker_tab_face">Face</string>
+    <string name="locker_tab_hair">Hair</string>
+    <string name="locker_tab_clothing">Clothing</string>
+    <string name="locker_subtab_nose">Nose</string>
+    <string name="locker_subtab_eyes">Eyes</string>
+    <string name="locker_subtab_mouth">Mouth</string>
+    <string name="locker_subtab_eyebrows">Eyebrows</string>
+    <string name="locker_subtab_top">Top</string>
+    <string name="locker_subtab_bottom">Bottom</string>
+    <string name="locker_subtab_shoes">Shoes</string>
+    <string name="locker_subtab_accessories">Accessories</string>
+    <string name="locker_subtab_special">Special</string>
+
     <!-- Me Fragment -->
     <string name="me_locker_description">Open locker</string>
     <string name="me_rank_description">Gym rank</string>
     <string name="me_rank_default">Bronze I</string>
+    <string name="me_gym_rank_title">GYM RANK</string>
+    <string name="me_level_description">Level progress</string>
+    <string name="me_level_format">LEVEL %1$d</string>
+    <string name="me_xp_progress_format">%1$d / %2$d XP</string>
     <string name="me_level_label">LEVEL PROGRESS</string>
     <string name="me_level_progress_format">Level %1$d — %2$d / %3$d XP</string>
 

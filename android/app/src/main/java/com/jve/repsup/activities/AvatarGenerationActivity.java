@@ -1,11 +1,12 @@
 package com.jve.repsup.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,8 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
-import com.jve.repsup.models.Avatar;
-import com.jve.repsup.models.OutfitSlot;
 import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
 
@@ -36,6 +35,8 @@ public class AvatarGenerationActivity extends AppCompatActivity {
 
     private ImageView ivAvatar;
     private Button btnContinue;
+    private ImageButton btnBack;
+    private TextView tvAvatarSubheading;
 
     private String gender;
     private String bodyType;
@@ -48,6 +49,8 @@ public class AvatarGenerationActivity extends AppCompatActivity {
 
         ivAvatar = findViewById(R.id.ivAvatar);
         btnContinue = findViewById(R.id.btnContinue);
+        btnBack = findViewById(R.id.btnBack);
+        tvAvatarSubheading = findViewById(R.id.tvAvatarSubheading);
 
         // Get data from intent
         gender = getIntent().getStringExtra(EXTRA_GENDER);
@@ -56,10 +59,18 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         SessionManager sessionManager = new SessionManager(this);
         userId = sessionManager.getUserId();
 
+        // Set gender-aware subheading
+        if (gender != null && gender.equalsIgnoreCase("female")) {
+            tvAvatarSubheading.setText(R.string.avatar_subtitle_female);
+        } else {
+            tvAvatarSubheading.setText(R.string.avatar_subtitle_male);
+        }
+
         // Disable continue until setup is done
         btnContinue.setEnabled(false);
 
         btnContinue.setOnClickListener(v -> navigateToMain());
+        btnBack.setOnClickListener(v -> onBackPressed());
 
         // Start avatar creation process
         createAvatarRecords();
@@ -215,23 +226,12 @@ public class AvatarGenerationActivity extends AppCompatActivity {
     }
 
     /**
-     * Composites and displays the avatar using AvatarCompositor.
+     * Displays the initial full-body avatar image based on gender and body type.
+     * Uses a single pre-rendered drawable instead of the layer compositor.
      */
     private void displayAvatar() {
-        // Build model objects for compositing
-        Avatar avatar = new Avatar();
-        avatar.setUserId(userId);
-        avatar.setSkinTone(gender != null ? gender : "male");
-        avatar.setBodyShape(bodyType != null ? bodyType : "mesomorph");
-
-        OutfitSlot outfit = new OutfitSlot();
-        outfit.setUserId(userId);
-        outfit.setTopId(DEFAULT_TOP_ID);
-        outfit.setBottomId(DEFAULT_BOTTOM_ID);
-        outfit.setShoesId(DEFAULT_SHOES_ID);
-
-        Bitmap avatarBitmap = AvatarCompositor.composite(this, avatar, outfit);
-        ivAvatar.setImageBitmap(avatarBitmap);
+        int avatarRes = AvatarCompositor.getInitialAvatarResource(gender, bodyType);
+        ivAvatar.setImageResource(avatarRes);
     }
 
     /**

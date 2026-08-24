@@ -8,176 +8,210 @@
     android:orientation="vertical"
     tools:context="com.jve.repsup.fragments.CalendarFragment">
 
-    <!-- Month navigation header -->
+    <!-- My Schedule heading with + button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/ivPrevMonth"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="@string/calendar_prev_month"
-            android:src="@android:drawable/ic_media_previous"
-            app:tint="@color/white" />
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp">
 
         <TextView
-            android:id="@+id/tvMonthYear"
+            android:id="@+id/tvMyScheduleHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/orbitron"
-            android:gravity="center"
+            android:fontFamily="@font/orbitron_bold"
+            android:text="@string/my_schedule_heading"
             android:textColor="@color/white"
-            android:textSize="20sp"
-            tools:text="January 2025" />
+            android:textSize="22sp" />
 
         <ImageView
-            android:id="@+id/ivNextMonth"
+            android:id="@+id/btnAddSchedule"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:contentDescription="@string/calendar_next_month"
-            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="@string/calendar_add_action"
+            android:src="@drawable/ic_add_circle"
             app:tint="@color/white" />
     </LinearLayout>
 
-    <!-- Day of week headers -->
-    <LinearLayout
+    <!-- Scrollable content: calendar + tabs + tab content -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_sun"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_mon"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_tue"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_wed"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_thu"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_fri"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/day_sat"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <!-- Calendar grid (RecyclerView with GridLayoutManager) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCalendarGrid"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp" />
-
-    <!-- Selected day content area -->
-    <LinearLayout
-        android:id="@+id/llDayContent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvSelectedDayTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDayContent"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
-    </LinearLayout>
+            android:orientation="vertical">
 
-    <!-- Tab layout for My Plan / Goals -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayoutCalendar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@color/dark_grey"
-        app:tabGravity="fill"
-        app:tabIndicatorColor="@color/light_blue"
-        app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/light_blue"
-        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
-        app:tabTextColor="@color/muted" />
+            <!-- Month navigation header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-    <!-- Tab content container -->
-    <FrameLayout
-        android:id="@+id/flTabContent"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/ivPrevMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/calendar_prev_month"
+                    android:src="@android:drawable/ic_media_previous"
+                    app:tint="@color/white" />
 
-    <!-- FAB for adding schedule / goal -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/calendar_add_action"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/light_blue"
-        app:tint="@color/dark_text" />
+                <TextView
+                    android:id="@+id/tvMonthYear"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/orbitron"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    tools:text="January 2025" />
+
+                <ImageView
+                    android:id="@+id/ivNextMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/calendar_next_month"
+                    android:src="@android:drawable/ic_media_next"
+                    app:tint="@color/white" />
+            </LinearLayout>
+
+            <!-- Day of week headers -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_sun"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_mon"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_tue"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_wed"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_thu"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_fri"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_sat"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Calendar grid (RecyclerView with GridLayoutManager) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCalendarGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:padding="8dp" />
+
+            <!-- Selected day content area -->
+            <LinearLayout
+                android:id="@+id/llDayContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvSelectedDayTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvDayContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- Tab layout for My Plan / Goals -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutCalendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/dark_grey"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/light_blue"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="@color/light_blue"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+                app:tabTextColor="@color/muted" />
+
+            <!-- Tab content container -->
+            <FrameLayout
+                android:id="@+id/flTabContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="400dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

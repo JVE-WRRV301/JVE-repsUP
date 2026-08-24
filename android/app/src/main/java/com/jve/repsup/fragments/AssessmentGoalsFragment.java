@@ -88,6 +88,7 @@ public class AssessmentGoalsFragment extends Fragment {
             }
         }
         getAssessmentActivity().getAssessmentData().setFitnessGoals(goals);
+        getAssessmentActivity().notifyDataChanged();
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

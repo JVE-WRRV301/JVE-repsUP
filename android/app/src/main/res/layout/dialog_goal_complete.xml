@@ -2,54 +2,74 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_grey_surface"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="32dp">
+    android:padding="16dp">
 
-    <!-- Congratulations title -->
-    <TextView
-        android:id="@+id/tvCongratulations"
-        android:layout_width="wrap_content"
+    <!-- Main card with border -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/orbitron"
-        android:text="@string/goal_congratulations"
-        android:textColor="@color/yellow"
-        android:textSize="22sp" />
+        android:background="@drawable/bg_goal_complete_card"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="32dp">
 
-    <!-- Goal title -->
-    <TextView
-        android:id="@+id/tvGoalTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/inter_medium"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="18sp" />
+        <!-- Congratulations title -->
+        <TextView
+            android:id="@+id/tvCongratulations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/orbitron_bold"
+            android:text="@string/goal_congratulations"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
 
-    <!-- XP earned -->
-    <TextView
-        android:id="@+id/tvXpEarned"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/orbitron"
-        android:textColor="@color/yellow"
-        android:textSize="28sp" />
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/inter"
+            android:text="@string/goal_complete_subtitle"
+            android:textColor="@color/muted"
+            android:textSize="14sp" />
 
-    <!-- XP label -->
-    <TextView
-        android:id="@+id/tvXpLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:fontFamily="@font/inter"
-        android:text="@string/goal_xp_earned_label"
-        android:textColor="@color/muted"
-        android:textSize="14sp" />
+        <!-- Bicep icon -->
+        <ImageView
+            android:id="@+id/ivBicep"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/goal_congratulations"
+            android:src="@drawable/ic_bicep"
+            android:scaleType="fitCenter" />
 
-    <!-- Buttons row -->
+        <!-- Goal title -->
+        <TextView
+            android:id="@+id/tvGoalTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/inter_medium"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <!-- XP earned -->
+        <TextView
+            android:id="@+id/tvXpEarned"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/orbitron"
+            android:textColor="@color/yellow"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <!-- Bottom buttons row (Share and Close) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,31 +77,26 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <TextView
+        <!-- Share button (circular) -->
+        <ImageView
             android:id="@+id/btnShare"
-            android:layout_width="0dp"
+            android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_button_rounded"
-            android:fontFamily="@font/inter_medium"
-            android:gravity="center"
-            android:text="@string/goal_share"
-            android:textColor="@color/dark_text"
-            android:textSize="14sp" />
+            android:layout_marginEnd="64dp"
+            android:background="@drawable/bg_circle_button"
+            android:contentDescription="@string/goal_share"
+            android:padding="12dp"
+            android:src="@drawable/ic_share" />
 
-        <TextView
+        <!-- Close button (circular) -->
+        <ImageView
             android:id="@+id/btnClose"
-            android:layout_width="0dp"
+            android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_card_red_border"
-            android:fontFamily="@font/inter_medium"
-            android:gravity="center"
-            android:text="@string/goal_close"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:background="@drawable/bg_circle_button"
+            android:contentDescription="@string/goal_close"
+            android:padding="12dp"
+            android:src="@drawable/ic_close" />
 
     </LinearLayout>
 

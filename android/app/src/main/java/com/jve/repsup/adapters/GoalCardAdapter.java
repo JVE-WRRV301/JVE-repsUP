@@ -9,6 +9,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
@@ -83,7 +84,7 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         private final ImageView btnGoalMenu;
 
         private final SimpleDateFormat dateFormat =
-                new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+                new SimpleDateFormat("d EEEE", Locale.getDefault());
 
         GoalViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -96,22 +97,54 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         }
 
         void bind(Goal goal, int position) {
-            // Deadline
+            // Deadline formatted as "15 Sunday"
             if (goal.getDeadline() != null) {
-                tvGoalDeadline.setText(itemView.getContext().getString(
-                        R.string.goal_deadline_format, dateFormat.format(goal.getDeadline())));
+                tvGoalDeadline.setText(dateFormat.format(goal.getDeadline()));
             } else {
                 tvGoalDeadline.setText("");
             }
 
-            // Title - using description as the goal title field
-            tvGoalTitle.setText(goal.getDescription());
+            // Split description into title and notes
+            String description = goal.getDescription();
+            String title = description;
+            String notes = "";
+            if (description != null && description.contains("\n---\n")) {
+                int separatorIndex = description.indexOf("\n---\n");
+                title = description.substring(0, separatorIndex);
+                notes = description.substring(separatorIndex + 5);
+            }
 
-            // Priority badge
-            tvGoalPriority.setText(goal.getPriority());
+            // Title at the top
+            tvGoalTitle.setText(title);
 
-            // Description
-            tvGoalDescription.setText(goal.getDescription());
+            // Priority badge with full label (e.g., "Top Priority")
+            String priority = goal.getPriority();
+            int priorityColor;
+            String priorityLabel;
+            switch (priority != null ? priority : "Medium") {
+                case "Top":
+                    priorityLabel = itemView.getContext().getString(R.string.importance_top_priority);
+                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.red);
+                    break;
+                case "Low":
+                    priorityLabel = itemView.getContext().getString(R.string.importance_low_priority);
+                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.green);
+                    break;
+                default:
+                    priorityLabel = itemView.getContext().getString(R.string.importance_medium_priority);
+                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.yellow);
+                    break;
+            }
+            tvGoalPriority.setText(priorityLabel);
+            tvGoalPriority.setTextColor(priorityColor);
+
+            // Notes at the bottom
+            if (!notes.isEmpty()) {
+                tvGoalDescription.setText(notes);
+                tvGoalDescription.setVisibility(View.VISIBLE);
+            } else {
+                tvGoalDescription.setVisibility(View.GONE);
+            }
 
             // Checkbox state
             cbGoalComplete.setOnCheckedChangeListener(null);

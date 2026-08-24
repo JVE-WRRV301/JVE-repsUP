@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
+    android:gravity="center_horizontal"
     android:background="@color/dark_grey">
 
     <TextView
@@ -13,7 +14,8 @@
         android:text="@string/assessment_section_body"
         android:textColor="@color/muted"
         android:fontFamily="@font/inter"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/tvQuestion"
@@ -23,28 +25,81 @@
         android:textColor="@color/white"
         android:fontFamily="@font/orbitron"
         android:textSize="22sp"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        android:gravity="center" />
 
-    <Button
-        android:id="@+id/btnMale"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
+    <!-- Male circle -->
+    <LinearLayout
+        android:id="@+id/llMale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
         android:layout_marginTop="32dp"
-        android:text="@string/assessment_gender_male"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        android:clickable="true"
+        android:focusable="true">
 
-    <Button
-        android:id="@+id/btnFemale"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/assessment_gender_female"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <FrameLayout
+            android:id="@+id/flMaleCircle"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/bg_gender_circle_unselected">
+
+            <ImageView
+                android:id="@+id/ivMaleIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_gender_male"
+                android:contentDescription="@string/assessment_gender_male" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvMaleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_gender_male"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- Female circle -->
+    <LinearLayout
+        android:id="@+id/llFemale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <FrameLayout
+            android:id="@+id/flFemaleCircle"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/bg_gender_circle_unselected">
+
+            <ImageView
+                android:id="@+id/ivFemaleIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_gender_female"
+                android:contentDescription="@string/assessment_gender_female" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvFemaleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_gender_female"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
 
 </LinearLayout>

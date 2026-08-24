@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +17,16 @@ import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
- * Step 2: Gender selection (Male / Female).
+ * Step 2: Gender selection with large circular buttons (Male / Female).
  */
 public class AssessmentGenderFragment extends Fragment {
 
-    private Button btnMale;
-    private Button btnFemale;
+    private LinearLayout llMale;
+    private LinearLayout llFemale;
+    private FrameLayout flMaleCircle;
+    private FrameLayout flFemaleCircle;
+    private TextView tvMaleLabel;
+    private TextView tvFemaleLabel;
 
     @Nullable
     @Override
@@ -34,8 +40,12 @@ public class AssessmentGenderFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        btnMale = view.findViewById(R.id.btnMale);
-        btnFemale = view.findViewById(R.id.btnFemale);
+        llMale = view.findViewById(R.id.llMale);
+        llFemale = view.findViewById(R.id.llFemale);
+        flMaleCircle = view.findViewById(R.id.flMaleCircle);
+        flFemaleCircle = view.findViewById(R.id.flFemaleCircle);
+        tvMaleLabel = view.findViewById(R.id.tvMaleLabel);
+        tvFemaleLabel = view.findViewById(R.id.tvFemaleLabel);
 
         // Restore selection
         String savedGender = getAssessmentActivity().getAssessmentData().getGender();
@@ -43,12 +53,12 @@ public class AssessmentGenderFragment extends Fragment {
             updateSelection(savedGender.equals("Male"));
         }
 
-        btnMale.setOnClickListener(v -> {
+        llMale.setOnClickListener(v -> {
             getAssessmentActivity().getAssessmentData().setGender("Male");
             updateSelection(true);
         });
 
-        btnFemale.setOnClickListener(v -> {
+        llFemale.setOnClickListener(v -> {
             getAssessmentActivity().getAssessmentData().setGender("Female");
             updateSelection(false);
         });
@@ -56,16 +66,17 @@ public class AssessmentGenderFragment extends Fragment {
 
     private void updateSelection(boolean isMale) {
         if (isMale) {
-            btnMale.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnMale.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnFemale.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnFemale.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+            flMaleCircle.setBackgroundResource(R.drawable.bg_gender_circle_selected);
+            tvMaleLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_blue));
+            flFemaleCircle.setBackgroundResource(R.drawable.bg_gender_circle_unselected);
+            tvFemaleLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         } else {
-            btnFemale.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnFemale.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnMale.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnMale.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+            flFemaleCircle.setBackgroundResource(R.drawable.bg_gender_circle_selected);
+            tvFemaleLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_blue));
+            flMaleCircle.setBackgroundResource(R.drawable.bg_gender_circle_unselected);
+            tvMaleLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         }
+        getAssessmentActivity().notifyDataChanged();
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

@@ -12,11 +12,16 @@
     <!-- Emphasis -->
     <color name="red">#FFFF5050</color>
     <color name="yellow">#FFFAD942</color>
+    <color name="burnt_orange">#FFCC6B2C</color>
 
     <!-- Text -->
     <color name="white">#FFFFFFFF</color>
     <color name="muted">#FFB0B0B8</color>
     <color name="dark_text">#FF1A1A2E</color>
+
+    <!-- Fields -->
+    <color name="field_background">#FF5A5A66</color>
+    <color name="green">#FF4CAF50</color>
 
     <!-- Utility -->
     <color name="transparent">#00000000</color>

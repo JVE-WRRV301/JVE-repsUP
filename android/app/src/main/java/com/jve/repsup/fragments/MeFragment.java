@@ -1,7 +1,6 @@
 package com.jve.repsup.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,20 +14,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CustomizeAvatarActivity;
 import com.jve.repsup.activities.SettingsActivity;
 import com.jve.repsup.database.ConnectionManager;
-import com.jve.repsup.models.Rank;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.XPCalculator;
 
 /**
- * MeFragment displaying the user's avatar, gym rank with medal icon,
- * current level with progress indicator, gear icon → SettingsActivity,
- * and locker icon → CustomizeAvatarActivity.
+ * MeFragment displaying the user's full-body avatar, gym rank card with medal icon
+ * and circular level progress, gear icon for settings, and locker icon for avatar
+ * customization.
  *
  * Validates: Requirements 20.1, 20.2, 20.3, 20.4, 20.5
  */
@@ -39,9 +38,10 @@ public class MeFragment extends Fragment {
     private ImageView ivAvatar;
     private ImageView ivMedal;
     private TextView tvRankName;
+    private TextView tvLevelNumber;
     private TextView tvLevelLabel;
+    private TextView tvXpProgress;
     private ProgressBar pbLevelProgress;
-    private TextView tvLevelProgress;
 
     private UserRepository userRepository;
     private SessionManager sessionManager;
@@ -85,9 +85,10 @@ public class MeFragment extends Fragment {
         ivAvatar = view.findViewById(R.id.ivAvatar);
         ivMedal = view.findViewById(R.id.ivMedal);
         tvRankName = view.findViewById(R.id.tvRankName);
+        tvLevelNumber = view.findViewById(R.id.tvLevelNumber);
         tvLevelLabel = view.findViewById(R.id.tvLevelLabel);
+        tvXpProgress = view.findViewById(R.id.tvXpProgress);
         pbLevelProgress = view.findViewById(R.id.pbLevelProgress);
-        tvLevelProgress = view.findViewById(R.id.tvLevelProgress);
     }
 
     private void setupClickListeners() {
@@ -127,23 +128,43 @@ public class MeFragment extends Fragment {
 
     /**
      * Updates the UI with the user's rank and level progress.
+     * Computes the correct level from total XP and fixes the DB if stale.
      */
     private void displayUserProfile(User user) {
-        // Display rank name
+        // Display rank name (uppercase for the design style)
         if (user.getRankName() != null && !user.getRankName().isEmpty()) {
-            tvRankName.setText(user.getRankName());
+            tvRankName.setText(user.getRankName().toUpperCase());
         } else {
             tvRankName.setText(R.string.me_rank_default);
         }
 
-        // Display level progress
-        int currentLevel = user.getCurrentLevel();
         int totalXp = user.getXp();
-        int xpForNext = XPCalculator.xpForNextLevel(currentLevel);
 
-        // Calculate XP progress within current level
+        // Compute the correct level based on total XP
+        int correctLevel = 1;
+        while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
+            correctLevel++;
+        }
+
+        // Fix DB if level is out of sync
+        if (correctLevel != user.getCurrentLevel()) {
+            userRepository.updateLevel(user.getUserId(), correctLevel, null);
+        }
+
+        // Refresh the top bar to stay in sync
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).loadTopBarData();
+        }
+
+        // Display level number in circle and label below
+        tvLevelNumber.setText(String.valueOf(correctLevel));
+        tvLevelLabel.setText(getString(R.string.me_level_format, correctLevel));
+
+        // Calculate XP progress within current level for circular indicator
+        int xpForNext = XPCalculator.xpForNextLevel(correctLevel);
+
         int cumulativeXpForCurrentLevel = 0;
-        for (int i = 1; i < currentLevel; i++) {
+        for (int i = 1; i < correctLevel; i++) {
             cumulativeXpForCurrentLevel += XPCalculator.xpForNextLevel(i);
         }
         int xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
@@ -151,7 +172,9 @@ public class MeFragment extends Fragment {
         progressPercent = Math.max(0, Math.min(100, progressPercent));
 
         pbLevelProgress.setProgress(progressPercent);
-        tvLevelProgress.setText(getString(R.string.me_level_progress_format,
-                currentLevel, xpIntoCurrentLevel, xpForNext));
+
+        // Display XP progress text (e.g. "250 / 500 XP")
+        tvXpProgress.setText(getString(R.string.me_xp_progress_format,
+                xpIntoCurrentLevel, xpForNext));
     }
 }

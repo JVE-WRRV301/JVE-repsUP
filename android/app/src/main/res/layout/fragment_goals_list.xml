@@ -2,14 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/dark_grey"
     tools:context="com.jve.repsup.fragments.GoalsListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvGoals"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
         android:clipToPadding="false"
         android:padding="16dp" />
 

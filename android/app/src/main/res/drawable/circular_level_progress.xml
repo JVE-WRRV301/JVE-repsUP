@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background ring (dark grey outline) -->
+    <item>
+        <shape android:shape="ring"
+            android:innerRadiusRatio="2.55"
+            android:thicknessRatio="25"
+            android:useLevel="false">
+            <solid android:color="@color/dark_grey_variant" />
+        </shape>
+    </item>
+    <!-- Progress ring (light blue, fills clockwise) -->
+    <item>
+        <rotate
+            android:fromDegrees="270"
+            android:toDegrees="270">
+            <shape android:shape="ring"
+                android:innerRadiusRatio="2.55"
+                android:thicknessRatio="25"
+                android:useLevel="true">
+                <solid android:color="@color/light_blue" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

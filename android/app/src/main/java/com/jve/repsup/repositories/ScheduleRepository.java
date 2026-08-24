@@ -27,14 +27,19 @@ public class ScheduleRepository {
                 "w.workout_name " +
                 "FROM scheduled_workout sw " +
                 "JOIN workout w ON sw.workout_id = w.workout_id " +
-                "WHERE sw.user_id = ? AND sw.scheduled_date = CURDATE() AND sw.is_completed = 0 " +
+                "WHERE sw.user_id = ? AND sw.scheduled_date = ? " +
+                "ORDER BY sw.is_completed ASC " +
                 "LIMIT 1";
+
+        // Use Java's current date to avoid timezone mismatch with MySQL CURDATE()
+        Date today = new Date(System.currentTimeMillis());
 
         ConnectionManager.executeAsync(connection -> {
             ScheduledWorkout scheduledWorkout = null;
 
             try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
                 stmt.setInt(1, userId);
+                stmt.setDate(2, today);
                 try (java.sql.ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         scheduledWorkout = new ScheduledWorkout();
@@ -135,6 +140,7 @@ public class ScheduleRepository {
 
     /**
      * Fetches all scheduled workouts for a user in a given week (starting from weekStart).
+     * Includes exercises for each workout so the weekly plan cards can display them.
      */
     public void getScheduledWorkoutsForWeek(int userId, Date weekStart,
                                              ConnectionManager.DatabaseCallback<List<ScheduledWorkout>> callback) {
@@ -146,24 +152,74 @@ public class ScheduleRepository {
                 "WHERE sw.user_id = ? AND sw.scheduled_date >= ? AND sw.scheduled_date < DATE_ADD(?, INTERVAL 7 DAY) " +
                 "ORDER BY sw.scheduled_date ASC";
 
-        ConnectionManager.queryList(sql, new Object[]{userId, weekStart, weekStart}, rs -> {
-            ScheduledWorkout sw = new ScheduledWorkout();
-            sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
-            sw.setUserId(rs.getInt("user_id"));
-            sw.setWorkoutId(rs.getInt("workout_id"));
-            sw.setScheduledDate(rs.getDate("scheduled_date"));
-            sw.setCompleted(rs.getBoolean("is_completed"));
-            sw.setCompletedDate(rs.getTimestamp("completed_date"));
-            sw.setEarnedXp(rs.getInt("earned_xp"));
-            sw.setCompletedSets(rs.getInt("completed_sets"));
-            sw.setCompletedReps(rs.getInt("completed_reps"));
+        String exerciseSql = "SELECT we.exercise_id, we.num_sets, we.num_reps, " +
+                "we.workout_exercise_order_index, " +
+                "e.exercise_name, e.muscle_group, e.difficulty, e.base_xp " +
+                "FROM workout_exercise we " +
+                "JOIN exercise e ON we.exercise_id = e.exercise_id " +
+                "WHERE we.workout_id = ? " +
+                "ORDER BY we.workout_exercise_order_index ASC";
 
-            Workout workout = new Workout();
-            workout.setWorkoutId(rs.getInt("workout_id"));
-            workout.setName(rs.getString("workout_name"));
-            sw.setWorkout(workout);
+        ConnectionManager.executeAsync(connection -> {
+            List<ScheduledWorkout> results = new ArrayList<>();
 
-            return sw;
+            try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, userId);
+                stmt.setDate(2, weekStart);
+                stmt.setDate(3, weekStart);
+                try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        ScheduledWorkout sw = new ScheduledWorkout();
+                        sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
+                        sw.setUserId(rs.getInt("user_id"));
+                        sw.setWorkoutId(rs.getInt("workout_id"));
+                        sw.setScheduledDate(rs.getDate("scheduled_date"));
+                        sw.setCompleted(rs.getBoolean("is_completed"));
+                        sw.setCompletedDate(rs.getTimestamp("completed_date"));
+                        sw.setEarnedXp(rs.getInt("earned_xp"));
+                        sw.setCompletedSets(rs.getInt("completed_sets"));
+                        sw.setCompletedReps(rs.getInt("completed_reps"));
+
+                        Workout workout = new Workout();
+                        workout.setWorkoutId(rs.getInt("workout_id"));
+                        workout.setName(rs.getString("workout_name"));
+                        sw.setWorkout(workout);
+
+                        results.add(sw);
+                    }
+                }
+            }
+
+            // Fetch exercises for each scheduled workout
+            for (ScheduledWorkout sw : results) {
+                List<WorkoutExercise> exercises = new ArrayList<>();
+                try (java.sql.PreparedStatement stmt2 = connection.prepareStatement(exerciseSql)) {
+                    stmt2.setInt(1, sw.getWorkoutId());
+                    try (java.sql.ResultSet rs2 = stmt2.executeQuery()) {
+                        while (rs2.next()) {
+                            WorkoutExercise we = new WorkoutExercise();
+                            we.setWorkoutId(sw.getWorkoutId());
+                            we.setExerciseId(rs2.getInt("exercise_id"));
+                            we.setSets(rs2.getInt("num_sets"));
+                            we.setReps(rs2.getInt("num_reps"));
+                            we.setOrderIndex(rs2.getInt("workout_exercise_order_index"));
+
+                            Exercise exercise = new Exercise();
+                            exercise.setExerciseId(rs2.getInt("exercise_id"));
+                            exercise.setName(rs2.getString("exercise_name"));
+                            exercise.setMuscleGroup(rs2.getString("muscle_group"));
+                            exercise.setDifficulty(rs2.getString("difficulty"));
+                            exercise.setBaseXp(rs2.getInt("base_xp"));
+                            we.setExercise(exercise);
+
+                            exercises.add(we);
+                        }
+                    }
+                }
+                sw.getWorkout().setExercises(exercises);
+            }
+
+            return results;
         }, callback);
     }
 
@@ -284,7 +340,7 @@ public class ScheduleRepository {
 
     /**
      * Fetches all scheduled content for a user on a specific day.
-     * Includes workout name for display.
+     * Includes workout name and exercises for display.
      */
     public void getScheduledContentForDay(int userId, Date date,
                                            ConnectionManager.DatabaseCallback<List<ScheduledWorkout>> callback) {
@@ -296,24 +352,73 @@ public class ScheduleRepository {
                 "WHERE sw.user_id = ? AND sw.scheduled_date = ? " +
                 "ORDER BY sw.scheduled_workout_id ASC";
 
-        ConnectionManager.queryList(sql, new Object[]{userId, date}, rs -> {
-            ScheduledWorkout sw = new ScheduledWorkout();
-            sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
-            sw.setUserId(rs.getInt("user_id"));
-            sw.setWorkoutId(rs.getInt("workout_id"));
-            sw.setScheduledDate(rs.getDate("scheduled_date"));
-            sw.setCompleted(rs.getBoolean("is_completed"));
-            sw.setCompletedDate(rs.getTimestamp("completed_date"));
-            sw.setEarnedXp(rs.getInt("earned_xp"));
-            sw.setCompletedSets(rs.getInt("completed_sets"));
-            sw.setCompletedReps(rs.getInt("completed_reps"));
+        String exerciseSql = "SELECT we.exercise_id, we.num_sets, we.num_reps, " +
+                "we.workout_exercise_order_index, " +
+                "e.exercise_name, e.muscle_group, e.difficulty, e.base_xp " +
+                "FROM workout_exercise we " +
+                "JOIN exercise e ON we.exercise_id = e.exercise_id " +
+                "WHERE we.workout_id = ? " +
+                "ORDER BY we.workout_exercise_order_index ASC";
 
-            Workout workout = new Workout();
-            workout.setWorkoutId(rs.getInt("workout_id"));
-            workout.setName(rs.getString("workout_name"));
-            sw.setWorkout(workout);
+        ConnectionManager.executeAsync(connection -> {
+            List<ScheduledWorkout> results = new ArrayList<>();
 
-            return sw;
+            try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, userId);
+                stmt.setDate(2, date);
+                try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        ScheduledWorkout sw = new ScheduledWorkout();
+                        sw.setScheduledWorkoutId(rs.getInt("scheduled_workout_id"));
+                        sw.setUserId(rs.getInt("user_id"));
+                        sw.setWorkoutId(rs.getInt("workout_id"));
+                        sw.setScheduledDate(rs.getDate("scheduled_date"));
+                        sw.setCompleted(rs.getBoolean("is_completed"));
+                        sw.setCompletedDate(rs.getTimestamp("completed_date"));
+                        sw.setEarnedXp(rs.getInt("earned_xp"));
+                        sw.setCompletedSets(rs.getInt("completed_sets"));
+                        sw.setCompletedReps(rs.getInt("completed_reps"));
+
+                        Workout workout = new Workout();
+                        workout.setWorkoutId(rs.getInt("workout_id"));
+                        workout.setName(rs.getString("workout_name"));
+                        sw.setWorkout(workout);
+
+                        results.add(sw);
+                    }
+                }
+            }
+
+            // Fetch exercises for each scheduled workout
+            for (ScheduledWorkout sw : results) {
+                List<WorkoutExercise> exercises = new ArrayList<>();
+                try (java.sql.PreparedStatement stmt2 = connection.prepareStatement(exerciseSql)) {
+                    stmt2.setInt(1, sw.getWorkoutId());
+                    try (java.sql.ResultSet rs2 = stmt2.executeQuery()) {
+                        while (rs2.next()) {
+                            WorkoutExercise we = new WorkoutExercise();
+                            we.setWorkoutId(sw.getWorkoutId());
+                            we.setExerciseId(rs2.getInt("exercise_id"));
+                            we.setSets(rs2.getInt("num_sets"));
+                            we.setReps(rs2.getInt("num_reps"));
+                            we.setOrderIndex(rs2.getInt("workout_exercise_order_index"));
+
+                            Exercise exercise = new Exercise();
+                            exercise.setExerciseId(rs2.getInt("exercise_id"));
+                            exercise.setName(rs2.getString("exercise_name"));
+                            exercise.setMuscleGroup(rs2.getString("muscle_group"));
+                            exercise.setDifficulty(rs2.getString("difficulty"));
+                            exercise.setBaseXp(rs2.getInt("base_xp"));
+                            we.setExercise(exercise);
+
+                            exercises.add(we);
+                        }
+                    }
+                }
+                sw.getWorkout().setExercises(exercises);
+            }
+
+            return results;
         }, callback);
     }
 }

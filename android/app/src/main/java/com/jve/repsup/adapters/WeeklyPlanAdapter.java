@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -56,9 +57,11 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * Sets the week data. weekStart is the Monday of the week to display.
      * scheduledWorkouts contains all scheduled workouts for that week.
+     * Past days are automatically collapsed; today and future days are expanded.
      */
     public void setWeekData(Date weekStart, List<ScheduledWorkout> scheduledWorkouts) {
         weekDays.clear();
+        collapsedDays.clear();
         this.today = new Date(System.currentTimeMillis());
 
         // Build 7 days starting from weekStart (Monday)
@@ -86,10 +89,29 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             DayData dayData = new DayData(i, dayName, dayDateStr, dayDate, dayWorkouts);
             weekDays.add(dayData);
 
+            // Auto-collapse past days (before today)
+            boolean isPast = dayDate.before(today) && !isSameDay(dayDate, today);
+            if (isPast) {
+                collapsedDays.put(i, true);
+            }
+
             cal.add(Calendar.DAY_OF_YEAR, 1);
         }
 
         rebuildDisplayList();
+    }
+
+    /**
+     * Returns the adapter position of today's day header, or -1 if not found.
+     */
+    public int getTodayPosition() {
+        for (int i = 0; i < displayItems.size(); i++) {
+            ListItem item = displayItems.get(i);
+            if (item.viewType == VIEW_TYPE_DAY_HEADER && isSameDay(item.dayData.date, today)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -176,29 +198,79 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         DayData day = item.dayData;
         ScheduledWorkout sw = item.scheduledWorkout;
 
+        // Clear previous exercise views
+        holder.llExerciseList.removeAllViews();
+        holder.tvAndMore.setVisibility(View.GONE);
+
         if (sw == null) {
             // Rest day - no workout scheduled
             holder.tvWorkoutName.setText(R.string.weekly_plan_rest_day);
             holder.tvWorkoutName.setTextColor(ContextCompat.getColor(context, R.color.muted));
-            holder.tvExerciseInfo.setVisibility(View.GONE);
+            holder.llExerciseList.setVisibility(View.GONE);
             holder.tvStatus.setVisibility(View.GONE);
             holder.btnStart.setVisibility(View.GONE);
             return;
         }
+
+        holder.llExerciseList.setVisibility(View.VISIBLE);
 
         // Workout name
         String workoutName = sw.getWorkout() != null ? sw.getWorkout().getName() : "Workout";
         holder.tvWorkoutName.setText(workoutName);
         holder.tvWorkoutName.setTextColor(ContextCompat.getColor(context, R.color.white));
 
-        // Exercise info
+        // Exercise list - show up to 3, then "and X more"
         if (sw.getWorkout() != null && sw.getWorkout().getExercises() != null
                 && !sw.getWorkout().getExercises().isEmpty()) {
-            int exerciseCount = sw.getWorkout().getExercises().size();
-            holder.tvExerciseInfo.setText(context.getString(R.string.weekly_plan_exercises_format, exerciseCount));
-            holder.tvExerciseInfo.setVisibility(View.VISIBLE);
-        } else {
-            holder.tvExerciseInfo.setVisibility(View.GONE);
+            List<WorkoutExercise> exercises = sw.getWorkout().getExercises();
+            int totalExercises = exercises.size();
+            int showCount = Math.min(3, totalExercises);
+
+            LayoutInflater inflater = LayoutInflater.from(context);
+            for (int i = 0; i < showCount; i++) {
+                View exerciseRow = inflater.inflate(R.layout.item_workout_exercise_row, holder.llExerciseList, false);
+                TextView tvName = exerciseRow.findViewById(R.id.tvExerciseName);
+                TextView tvSets = exerciseRow.findViewById(R.id.tvExerciseSets);
+                ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseImage);
+
+                WorkoutExercise we = exercises.get(i);
+                String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
+                tvName.setText(exerciseName);
+                tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+
+                // Load exercise image from drawable resources based on exercise name
+                loadExerciseImage(ivImage, exerciseName);
+
+                holder.llExerciseList.addView(exerciseRow);
+            }
+
+            // "and X more" text
+            if (totalExercises > 3) {
+                int remaining = totalExercises - 3;
+                holder.tvAndMore.setText(context.getString(R.string.weekly_plan_and_more_format, remaining));
+                holder.tvAndMore.setVisibility(View.VISIBLE);
+
+                // Make "and X more" clickable to expand
+                holder.tvAndMore.setOnClickListener(v -> {
+                    // Add remaining exercises
+                    for (int i = 3; i < totalExercises; i++) {
+                        View exerciseRow = inflater.inflate(R.layout.item_workout_exercise_row, holder.llExerciseList, false);
+                        TextView tvName = exerciseRow.findViewById(R.id.tvExerciseName);
+                        TextView tvSets = exerciseRow.findViewById(R.id.tvExerciseSets);
+                        ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseImage);
+
+                        WorkoutExercise we = exercises.get(i);
+                        String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
+                        tvName.setText(exerciseName);
+                        tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+
+                        loadExerciseImage(ivImage, exerciseName);
+
+                        holder.llExerciseList.addView(exerciseRow);
+                    }
+                    holder.tvAndMore.setVisibility(View.GONE);
+                });
+            }
         }
 
         // Determine status
@@ -232,6 +304,24 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.muted));
             holder.tvStatus.setVisibility(View.VISIBLE);
             holder.btnStart.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Loads an exercise image from drawable resources based on exercise name.
+     * Converts name to a resource-safe format (lowercase, spaces to underscores).
+     */
+    private void loadExerciseImage(ImageView imageView, String exerciseName) {
+        if (exerciseName != null && !exerciseName.isEmpty()) {
+            Context context = imageView.getContext();
+            String resName = "exercise_" + exerciseName.toLowerCase()
+                    .replaceAll("[^a-z0-9]", "_")
+                    .replaceAll("_+", "_");
+            int resId = context.getResources().getIdentifier(
+                    resName, "drawable", context.getPackageName());
+            if (resId != 0) {
+                imageView.setImageResource(resId);
+            }
         }
     }
 
@@ -269,14 +359,16 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     static class WorkoutCardViewHolder extends RecyclerView.ViewHolder {
         final TextView tvWorkoutName;
-        final TextView tvExerciseInfo;
+        final LinearLayout llExerciseList;
+        final TextView tvAndMore;
         final TextView tvStatus;
         final TextView btnStart;
 
         WorkoutCardViewHolder(@NonNull View itemView) {
             super(itemView);
             tvWorkoutName = itemView.findViewById(R.id.tvWorkoutName);
-            tvExerciseInfo = itemView.findViewById(R.id.tvExerciseInfo);
+            llExerciseList = itemView.findViewById(R.id.llExerciseList);
+            tvAndMore = itemView.findViewById(R.id.tvAndMore);
             tvStatus = itemView.findViewById(R.id.tvStatus);
             btnStart = itemView.findViewById(R.id.btnStart);
         }
