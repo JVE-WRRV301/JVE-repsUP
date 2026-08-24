@@ -56,8 +56,6 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     private int totalSets;
     private int totalReps;
 
-    private boolean levelledUp = false;
-    private int newLevelReached = 0;
     private int updatedStreak = -1; // -1 means streak update hasn't completed yet
 
     @Override
@@ -195,8 +193,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         userRepository.updateXp(userId, totalXp, new ConnectionManager.DatabaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
-                // Check for level-up after XP update
-                checkLevelUp(userId);
+                // XP updated — level/rank checks happen when user taps Continue
             }
 
             @Override
@@ -288,26 +285,59 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     }
 
     /**
-     * Navigates to MainActivity (HomeFragment) clearing the back stack
-     * so user can't go back to the execution flow.
-     * Checks for level-up dialog first, then streak milestone, then navigates.
+     * Called when user taps Continue. Reads latest user state from DB,
+     * checks for level-up and rank-up, shows dialogs in order, then checks streak.
+     * Dialog order: Level Up → Rank Up → Streak Milestone → Navigate Home
      */
     private void navigateHome() {
         int userId = sessionManager.getUserId();
+        btnContinue.setEnabled(false); // Prevent double-tap
 
-        // Check if level-up occurred and show dialog before proceeding
-        if (levelledUp && newLevelReached > 0) {
-            runOnUiThread(() -> {
-                LevelUpDialog dialog = new LevelUpDialog(WorkoutCompleteActivity.this, newLevelReached);
-                dialog.setOnDismissListener(d -> {
-                    // After level-up dialog dismissed, check rank promotion then streak
-                    checkRankPromotion(userId, newLevelReached, () -> checkStreakAndNavigate(userId));
-                });
-                dialog.show();
-            });
-        } else {
-            checkStreakAndNavigate(userId);
-        }
+        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null) {
+                    checkStreakAndNavigate(userId);
+                    return;
+                }
+
+                int currentLevel = user.getCurrentLevel();
+                int totalUserXp = user.getXp();
+
+                // Check for multiple level-ups
+                int newLevel = currentLevel;
+                while (XPCalculator.shouldLevelUp(totalUserXp, newLevel)) {
+                    newLevel++;
+                }
+
+                if (newLevel > currentLevel) {
+                    int finalLevel = newLevel;
+                    int coinsEarned = (finalLevel - currentLevel) * 50;
+
+                    // Update level in DB
+                    userRepository.updateLevel(userId, finalLevel, null);
+                    // Award coins for level up
+                    userRepository.updateCoins(userId, coinsEarned, null);
+
+                    // Show level-up dialog
+                    runOnUiThread(() -> {
+                        LevelUpDialog dialog = new LevelUpDialog(WorkoutCompleteActivity.this, finalLevel);
+                        dialog.setOnDismissListener(d -> {
+                            // After level-up dismissed, check rank promotion
+                            checkRankPromotion(userId, finalLevel, () -> checkStreakAndNavigate(userId));
+                        });
+                        dialog.show();
+                    });
+                } else {
+                    checkStreakAndNavigate(userId);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                checkStreakAndNavigate(userId);
+            }
+        });
     }
 
     /**
@@ -351,39 +381,6 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         } else {
             proceedToHome();
         }
-    }
-
-    /**
-     * Checks if the user should level up after XP was awarded.
-     * If so, increments the level and awards 50 coins.
-     */
-    private void checkLevelUp(int userId) {
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null) return;
-
-                int currentLevel = user.getCurrentLevel();
-                int totalUserXp = user.getXp();
-
-                if (XPCalculator.shouldLevelUp(totalUserXp, currentLevel)) {
-                    int nextLevel = currentLevel + 1;
-                    levelledUp = true;
-                    newLevelReached = nextLevel;
-
-                    // Increment user level
-                    userRepository.updateLevel(userId, nextLevel, null);
-
-                    // Award 50 coins on level up
-                    userRepository.updateCoins(userId, 50, null);
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                // Log error but don't block user
-            }
-        });
     }
 
     /**
