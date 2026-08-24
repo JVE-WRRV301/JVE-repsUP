@@ -1,85 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/dark_grey_surface"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:layout_height="match_parent"
+    android:gravity="center">
 
-    <!-- Fire icon -->
-    <TextView
-        android:id="@+id/tvFireIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="\uD83D\uDD25"
-        android:textSize="48sp" />
-
-    <!-- Streak milestone title -->
-    <TextView
-        android:id="@+id/tvMilestoneTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/orbitron"
-        android:text="@string/streak_milestone_title"
-        android:textColor="@color/yellow"
-        android:textSize="22sp" />
-
-    <!-- Streak count -->
-    <TextView
-        android:id="@+id/tvStreakCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/orbitron"
-        android:textColor="@color/white"
-        android:textSize="32sp" />
-
-    <!-- XP multiplier -->
-    <TextView
-        android:id="@+id/tvXpMultiplier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/inter_medium"
-        android:textColor="@color/light_blue"
-        android:textSize="18sp" />
-
-    <!-- Buttons row -->
+    <!-- Card with blue border -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:layout_gravity="center"
+        android:background="@drawable/bg_streak_milestone_card"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="24dp">
 
+        <!-- Congratulations title -->
         <TextView
-            android:id="@+id/btnShare"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_button_rounded"
-            android:fontFamily="@font/inter_medium"
+            android:id="@+id/tvMilestoneTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/orbitron_bold"
             android:gravity="center"
-            android:text="@string/streak_milestone_share"
-            android:textColor="@color/dark_text"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btnClose"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_card_red_border"
-            android:fontFamily="@font/inter_medium"
-            android:gravity="center"
-            android:text="@string/streak_milestone_close"
+            android:text="@string/streak_milestone_congrats"
             android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/tvMilestoneSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/inter_regular"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <!-- XP Multiplier Activated -->
+        <TextView
+            android:id="@+id/tvXpActivated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/orbitron_bold"
+            android:gravity="center"
+            android:text="@string/streak_milestone_xp_activated"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Fire icon -->
+        <ImageView
+            android:id="@+id/ivFireIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/streak_milestone_fire_desc"
+            android:src="@drawable/ic_fire_large"
+            app:tint="@color/red" />
+
+        <!-- X DAY STREAK -->
+        <TextView
+            android:id="@+id/tvStreakCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/orbitron_bold"
+            android:textColor="@color/red"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- xMultiplierXP -->
+        <TextView
+            android:id="@+id/tvXpMultiplier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/orbitron_bold"
+            android:textColor="@color/yellow"
             android:textSize="14sp" />
 
     </LinearLayout>
 
-</LinearLayout>
+    <!-- Bottom buttons (share + close) floating below the card -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="40dp"
+        android:orientation="horizontal">
+
+        <!-- Share button -->
+        <ImageButton
+            android:id="@+id/btnShare"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/bg_circle_muted"
+            android:contentDescription="@string/streak_milestone_share"
+            android:src="@drawable/ic_share"
+            app:tint="@color/white" />
+
+        <!-- Close button -->
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_muted"
+            android:contentDescription="@string/streak_milestone_close"
+            android:src="@drawable/ic_close"
+            app:tint="@color/white" />
+
+    </LinearLayout>
+
+</FrameLayout>

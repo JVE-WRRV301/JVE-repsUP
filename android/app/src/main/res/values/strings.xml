@@ -430,11 +430,14 @@
     <string name="workout_complete_continue">Continue</string>
 
     <!-- Streak Milestone Dialog -->
-    <string name="streak_milestone_title">STREAK MILESTONE!</string>
-    <string name="streak_milestone_days">%d DAYS</string>
-    <string name="streak_milestone_multiplier">%s\u00D7 XP MULTIPLIER</string>
+    <string name="streak_milestone_congrats">CONGRATULATIONS!</string>
+    <string name="streak_milestone_subtitle">You haven\'t missed a day in %1$s.</string>
+    <string name="streak_milestone_xp_activated">XP MULTIPLIER\nACTIVATED</string>
+    <string name="streak_milestone_day_streak">%1$d DAY STREAK</string>
+    <string name="streak_milestone_xp_value">x%1$sXP</string>
     <string name="streak_milestone_share">Share</string>
     <string name="streak_milestone_close">Close</string>
+    <string name="streak_milestone_fire_desc">Fire</string>
     <string name="streak_share_text">I just hit a %1$d-day streak on Reps Up! 🔥 Now earning %2$s\u00D7 XP!</string>
 
     <!-- Level Up Dialog -->

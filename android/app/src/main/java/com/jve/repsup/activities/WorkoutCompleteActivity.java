@@ -58,6 +58,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
 
     private boolean levelledUp = false;
     private int newLevelReached = 0;
+    private int updatedStreak = -1; // -1 means streak update hasn't completed yet
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,6 +228,15 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                         int alreadyCompletedToday = otherCompletedCount != null ? otherCompletedCount : 0;
                         if (alreadyCompletedToday > 0) {
                             // Streak was already incremented today — skip
+                            // Store current streak for milestone check (no change)
+                            userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer streak) {
+                                    updatedStreak = streak != null ? streak : 0;
+                                }
+                                @Override
+                                public void onError(Exception e) {}
+                            });
                             return;
                         }
                         // This is the first completion today — increment streak
@@ -235,6 +245,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                             public void onSuccess(Integer streak) {
                                 int currentStreak = streak != null ? streak : 0;
                                 int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
+                                updatedStreak = newStreak; // Store for milestone check
                                 userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
                                     @Override
                                     public void onSuccess(Integer result) {
@@ -301,31 +312,45 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
 
     /**
      * Checks for streak milestone and then navigates home.
+     * Uses the locally stored updatedStreak if available (avoids race condition),
+     * otherwise falls back to reading from DB.
      */
     private void checkStreakAndNavigate(int userId) {
-        // Check for streak milestone before navigating
-        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer streak) {
-                int currentStreak = streak != null ? streak : 0;
-                if (StreakManager.isMilestone(currentStreak)) {
-                    runOnUiThread(() -> {
-                        double multiplier = StreakManager.getMultiplier(currentStreak);
-                        StreakMilestoneDialog dialog = new StreakMilestoneDialog(
-                                WorkoutCompleteActivity.this, currentStreak, multiplier);
-                        dialog.setOnDismissListener(d -> proceedToHome());
-                        dialog.show();
-                    });
-                } else {
+        if (updatedStreak >= 0) {
+            // Use the locally stored streak value (avoids race condition)
+            handleStreakMilestone(updatedStreak);
+        } else {
+            // Fallback: read from DB (e.g. if streak update hasn't run yet)
+            userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+                @Override
+                public void onSuccess(Integer streak) {
+                    int currentStreak = streak != null ? streak : 0;
+                    handleStreakMilestone(currentStreak);
+                }
+
+                @Override
+                public void onError(Exception e) {
                     proceedToHome();
                 }
-            }
+            });
+        }
+    }
 
-            @Override
-            public void onError(Exception e) {
-                proceedToHome();
-            }
-        });
+    /**
+     * Shows the streak milestone dialog if the streak is at a milestone, then navigates home.
+     */
+    private void handleStreakMilestone(int streakValue) {
+        if (StreakManager.isMilestone(streakValue)) {
+            runOnUiThread(() -> {
+                double multiplier = StreakManager.getMultiplier(streakValue);
+                StreakMilestoneDialog dialog = new StreakMilestoneDialog(
+                        WorkoutCompleteActivity.this, streakValue, multiplier);
+                dialog.setOnDismissListener(d -> proceedToHome());
+                dialog.show();
+            });
+        } else {
+            proceedToHome();
+        }
     }
 
     /**

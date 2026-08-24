@@ -7,7 +7,7 @@ package com.jve.repsup.utils;
  */
 public class StreakManager {
 
-    private static final int MILESTONE_INTERVAL = 14;
+    private static final int MILESTONE_INTERVAL = 7;
     private static final double BASE_MULTIPLIER = 1.0;
     private static final double FIRST_BONUS_MULTIPLIER = 1.5;
     private static final double MULTIPLIER_INCREMENT = 0.5;
@@ -43,10 +43,10 @@ public class StreakManager {
     /**
      * Calculates the XP multiplier based on the current streak count.
      *
-     * - Streak < 14 → 1.0 (no bonus)
-     * - Streak 14-27 → 1.5
-     * - Streak 28-41 → 2.0
-     * - Pattern: increases by 0.5 every 14 days
+     * - Streak < 7 → 1.0 (no bonus)
+     * - Streak 7-13 → 1.5
+     * - Streak 14-20 → 2.0
+     * - Pattern: increases by 0.5 every 7 days
      *
      * The multiplier is non-decreasing as streak increases.
      *
@@ -64,10 +64,10 @@ public class StreakManager {
 
     /**
      * Determines whether the given streak count is a milestone.
-     * A milestone occurs at every positive multiple of 14 (14, 28, 42, ...).
+     * A milestone occurs at every positive multiple of 7 (7, 14, 21, ...).
      *
      * @param streakCount the user's current streak
-     * @return true if the streak is a positive multiple of 14
+     * @return true if the streak is a positive multiple of 7
      */
     public static boolean isMilestone(int streakCount) {
         return streakCount > 0 && streakCount % MILESTONE_INTERVAL == 0;
