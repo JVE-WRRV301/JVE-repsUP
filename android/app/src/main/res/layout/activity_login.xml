@@ -87,7 +87,8 @@
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/dark_grey"
                 app:hintTextColor="@color/dark_text"
-                app:passwordToggleEnabled="true">
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/dark_grey">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
