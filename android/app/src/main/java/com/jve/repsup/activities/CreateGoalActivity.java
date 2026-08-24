@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -106,6 +107,9 @@ public class CreateGoalActivity extends AppCompatActivity {
         btnImportanceLow = findViewById(R.id.btnImportanceLow);
         btnSave = findViewById(R.id.btnSave);
         tvError = findViewById(R.id.tvError);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
     }
 
     private void setupListeners() {

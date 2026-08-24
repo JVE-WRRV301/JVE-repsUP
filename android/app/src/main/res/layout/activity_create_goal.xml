@@ -6,6 +6,18 @@
     android:background="@color/dark_grey"
     android:orientation="vertical">
 
+    <!-- Back button -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/assessment_back"
+        android:src="@drawable/ic_back"
+        app:tint="@color/white" />
+
     <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
