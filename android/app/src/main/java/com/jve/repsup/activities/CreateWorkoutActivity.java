@@ -1,6 +1,7 @@
 package com.jve.repsup.activities;
 
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,6 +62,15 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
         workoutRepository = new WorkoutRepository();
         sessionManager = new SessionManager(this);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
+            } else {
+                finish();
+            }
+        });
 
         // Check if we are in edit mode
         editWorkoutId = getIntent().getIntExtra(EXTRA_EDIT_WORKOUT_ID, -1);

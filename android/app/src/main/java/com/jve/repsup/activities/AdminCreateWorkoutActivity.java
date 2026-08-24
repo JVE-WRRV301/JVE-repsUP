@@ -1,6 +1,7 @@
 package com.jve.repsup.activities;
 
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,6 +52,15 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_create_workout);
 
         workoutRepository = new WorkoutRepository();
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
+            } else {
+                finish();
+            }
+        });
 
         // Start with the category selection fragment
         if (savedInstanceState == null) {

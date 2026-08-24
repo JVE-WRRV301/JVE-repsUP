@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +80,9 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
         btnRepeatMonthly = findViewById(R.id.btnRepeatMonthly);
         btnSave = findViewById(R.id.btnSave);
         tvError = findViewById(R.id.tvError);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
     }
 
     private void setupListeners() {

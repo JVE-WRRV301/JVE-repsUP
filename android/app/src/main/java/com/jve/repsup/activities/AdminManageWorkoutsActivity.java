@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +66,9 @@ public class AdminManageWorkoutsActivity extends AppCompatActivity
         etSearchWorkouts = findViewById(R.id.etSearchWorkouts);
         rvWorkouts = findViewById(R.id.rvWorkouts);
         tvEmptyState = findViewById(R.id.tvEmptyState);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
 
         adapter = new ManageWorkoutsAdapter(this);
         rvWorkouts.setLayoutManager(new LinearLayoutManager(this));
