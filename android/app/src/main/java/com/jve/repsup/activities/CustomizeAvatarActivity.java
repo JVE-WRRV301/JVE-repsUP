@@ -28,7 +28,6 @@ import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
 import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
-import com.jve.repsup.models.OutfitSlot;
 import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
@@ -57,13 +56,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     private static final String[] FACE_SUBTABS = {"Nose", "Eyes", "Mouth", "Eyebrows"};
     private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes", "Accessories", "Special"};
 
-    // Skin tone colours (broad range of shades)
-    private static final String[] SKIN_COLORS = {
-            "#3C2415", "#4A2C17", "#5C3A1E", "#6B4423", "#7B4F28",
-            "#8D5B32", "#A0683B", "#B07844", "#C08A50", "#D19B5B",
-            "#DBA96A", "#E5BA7A", "#F0CB8B", "#F5D6A0", "#FAE0B5",
-            "#FFE8C8", "#FFEFD5", "#FFF3E0", "#FFF8F0", "#FFFAF5"
-    };
+    // Skin tones: names stored in Avatar.skin_tone, with a representative swatch each.
+    private static final String[] SKIN_TONE_NAMES = {"fair", "beige", "tan", "dark"};
+    private static final String[] SKIN_TONE_SWATCHES = {"#F0CB8B", "#D19B5B", "#A0683B", "#5C3A1E"};
 
     // Clothing prices for locked items (positions 3-8)
     private static final int[] CLOTHING_PRICES = {50, 75, 100, 150, 200, 300};
@@ -98,6 +93,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     private String currentCategory = "Body";
     private String currentSubcategory = "";
     private int selectedSkinColorIndex = 0;
+    private String userGender = "male"; // loaded from User_Profile; drives base body art
 
     // Track locally equipped items (by type)
     private Map<String, CosmeticItem> localEquipped = new HashMap<>();
@@ -303,7 +299,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         int size = (int) (40 * density);
         int margin = (int) (6 * density);
 
-        for (int i = 0; i < SKIN_COLORS.length; i++) {
+        for (int i = 0; i < SKIN_TONE_NAMES.length; i++) {
             View colorView = new View(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
             params.setMargins(margin, margin, margin, margin);
@@ -311,7 +307,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
             GradientDrawable circle = new GradientDrawable();
             circle.setShape(GradientDrawable.OVAL);
-            circle.setColor(android.graphics.Color.parseColor(SKIN_COLORS[i]));
+            circle.setColor(android.graphics.Color.parseColor(SKIN_TONE_SWATCHES[i]));
 
             if (i == selectedSkinColorIndex) {
                 circle.setStroke((int) (3 * density),
@@ -321,14 +317,55 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             colorView.setBackground(circle);
 
             final int index = i;
-            colorView.setOnClickListener(v -> {
-                selectedSkinColorIndex = index;
-                hasUnsavedChanges = true;
-                populateSkinColors(); // Refresh selection
-            });
+            colorView.setOnClickListener(v -> onSkinToneSelected(index));
 
             skinColorRow.addView(colorView);
         }
+    }
+
+    /**
+     * Sets the selected swatch index to match the avatar's stored skin tone.
+     * Grey (the pre-selection default) leaves index 0 highlighted without
+     * implying the user has chosen a tone.
+     */
+    private void syncSelectedToneFromAvatar() {
+        if (userAvatar == null || userAvatar.getSkinTone() == null) {
+            return;
+        }
+        String tone = userAvatar.getSkinTone().trim().toLowerCase();
+        for (int i = 0; i < SKIN_TONE_NAMES.length; i++) {
+            if (SKIN_TONE_NAMES[i].equals(tone)) {
+                selectedSkinColorIndex = i;
+                return;
+            }
+        }
+    }
+
+    /**
+     * Applies a chosen skin tone: updates the avatar model, persists it, and
+     * refreshes the preview so the base body re-renders in the new tone.
+     */
+    private void onSkinToneSelected(int index) {
+        selectedSkinColorIndex = index;
+        hasUnsavedChanges = true;
+
+        String tone = SKIN_TONE_NAMES[index];
+        if (userAvatar != null) {
+            userAvatar.setSkinTone(tone);
+        }
+
+        // Persist the tone immediately (avatar body is a per-user attribute,
+        // not part of the outfit save).
+        cosmeticRepository.updateSkinTone(userId, tone, new DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) { /* no-op */ }
+
+            @Override
+            public void onError(Exception e) { /* best-effort; preview still updates */ }
+        });
+
+        populateSkinColors(); // refresh selection ring
+        updateAvatarPreview();
     }
 
     private void populateBodyPlaceholders() {
@@ -536,7 +573,23 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
     private void loadData() {
         loadCoinBalance();
+        loadGender();
         loadAvatar();
+    }
+
+    private void loadGender() {
+        cosmeticRepository.getUserGender(userId, new DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                if (result != null && !result.trim().isEmpty()) {
+                    userGender = result.trim().toLowerCase();
+                    runOnUiThread(() -> updateAvatarPreview());
+                }
+            }
+
+            @Override
+            public void onError(Exception e) { /* keep default gender */ }
+        });
     }
 
     private void loadCoinBalance() {
@@ -560,7 +613,13 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Avatar result) {
                 userAvatar = result;
-                runOnUiThread(() -> updateAvatarPreview());
+                syncSelectedToneFromAvatar();
+                runOnUiThread(() -> {
+                    if ("Body".equals(currentCategory)) {
+                        populateSkinColors();
+                    }
+                    updateAvatarPreview();
+                });
             }
 
             @Override
@@ -575,25 +634,18 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     private void updateAvatarPreview() {
         if (userAvatar == null) return;
 
-        OutfitSlot tempSlot = new OutfitSlot();
-        tempSlot.setUserId(userId);
+        // Snapshot the currently equipped items and body attributes to pass to the compositor.
+        final List<CosmeticItem> equipped = new ArrayList<>(localEquipped.values());
+        final String gender = userGender;
+        final String bodyType = userAvatar.getBodyShape();
+        final String skinTone = userAvatar.getSkinTone();
 
-        for (CosmeticItem item : localEquipped.values()) {
-            switch (item.getType()) {
-                case "top":
-                    tempSlot.setTopId(item.getCosmeticId());
-                    break;
-                case "bottom":
-                    tempSlot.setBottomId(item.getCosmeticId());
-                    break;
-                case "shoes":
-                    tempSlot.setShoesId(item.getCosmeticId());
-                    break;
-            }
-        }
-
-        Bitmap avatarBitmap = AvatarCompositor.composite(this, userAvatar, tempSlot);
-        imgAvatarPreview.setImageBitmap(avatarBitmap);
+        // Compositing decodes assets from disk, so do it off the UI thread.
+        new Thread(() -> {
+            Bitmap avatarBitmap = AvatarCompositor.composite(
+                    getApplicationContext(), gender, bodyType, skinTone, equipped);
+            runOnUiThread(() -> imgAvatarPreview.setImageBitmap(avatarBitmap));
+        }).start();
     }
 
     // ==================== SAVE / DISCARD ====================

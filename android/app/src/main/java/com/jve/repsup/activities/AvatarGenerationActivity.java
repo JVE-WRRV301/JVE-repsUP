@@ -28,10 +28,15 @@ public class AvatarGenerationActivity extends AppCompatActivity {
     public static final String EXTRA_GENDER = "extra_gender";
     public static final String EXTRA_BODY_TYPE = "extra_body_type";
 
-    // Default cosmetic IDs from seed data
+    // Default cosmetic IDs from seed data. New users start wearing a tank, shorts,
+    // socks (no shoes), and the default hair. Shoes are unlocked separately.
     private static final int DEFAULT_TOP_ID = 1;      // Basic White Tank
     private static final int DEFAULT_BOTTOM_ID = 2;   // Basic Black Shorts
-    private static final int DEFAULT_SHOES_ID = 3;    // White Sneakers
+    private static final int DEFAULT_SOCKS_ID = 4;    // Basic Socks
+    private static final int DEFAULT_HAIR_ID = 5;     // Default Hair
+
+    // Grey skin tone stored until the user picks a real tone in the locker.
+    private static final String DEFAULT_SKIN_TONE = "grey";
 
     private ImageView ivAvatar;
     private Button btnContinue;
@@ -84,11 +89,12 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         String insertAvatarSql = "INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) "
                 + "VALUES (?, ?, ?, ?)";
 
-        // Use gender as skin_tone placeholder (will be refined later with actual skin tone selection)
+        // Skin tone starts grey; the user chooses a real tone in the locker body tab.
+        // Body shape comes from the assessment body type.
         Object[] avatarParams = new Object[]{
                 userId,
-                gender != null ? gender : "male",
-                bodyType != null ? bodyType : "mesomorph",
+                DEFAULT_SKIN_TONE,
+                bodyType != null ? bodyType : "average",
                 null // no facial details by default
         };
 
@@ -115,65 +121,55 @@ public class AvatarGenerationActivity extends AppCompatActivity {
     }
 
     /**
-     * Inserts 3 User_Cosmetic records for the default outfit items (top, bottom, shoes).
-     * All are marked as unlocked and equipped.
+     * Inserts User_Cosmetic records for the default outfit items (top, bottom,
+     * socks, hair). All are marked unlocked and equipped. No shoes by default -
+     * the user wears socks only until they choose shoes in the locker.
      */
     private void insertDefaultCosmetics(int avatarId) {
+        int[] defaultIds = {DEFAULT_TOP_ID, DEFAULT_BOTTOM_ID, DEFAULT_SOCKS_ID, DEFAULT_HAIR_ID};
+        insertDefaultCosmetic(avatarId, defaultIds, 0);
+    }
+
+    /**
+     * Inserts the default cosmetics one at a time (sequential, index-driven),
+     * then chains to the outfit slot once all are inserted. A single failure
+     * still proceeds to completion so the avatar renders.
+     */
+    private void insertDefaultCosmetic(int avatarId, int[] cosmeticIds, int index) {
+        if (index >= cosmeticIds.length) {
+            insertOutfitSlot(avatarId);
+            return;
+        }
+
         String insertCosmeticSql = "INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) "
                 + "VALUES (?, ?, ?, ?)";
+        Object[] params = new Object[]{userId, cosmeticIds[index], true, true};
 
-        // Insert top (cosmetic_id=1)
-        Object[] topParams = new Object[]{userId, DEFAULT_TOP_ID, true, true};
-        ConnectionManager.executeInsert(insertCosmeticSql, topParams, new ConnectionManager.DatabaseCallback<Long>() {
+        ConnectionManager.executeInsert(insertCosmeticSql, params, new ConnectionManager.DatabaseCallback<Long>() {
             @Override
             public void onSuccess(Long result) {
-                // Insert bottom (cosmetic_id=2)
-                Object[] bottomParams = new Object[]{userId, DEFAULT_BOTTOM_ID, true, true};
-                ConnectionManager.executeInsert(insertCosmeticSql, bottomParams, new ConnectionManager.DatabaseCallback<Long>() {
-                    @Override
-                    public void onSuccess(Long result) {
-                        // Insert shoes (cosmetic_id=3)
-                        Object[] shoesParams = new Object[]{userId, DEFAULT_SHOES_ID, true, true};
-                        ConnectionManager.executeInsert(insertCosmeticSql, shoesParams, new ConnectionManager.DatabaseCallback<Long>() {
-                            @Override
-                            public void onSuccess(Long result) {
-                                // Chain: create outfit slot
-                                insertOutfitSlot(avatarId);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e(TAG, "Failed to insert shoes cosmetic", e);
-                                handleDbCompletion(avatarId);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e(TAG, "Failed to insert bottom cosmetic", e);
-                        handleDbCompletion(avatarId);
-                    }
-                });
+                insertDefaultCosmetic(avatarId, cosmeticIds, index + 1);
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "Failed to insert top cosmetic", e);
-                handleDbCompletion(avatarId);
+                Log.e(TAG, "Failed to insert default cosmetic id=" + cosmeticIds[index], e);
+                // Keep going so the remaining defaults and outfit slot still get set.
+                insertDefaultCosmetic(avatarId, cosmeticIds, index + 1);
             }
         });
     }
 
     /**
      * Inserts the Outfit_Slot record linking default cosmetics as equipped.
+     * Socks slot is filled; shoes slot is left empty by default.
      */
     private void insertOutfitSlot(int avatarId) {
-        String insertOutfitSql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, accessories_id) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String insertOutfitSql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, accessories_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         Object[] outfitParams = new Object[]{
-                userId, DEFAULT_TOP_ID, DEFAULT_BOTTOM_ID, DEFAULT_SHOES_ID, null
+                userId, DEFAULT_TOP_ID, DEFAULT_BOTTOM_ID, null, DEFAULT_SOCKS_ID, null
         };
 
         ConnectionManager.executeInsert(insertOutfitSql, outfitParams, new ConnectionManager.DatabaseCallback<Long>() {
