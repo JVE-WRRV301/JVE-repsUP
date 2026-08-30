@@ -63,11 +63,16 @@ INSERT INTO Exercise (exercise_name, muscle_group, default_sets, default_reps, d
 
 -- COSMETIC ITEMS (required) - starter wardrobe for the locker
 
+-- IMPORTANT: the first 5 rows are the default items equipped on registration.
+-- Their cosmetic_id values (1-5) are referenced as constants in
+-- AvatarGenerationActivity.java. Keep this order/IDs in sync.
 INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, unlock_type, lvl_required, coin_cost, cosmetic_img_data) VALUES
-    -- Default items (free, equipped on registration)
-    ('Basic White Tank',  'top',      'default', 0,  0,  'assets/tops/white_tank.png'), -- Example image paths for now, will replace later
-    ('Basic Black Shorts','bottom',   'default', 0,  0,  'assets/bottoms/black_shorts.png'),
-    ('White Sneakers',    'shoes',    'default', 0,  0,  'assets/shoes/white_sneakers.png'),
+    -- Default items (free, equipped on registration): id 1-5
+    ('Basic White Tank',  'top',      'default', 0,  0,  'assets/tops/white_tank.png'),        -- id 1
+    ('Basic Black Shorts','bottom',   'default', 0,  0,  'assets/bottoms/black_shorts.png'),    -- id 2
+    ('White Sneakers',    'shoes',    'default', 0,  0,  'assets/shoes/white_sneakers.png'),    -- id 3 (unlocked but NOT worn by default)
+    ('Basic Socks',       'socks',    'default', 0,  0,  'assets/socks/basic_socks.png'),       -- id 4 (worn by default)
+    ('Default Hair',      'hair',     'default', 0,  0,  'assets/hair/default_hair.png'),       -- id 5 (worn by default)
     -- Coin unlocked items
     ('Pink T-Shirt',      'top',      'coins',   0,  50, 'assets/tops/pink_tee.png'),
     ('Navy Hoodie',       'top',      'coins',   0,  50, 'assets/tops/navy_hoodie.png'),
@@ -96,18 +101,21 @@ INSERT INTO User (first_name, email, username, set_password, xp, coins, current_
 
 -- USER PROFILES (test data) - fitness assessment results
 
+-- body_type matches the base_* body art: skinny, average, toned, built, chubby, overweight
 INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) VALUES
-    (1, 'Male',   25, 80.00,  185.00, 'athletic', 'intermediate', 5, 'build_muscle'),
-    (2, 'Female', 28, 62.50,  168.00, 'slim',     'beginner',     3, 'get_fitter'),
-    (3, 'Male',   31, 75.00,  178.00, 'athletic', 'advanced',     6, 'build_muscle');
+    (1, 'Male',   25, 80.00,  185.00, 'toned',   'intermediate', 5, 'build_muscle'),
+    (2, 'Female', 28, 62.50,  168.00, 'average', 'beginner',     3, 'get_fitter'),
+    (3, 'Male',   31, 75.00,  178.00, 'built',   'advanced',     6, 'build_muscle');
 
 
 -- AVATARS (test data) - one per user
 
+-- skin_tone is one of: grey (default, pre-selection), fair, beige, tan, dark
+-- body_shape matches the base_* body art: skinny, average, toned, built, chubby, overweight
 INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) VALUES
-    (1, 'medium', 'athletic', 'short_brown_hair'),
-    (2, 'light',  'slim',     'long_blonde_hair'),
-    (3, 'tan',    'athletic', 'short_black_hair');
+    (1, 'beige', 'toned',   'short_brown_hair'),
+    (2, 'fair',  'average', 'long_blonde_hair'),
+    (3, 'tan',   'built',   'short_black_hair');
 
 -- Link each user back to their avatar
 UPDATE User SET avatar_id = 1 WHERE user_id = 1;
@@ -175,15 +183,18 @@ INSERT INTO Goal (user_id, goal_description, deadline, goal_priority, is_complet
 
 INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUES
     (1, 1, TRUE, TRUE),   -- Basic White Tank (equipped)
-    (1, 2, TRUE, TRUE),   -- Basic Black Shorts (equipped) 
-    (1, 3, TRUE, TRUE),   -- White Sneakers (equipped)
-    (1, 4, TRUE, FALSE);  -- Pink T-Shirt (unlocked but not equipped)
+    (1, 2, TRUE, TRUE),   -- Basic Black Shorts (equipped)
+    (1, 3, TRUE, FALSE),  -- White Sneakers (unlocked but not worn - socks only by default)
+    (1, 4, TRUE, TRUE),   -- Basic Socks (equipped)
+    (1, 5, TRUE, TRUE),   -- Default Hair (equipped)
+    (1, 6, TRUE, FALSE);  -- Pink T-Shirt (unlocked but not equipped)
 
 
 -- OUTFIT SLOTS (test data) - Dylan's currently equipped outfit
+-- Wearing tank + shorts + socks (no shoes) by default.
 
-INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, accessories_id) VALUES
-    (1, 1, 2, 3, NULL);
+INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, accessories_id) VALUES
+    (1, 1, 2, NULL, 4, NULL);
 
 
 -- STREAKS (test data) - Dylan's 2-week streak with XP multiplier

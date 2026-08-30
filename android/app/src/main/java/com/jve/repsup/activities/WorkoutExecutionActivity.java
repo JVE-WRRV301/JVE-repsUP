@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ExerciseResult;
@@ -21,6 +22,7 @@ import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.ExerciseDemoLocator;
 import com.jve.repsup.utils.SessionManager;
 
 import java.io.Serializable;
@@ -169,8 +171,15 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         tvExerciseName.setText(workoutExercise.getExercise().getName());
         tvDifficulty.setText(workoutExercise.getExercise().getDifficulty());
 
-        // Set demo image placeholder
-        ivExerciseDemo.setImageResource(R.drawable.ic_exercise_placeholder);
+        // Load the looping animated demo for this exercise. Glide auto-loops
+        // animated WebP/GIF and falls back to the placeholder when the demo
+        // asset isn't present yet.
+        String demoUri = ExerciseDemoLocator.demoUriFor(workoutExercise.getExercise().getName());
+        Glide.with(this)
+                .load(demoUri)
+                .placeholder(R.drawable.ic_exercise_placeholder)
+                .error(R.drawable.ic_exercise_placeholder)
+                .into(ivExerciseDemo);
 
         // Update button text for last exercise
         if (currentExerciseIndex == exercises.size() - 1) {

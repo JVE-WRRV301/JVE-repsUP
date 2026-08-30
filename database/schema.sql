@@ -131,11 +131,13 @@ CREATE TABLE Outfit_Slot (
     top_id INT,
     bottom_id INT,
     shoes_id INT,
+    socks_id INT,
     accessories_id INT,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (top_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (bottom_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (shoes_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (socks_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (accessories_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL
 );
 

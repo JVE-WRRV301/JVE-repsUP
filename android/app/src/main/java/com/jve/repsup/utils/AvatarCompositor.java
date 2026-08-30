@@ -3,6 +3,7 @@ package com.jve.repsup.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -10,7 +11,9 @@ import androidx.core.content.ContextCompat;
 
 import com.jve.repsup.R;
 import com.jve.repsup.models.Avatar;
-import com.jve.repsup.models.OutfitSlot;
+import com.jve.repsup.models.CosmeticItem;
+
+import java.util.List;
 
 /**
  * Composites avatar layers (body + outfit) into a single Bitmap.
@@ -23,47 +26,123 @@ public class AvatarCompositor {
     private static final int AVATAR_SIZE = 512; // px
 
     /**
-     * Composites avatar layers into a single Bitmap.
-     * Layers: base body → top → bottom → shoes → accessories
+     * Composites the full avatar into a single Bitmap.
      *
-     * @param context Application or Activity context
-     * @param avatar  The user's Avatar record (contains bodyShape info)
-     * @param outfit  The user's equipped outfit slots
+     * The base body is a bundled drawable resolved from gender + body type + skin
+     * tone (e.g. base_female_average_beige). Each equipped cosmetic is drawn from
+     * its own asset (resolved from {@link CosmeticItem#getImageData()} via
+     * {@link AssetImageLoader}); when an asset cannot be loaded, outfit layers fall
+     * back to the bundled default drawable for that type.
+     *
+     * Paint order (bottom to top):
+     *   base body → bottom → socks → top → shoes → hair → accessories
+     *
+     * Socks sit under shoes so a user can wear socks alone, shoes alone, or both.
+     *
+     * This method does asset decoding (disk I/O) - call it from a background thread.
+     *
+     * @param context       Application or Activity context
+     * @param gender        "male" or "female"
+     * @param bodyType      body type, e.g. "average", "toned", "built"
+     * @param skinTone      skin tone, e.g. "grey", "fair", "beige", "tan", "dark"
+     * @param equippedItems the resolved CosmeticItems currently equipped (may be null/empty)
      * @return A composited Bitmap of the full avatar
      */
-    public static Bitmap composite(Context context, Avatar avatar, OutfitSlot outfit) {
+    public static Bitmap composite(Context context, String gender, String bodyType,
+                                   String skinTone, List<CosmeticItem> equippedItems) {
         Bitmap result = Bitmap.createBitmap(AVATAR_SIZE, AVATAR_SIZE, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
 
-        // Layer 1: Base body
-        int bodyRes = getBaseBodyResource(avatar.getSkinTone(), avatar.getBodyShape());
-        drawLayer(context, canvas, bodyRes);
+        // Layer 1: Base body (bundled drawable keyed off gender + body type + skin tone)
+        drawLayer(context, canvas, getBaseBodyResource(context, gender, bodyType, skinTone));
 
-        // Layer 2: Top
-        if (outfit != null && outfit.getTopId() != null) {
-            int topRes = getDefaultOutfitResource("top");
-            drawLayer(context, canvas, topRes);
-        }
+        // Resolve equipped items by type so we can draw them in a fixed layer order.
+        CosmeticItem top = findByType(equippedItems, "top");
+        CosmeticItem bottom = findByType(equippedItems, "bottom");
+        CosmeticItem shoes = findByType(equippedItems, "shoes");
+        CosmeticItem socks = findByType(equippedItems, "socks");
+        CosmeticItem hair = findByType(equippedItems, "hair");
+        CosmeticItem accessories = findByType(equippedItems, "accessory", "accessories");
 
-        // Layer 3: Bottom
-        if (outfit != null && outfit.getBottomId() != null) {
-            int bottomRes = getDefaultOutfitResource("bottom");
-            drawLayer(context, canvas, bottomRes);
-        }
-
-        // Layer 4: Shoes
-        if (outfit != null && outfit.getShoesId() != null) {
-            int shoesRes = getDefaultOutfitResource("shoes");
-            drawLayer(context, canvas, shoesRes);
-        }
-
-        // Layer 5: Accessories (none by default)
-        if (outfit != null && outfit.getAccessoriesId() != null) {
-            // Future: resolve accessory resource and draw
-            Log.d(TAG, "Accessories slot filled but no asset mapping yet");
-        }
+        // Layer order: bottoms under socks under top; shoes over socks; hair and
+        // accessories on top. No bundled default for socks/hair/accessories.
+        drawCosmeticLayer(context, canvas, bottom, "bottom");
+        drawCosmeticLayer(context, canvas, socks, null);
+        drawCosmeticLayer(context, canvas, top, "top");
+        drawCosmeticLayer(context, canvas, shoes, "shoes");
+        drawCosmeticLayer(context, canvas, hair, null);
+        drawCosmeticLayer(context, canvas, accessories, null);
 
         return result;
+    }
+
+    /**
+     * Convenience overload that reads gender/body type/skin tone from an Avatar
+     * record. Note the Avatar table does not store gender directly, so callers
+     * that know the gender should prefer
+     * {@link #composite(Context, String, String, String, List)}.
+     *
+     * @param avatar        the user's Avatar record (body_shape + skin_tone)
+     * @param equippedItems the resolved equipped CosmeticItems
+     */
+    public static Bitmap composite(Context context, Avatar avatar, List<CosmeticItem> equippedItems) {
+        String skinTone = avatar != null ? avatar.getSkinTone() : null;
+        String bodyType = avatar != null ? avatar.getBodyShape() : null;
+        // Gender is not stored on Avatar; default to male when unknown.
+        return composite(context, "male", bodyType, skinTone, equippedItems);
+    }
+
+    /**
+     * Finds the first equipped item matching any of the given types (case-insensitive).
+     * Returns null when the list is null/empty or no item matches.
+     */
+    private static CosmeticItem findByType(List<CosmeticItem> items, String... types) {
+        if (items == null || types == null) {
+            return null;
+        }
+        for (CosmeticItem item : items) {
+            if (item == null || item.getType() == null) {
+                continue;
+            }
+            for (String type : types) {
+                if (type != null && type.equalsIgnoreCase(item.getType())) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Draws a single cosmetic layer from its asset path, falling back to the
+     * bundled default drawable for the given type when the asset is unavailable.
+     *
+     * @param defaultType type key for the fallback drawable ("top"/"bottom"/"shoes"),
+     *                    or null to skip the fallback (e.g. accessories have no default)
+     */
+    private static void drawCosmeticLayer(Context context, Canvas canvas,
+                                          CosmeticItem item, String defaultType) {
+        if (item == null) {
+            return;
+        }
+
+        Bitmap layer = AssetImageLoader.load(context, item.getImageData());
+        if (layer != null) {
+            Rect dst = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
+            canvas.drawBitmap(layer, null, dst, null);
+            layer.recycle();
+            return;
+        }
+
+        // Asset missing - fall back to the bundled default for this type, if any.
+        if (defaultType != null) {
+            Log.d(TAG, "No asset for equipped " + defaultType + " (id=" + item.getCosmeticId()
+                    + "), using default layer");
+            drawLayer(context, canvas, getDefaultOutfitResource(defaultType));
+        } else {
+            Log.d(TAG, "No asset for equipped accessory (id=" + item.getCosmeticId()
+                    + ") and no default - skipping layer");
+        }
     }
 
     /**
@@ -117,52 +196,65 @@ public class AvatarCompositor {
         }
     }
 
+    /** Skin tone used before the user picks one in the locker. */
+    public static final String DEFAULT_SKIN_TONE = "grey";
+
     /**
-     * Returns the resource ID for the base body image given gender and body type.
-     * Since real PNG assets don't exist yet, all combinations fall back to the default placeholder.
-     * The structure is ready for real assets — just add drawables matching the naming pattern:
-     * ic_avatar_body_{gender}_{bodyType} (e.g., ic_avatar_body_male_mesomorph)
+     * Resolves the base body drawable for a gender + body type + skin tone combo,
+     * following the naming convention base_{gender}_{bodytype}_{skintone}
+     * (e.g. base_female_average_beige, base_male_toned_grey).
+     *
+     * Resolution is by resource name via {@link android.content.res.Resources#getIdentifier},
+     * so new body/tone drawables are picked up automatically once added to res/drawable.
+     * Falls back to a grey variant of the combo, then to the universal default, so a
+     * missing tone never crashes rendering.
      *
      * @param gender   "male" or "female"
-     * @param bodyType "ectomorph", "mesomorph", "endomorph", "athletic", "stocky", or "slim"
-     * @return Drawable resource ID for the base body
+     * @param bodyType body type, e.g. "average", "toned", "built", "chubby", "overweight", "skinny"
+     * @param skinTone skin tone, e.g. "grey", "fair", "beige", "tan", "dark"
+     * @return a drawable resource ID for the base body
      */
-    public static int getBaseBodyResource(String gender, String bodyType) {
-        // Attempt to resolve a specific drawable for the gender × bodyType combination.
-        // When real assets are added, they should follow the naming convention:
-        // ic_avatar_body_male_ectomorph, ic_avatar_body_female_mesomorph, etc.
-        // For now, all combinations resolve to the default placeholder.
+    public static int getBaseBodyResource(Context context, String gender, String bodyType, String skinTone) {
+        String g = normalize(gender, "male");
+        String bt = normalize(bodyType, "average");
+        String tone = normalize(skinTone, DEFAULT_SKIN_TONE);
 
-        if (gender == null || bodyType == null) {
-            return R.drawable.ic_avatar_body_default;
+        // Try the exact combination first, then a grey fallback of the same body,
+        // then the universal default placeholder.
+        int res = resolveDrawable(context, "base_" + g + "_" + bt + "_" + tone);
+        if (res != 0) {
+            return res;
         }
-
-        // Normalize inputs
-        String g = gender.toLowerCase().trim();
-        String bt = bodyType.toLowerCase().trim();
-
-        // Map to resource name pattern: ic_avatar_body_{gender}_{bodytype}
-        // In the future, real assets will be resolved here.
-        // For now, return the universal default.
-        switch (g + "_" + bt) {
-            case "male_ectomorph":
-            case "male_mesomorph":
-            case "male_endomorph":
-            case "male_athletic":
-            case "male_stocky":
-            case "male_slim":
-            case "female_ectomorph":
-            case "female_mesomorph":
-            case "female_endomorph":
-            case "female_athletic":
-            case "female_stocky":
-            case "female_slim":
-                // When assets are added, each case returns its own resource.
-                // e.g., return R.drawable.ic_avatar_body_male_mesomorph;
-                return R.drawable.ic_avatar_body_default;
-            default:
-                return R.drawable.ic_avatar_body_default;
+        res = resolveDrawable(context, "base_" + g + "_" + bt + "_" + DEFAULT_SKIN_TONE);
+        if (res != 0) {
+            Log.d(TAG, "No base for tone '" + tone + "', falling back to grey for "
+                    + g + "_" + bt);
+            return res;
         }
+        Log.d(TAG, "No base drawable for " + g + "_" + bt + "_" + tone + ", using default");
+        return R.drawable.ic_avatar_body_default;
+    }
+
+    /**
+     * Looks up a drawable resource ID by name. Returns 0 when not found.
+     */
+    private static int resolveDrawable(Context context, String name) {
+        if (context == null || name == null) {
+            return 0;
+        }
+        return context.getResources().getIdentifier(
+                name, "drawable", context.getPackageName());
+    }
+
+    /**
+     * Lowercases and trims a value, returning the fallback when null/blank.
+     */
+    private static String normalize(String value, String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        String v = value.toLowerCase().trim();
+        return v.isEmpty() ? fallback : v;
     }
 
     /**
