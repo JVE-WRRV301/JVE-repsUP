@@ -28,15 +28,25 @@ public class AvatarGenerationActivity extends AppCompatActivity {
     public static final String EXTRA_GENDER = "extra_gender";
     public static final String EXTRA_BODY_TYPE = "extra_body_type";
 
-    // Default cosmetic IDs from seed data. New users start wearing a tank, shorts,
-    // socks (no shoes), and the default hair. Shoes are unlocked separately.
-    private static final int DEFAULT_TOP_ID = 1;      // Basic White Tank
-    private static final int DEFAULT_BOTTOM_ID = 2;   // Basic Black Shorts
-    private static final int DEFAULT_SOCKS_ID = 4;    // Basic Socks
-    private static final int DEFAULT_HAIR_ID = 5;     // Default Hair
+    // Default cosmetic IDs from seed data. Clothing is gender-specific, so the
+    // starting outfit differs by gender. New users wear a tank + shorts + socks
+    // (no shoes). Hair is not yet authored, so no default hair is equipped.
+    //   Male defaults:   top=1, bottom=2, socks=3
+    //   Female defaults: top=4, bottom=5, socks=6
+    private static final int MALE_TOP_ID = 1;
+    private static final int MALE_BOTTOM_ID = 2;
+    private static final int MALE_SOCKS_ID = 3;
+    private static final int FEMALE_TOP_ID = 4;
+    private static final int FEMALE_BOTTOM_ID = 5;
+    private static final int FEMALE_SOCKS_ID = 6;
 
     // Grey skin tone stored until the user picks a real tone in the locker.
     private static final String DEFAULT_SKIN_TONE = "grey";
+
+    // Resolved defaults for the current user's gender (set in onCreate).
+    private int defaultTopId;
+    private int defaultBottomId;
+    private int defaultSocksId;
 
     private ImageView ivAvatar;
     private Button btnContinue;
@@ -64,8 +74,15 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         SessionManager sessionManager = new SessionManager(this);
         userId = sessionManager.getUserId();
 
+        boolean isFemale = gender != null && gender.equalsIgnoreCase("female");
+
+        // Resolve the gendered default outfit for this user.
+        defaultTopId = isFemale ? FEMALE_TOP_ID : MALE_TOP_ID;
+        defaultBottomId = isFemale ? FEMALE_BOTTOM_ID : MALE_BOTTOM_ID;
+        defaultSocksId = isFemale ? FEMALE_SOCKS_ID : MALE_SOCKS_ID;
+
         // Set gender-aware subheading
-        if (gender != null && gender.equalsIgnoreCase("female")) {
+        if (isFemale) {
             tvAvatarSubheading.setText(R.string.avatar_subtitle_female);
         } else {
             tvAvatarSubheading.setText(R.string.avatar_subtitle_male);
@@ -126,7 +143,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
      * the user wears socks only until they choose shoes in the locker.
      */
     private void insertDefaultCosmetics(int avatarId) {
-        int[] defaultIds = {DEFAULT_TOP_ID, DEFAULT_BOTTOM_ID, DEFAULT_SOCKS_ID, DEFAULT_HAIR_ID};
+        int[] defaultIds = {defaultTopId, defaultBottomId, defaultSocksId};
         insertDefaultCosmetic(avatarId, defaultIds, 0);
     }
 
@@ -169,7 +186,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
         Object[] outfitParams = new Object[]{
-                userId, DEFAULT_TOP_ID, DEFAULT_BOTTOM_ID, null, DEFAULT_SOCKS_ID, null
+                userId, defaultTopId, defaultBottomId, null, defaultSocksId, null
         };
 
         ConnectionManager.executeInsert(insertOutfitSql, outfitParams, new ConnectionManager.DatabaseCallback<Long>() {

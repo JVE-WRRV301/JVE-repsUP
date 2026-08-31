@@ -8,19 +8,21 @@ public class CosmeticItem {
 
     private int cosmeticId;
     private String name;
-    private String type;        // e.g. "top", "bottom", "shoes", "hair", "skin"
-    private String unlockType;  // e.g. "default", "coin", "level"
+    private String type;        // e.g. "top", "bottom", "shoes", "socks", "hair", "accessory"
+    private String gender;      // "male", "female", or "unisex"
+    private String unlockType;  // e.g. "default", "coins", "level"
     private int levelRequired;
     private int coinCost;
     private String imageData;   // path or reference to the cosmetic image
 
     public CosmeticItem() {}
 
-    public CosmeticItem(int cosmeticId, String name, String type, String unlockType,
+    public CosmeticItem(int cosmeticId, String name, String type, String gender, String unlockType,
                         int levelRequired, int coinCost, String imageData) {
         this.cosmeticId = cosmeticId;
         this.name = name;
         this.type = type;
+        this.gender = gender;
         this.unlockType = unlockType;
         this.levelRequired = levelRequired;
         this.coinCost = coinCost;
@@ -37,6 +39,9 @@ public class CosmeticItem {
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
     public String getUnlockType() { return unlockType; }
     public void setUnlockType(String unlockType) { this.unlockType = unlockType; }

@@ -64,16 +64,55 @@ public class AvatarCompositor {
         CosmeticItem hair = findByType(equippedItems, "hair");
         CosmeticItem accessories = findByType(equippedItems, "accessory", "accessories");
 
-        // Layer order: bottoms under socks under top; shoes over socks; hair and
-        // accessories on top. No bundled default for socks/hair/accessories.
-        drawCosmeticLayer(context, canvas, bottom, "bottom");
+        // Layer order (bottom to top of the stack):
+        //   socks -> shoes -> bottom -> top -> hair -> accessories
+        // Socks sit lowest so shoes cover them; bottoms (esp. long pants) draw
+        // over both socks and shoes so trouser legs correctly overlap the footwear.
         drawCosmeticLayer(context, canvas, socks, null);
-        drawCosmeticLayer(context, canvas, top, "top");
         drawCosmeticLayer(context, canvas, shoes, "shoes");
+        drawCosmeticLayer(context, canvas, bottom, "bottom");
+        drawCosmeticLayer(context, canvas, top, "top");
         drawCosmeticLayer(context, canvas, hair, null);
         drawCosmeticLayer(context, canvas, accessories, null);
 
         return result;
+    }
+
+    /**
+     * Fraction of the avatar's height (from the top) that contains the head,
+     * hair, and neck. Used to crop a face thumbnail from the full-body render.
+     * Assumes the figure is drawn roughly head-at-top on the 512x512 canvas.
+     */
+    private static final float FACE_CROP_FRACTION = 0.30f;
+
+    /**
+     * Composites the avatar and returns just the head/hair/neck region as a
+     * square bitmap, for use as a profile picture (e.g. the top-bar thumbnail).
+     *
+     * It renders the full avatar, crops the top {@link #FACE_CROP_FRACTION} of the
+     * height centered horizontally into a square, so only the face and hair show.
+     *
+     * Does asset decoding (disk I/O) - call from a background thread.
+     */
+    public static Bitmap compositeFace(Context context, String gender, String bodyType,
+                                       String skinTone, List<CosmeticItem> equippedItems) {
+        Bitmap full = composite(context, gender, bodyType, skinTone, equippedItems);
+
+        // Square crop taken from the top of the figure (head + hair + neck).
+        int cropHeight = Math.round(full.getHeight() * FACE_CROP_FRACTION);
+        int size = Math.min(full.getWidth(), cropHeight);
+        int left = (full.getWidth() - size) / 2; // horizontally centered
+        int top = 0;                              // start at the very top (head)
+
+        // Guard against rounding pushing us out of bounds.
+        size = Math.max(1, Math.min(size, full.getHeight()));
+        Bitmap face = Bitmap.createBitmap(full, left, top, size, size);
+
+        // createBitmap may return the same instance; only recycle if it's a copy.
+        if (face != full) {
+            full.recycle();
+        }
+        return face;
     }
 
     /**
