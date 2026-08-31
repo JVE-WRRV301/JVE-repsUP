@@ -1,6 +1,7 @@
 package com.jve.repsup.fragments;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +20,16 @@ import com.jve.repsup.R;
 import com.jve.repsup.activities.CustomizeAvatarActivity;
 import com.jve.repsup.activities.SettingsActivity;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.models.Avatar;
+import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.models.User;
+import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.XPCalculator;
+
+import java.util.List;
 
 /**
  * MeFragment displaying the user's full-body avatar, gym rank card with medal icon
@@ -44,6 +51,7 @@ public class MeFragment extends Fragment {
     private ProgressBar pbLevelProgress;
 
     private UserRepository userRepository;
+    private CosmeticRepository cosmeticRepository;
     private SessionManager sessionManager;
 
     public MeFragment() {
@@ -66,17 +74,83 @@ public class MeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         userRepository = new UserRepository();
+        cosmeticRepository = new CosmeticRepository();
         sessionManager = new SessionManager(requireContext());
 
         initViews(view);
         setupClickListeners();
         loadUserProfile();
+        loadAvatar();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         loadUserProfile();
+        // Refresh the avatar so outfit/skin-tone changes made in the locker show here.
+        loadAvatar();
+    }
+
+    /**
+     * Loads the user's avatar (body + equipped outfit) and composites it into the
+     * locker preview box, mirroring the locker screen. Gender comes from the
+     * profile, the body/skin tone from the Avatar record, and the equipped items
+     * from the outfit slot. Falls back silently if any piece is unavailable.
+     */
+    private void loadAvatar() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        cosmeticRepository.getUserGender(userId, new ConnectionManager.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String gender) {
+                String g = (gender != null && !gender.trim().isEmpty())
+                        ? gender.trim().toLowerCase() : "male";
+                loadAvatarBodyThenComposite(userId, g);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                loadAvatarBodyThenComposite(userId, "male");
+            }
+        });
+    }
+
+    private void loadAvatarBodyThenComposite(int userId, String gender) {
+        cosmeticRepository.getAvatar(userId, new ConnectionManager.DatabaseCallback<Avatar>() {
+            @Override
+            public void onSuccess(Avatar avatar) {
+                cosmeticRepository.getEquippedItemsForOutfit(userId,
+                        new ConnectionManager.DatabaseCallback<List<CosmeticItem>>() {
+                            @Override
+                            public void onSuccess(List<CosmeticItem> equipped) {
+                                compositeInto(gender, avatar, equipped);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                compositeInto(gender, avatar, null);
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) { /* leave default avatar image */ }
+        });
+    }
+
+    private void compositeInto(String gender, Avatar avatar, List<CosmeticItem> equipped) {
+        if (avatar == null) return;
+        final String bodyType = avatar.getBodyShape();
+        final String skinTone = avatar.getSkinTone();
+
+        new Thread(() -> {
+            if (getContext() == null) return;
+            Bitmap bmp = AvatarCompositor.composite(
+                    requireContext().getApplicationContext(), gender, bodyType, skinTone, equipped);
+            if (getActivity() == null || !isAdded()) return;
+            getActivity().runOnUiThread(() -> ivAvatar.setImageBitmap(bmp));
+        }).start();
     }
 
     private void initViews(View view) {

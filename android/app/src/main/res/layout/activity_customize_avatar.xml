@@ -87,7 +87,7 @@
             android:id="@+id/img_avatar_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/avatar_description" />
 
     </FrameLayout>

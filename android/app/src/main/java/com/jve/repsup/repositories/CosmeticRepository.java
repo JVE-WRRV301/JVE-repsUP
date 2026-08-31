@@ -36,64 +36,74 @@ public class CosmeticRepository {
      * Gets all cosmetic items (both owned and locked) for the user.
      */
     public void getUserCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
-        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, " +
+        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci";
-        ConnectionManager.queryList(sql, null, rs -> {
-            CosmeticItem item = new CosmeticItem();
-            item.setCosmeticId(rs.getInt("cosmetic_id"));
-            item.setName(rs.getString("cosmetic_name"));
-            item.setType(rs.getString("cosmetic_type"));
-            item.setUnlockType(rs.getString("unlock_type"));
-            item.setLevelRequired(rs.getInt("lvl_required"));
-            item.setCoinCost(rs.getInt("coin_cost"));
-            item.setImageData(rs.getString("cosmetic_img_data"));
-            return item;
-        }, callback);
+        ConnectionManager.queryList(sql, null, CosmeticRepository::mapCosmetic, callback);
     }
 
     /**
      * Gets only cosmetics the user has unlocked (owned).
      */
     public void getOwnedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
-        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, " +
+        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci " +
                 "INNER JOIN User_Cosmetic uc ON ci.cosmetic_id = uc.cosmetic_id " +
                 "WHERE uc.user_id = ? AND uc.is_unlocked = 1";
-        ConnectionManager.queryList(sql, new Object[]{userId}, rs -> {
-            CosmeticItem item = new CosmeticItem();
-            item.setCosmeticId(rs.getInt("cosmetic_id"));
-            item.setName(rs.getString("cosmetic_name"));
-            item.setType(rs.getString("cosmetic_type"));
-            item.setUnlockType(rs.getString("unlock_type"));
-            item.setLevelRequired(rs.getInt("lvl_required"));
-            item.setCoinCost(rs.getInt("coin_cost"));
-            item.setImageData(rs.getString("cosmetic_img_data"));
-            return item;
-        }, callback);
+        ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
     }
 
     /**
      * Gets cosmetics the user does NOT own (locked).
      */
     public void getLockedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
-        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, " +
+        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci " +
                 "WHERE ci.cosmetic_id NOT IN " +
                 "(SELECT uc.cosmetic_id FROM User_Cosmetic uc WHERE uc.user_id = ? AND uc.is_unlocked = 1)";
-        ConnectionManager.queryList(sql, new Object[]{userId}, rs -> {
-            CosmeticItem item = new CosmeticItem();
-            item.setCosmeticId(rs.getInt("cosmetic_id"));
-            item.setName(rs.getString("cosmetic_name"));
-            item.setType(rs.getString("cosmetic_type"));
-            item.setUnlockType(rs.getString("unlock_type"));
-            item.setLevelRequired(rs.getInt("lvl_required"));
-            item.setCoinCost(rs.getInt("coin_cost"));
-            item.setImageData(rs.getString("cosmetic_img_data"));
-            return item;
-        }, callback);
+        ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
+    }
+
+    /**
+     * Gets all cosmetics of a given type available to a gender (that gender plus
+     * unisex), for the locker grid. This is the primary query the locker uses:
+     * it returns every item of the type the user could wear, regardless of
+     * ownership, so the grid can show owned vs purchasable side by side.
+     *
+     * Ownership is determined separately via {@link #getOwnedCosmetics} /
+     * {@link #getEquippedCosmetics}.
+     *
+     * @param cosmeticType e.g. "top", "bottom", "shoes", "socks", "hair", "accessory"
+     * @param gender       the user's gender ("male"/"female"); unisex items are always included
+     */
+    public void getCosmeticsForTab(String cosmeticType, String gender,
+                                   DatabaseCallback<List<CosmeticItem>> callback) {
+        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
+                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "FROM Cosmetic_Item ci " +
+                "WHERE ci.cosmetic_type = ? AND (ci.gender = ? OR ci.gender = 'unisex') " +
+                "ORDER BY ci.cosmetic_id";
+        String g = gender != null ? gender.toLowerCase() : "male";
+        ConnectionManager.queryList(sql, new Object[]{cosmeticType, g},
+                CosmeticRepository::mapCosmetic, callback);
+    }
+
+    /**
+     * Shared row mapper for Cosmetic_Item rows (must select the 8 standard columns).
+     */
+    private static CosmeticItem mapCosmetic(java.sql.ResultSet rs) throws java.sql.SQLException {
+        CosmeticItem item = new CosmeticItem();
+        item.setCosmeticId(rs.getInt("cosmetic_id"));
+        item.setName(rs.getString("cosmetic_name"));
+        item.setType(rs.getString("cosmetic_type"));
+        item.setGender(rs.getString("gender"));
+        item.setUnlockType(rs.getString("unlock_type"));
+        item.setLevelRequired(rs.getInt("lvl_required"));
+        item.setCoinCost(rs.getInt("coin_cost"));
+        item.setImageData(rs.getString("cosmetic_img_data"));
+        return item;
     }
 
     /**
@@ -159,10 +169,16 @@ public class CosmeticRepository {
 
     /**
      * Equips a cosmetic for the user (sets is_equipped = 1).
+     *
+     * Uses an upsert so equipping also guarantees ownership: free items (cost 0)
+     * can be equipped directly in the locker without a prior purchase, so their
+     * User_Cosmetic row may not exist yet. INSERT ... ON DUPLICATE KEY creates it
+     * as unlocked+equipped, or flips is_equipped on for an existing row.
      */
     public void equipCosmetic(int userId, int cosmeticId, DatabaseCallback<Integer> callback) {
-        String sql = "UPDATE User_Cosmetic SET is_equipped = 1 " +
-                "WHERE user_id = ? AND cosmetic_id = ?";
+        String sql = "INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
+                "VALUES (?, ?, 1, 1) " +
+                "ON DUPLICATE KEY UPDATE is_unlocked = 1, is_equipped = 1";
         ConnectionManager.executeUpdate(sql, new Object[]{userId, cosmeticId}, callback);
     }
 
@@ -325,23 +341,13 @@ public class CosmeticRepository {
      * @param callback receives the list of equipped CosmeticItems (may be empty) or error
      */
     public void getEquippedItemsForOutfit(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
-        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, " +
+        String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Outfit_Slot os " +
                 "INNER JOIN Cosmetic_Item ci ON ci.cosmetic_id IN " +
                 "(os.top_id, os.bottom_id, os.shoes_id, os.socks_id, os.accessories_id) " +
                 "WHERE os.user_id = ?";
-        ConnectionManager.queryList(sql, new Object[]{userId}, rs -> {
-            CosmeticItem item = new CosmeticItem();
-            item.setCosmeticId(rs.getInt("cosmetic_id"));
-            item.setName(rs.getString("cosmetic_name"));
-            item.setType(rs.getString("cosmetic_type"));
-            item.setUnlockType(rs.getString("unlock_type"));
-            item.setLevelRequired(rs.getInt("lvl_required"));
-            item.setCoinCost(rs.getInt("coin_cost"));
-            item.setImageData(rs.getString("cosmetic_img_data"));
-            return item;
-        }, callback);
+        ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
     }
 
     /**

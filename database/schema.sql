@@ -24,6 +24,7 @@ CREATE TABLE Cosmetic_Item (
     cosmetic_id INT AUTO_INCREMENT PRIMARY KEY,
     cosmetic_name VARCHAR(100) NOT NULL,
     cosmetic_type VARCHAR(30) NOT NULL,
+    gender VARCHAR(10) NOT NULL DEFAULT 'unisex',
     unlock_type VARCHAR(20) NOT NULL,
     lvl_required INT DEFAULT 0,
     coin_cost INT DEFAULT 0,
