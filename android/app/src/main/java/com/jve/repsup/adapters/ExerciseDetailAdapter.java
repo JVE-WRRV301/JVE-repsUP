@@ -26,23 +26,23 @@ public class ExerciseDetailAdapter extends RecyclerView.Adapter<ExerciseDetailAd
     private final List<Exercise> exercises;
     private final List<Integer> repsList;
     private final List<Double> weightList;
+    private final OnExerciseRemovedListener removedListener;
 
-    public ExerciseDetailAdapter(List<Exercise> exercises) {
-        this.exercises = exercises;
-        this.repsList = new ArrayList<>();
-        this.weightList = new ArrayList<>();
-
-        for (Exercise exercise : exercises) {
-            repsList.add(exercise.getDefaultReps());
-            weightList.add(0.0);
-        }
+    /**
+     * Listener notified when the user taps the remove button on a row.
+     */
+    public interface OnExerciseRemovedListener {
+        void onExerciseRemoved(int position);
     }
 
     /**
-     * Constructor with pre-populated reps and weight values (used in edit mode).
+     * Constructor with pre-populated reps and weight values.
+     * Any missing values fall back to the exercise default reps / zero weight.
      */
-    public ExerciseDetailAdapter(List<Exercise> exercises, List<Integer> initialReps, List<Double> initialWeights) {
+    public ExerciseDetailAdapter(List<Exercise> exercises, List<Integer> initialReps,
+                                 List<Double> initialWeights, OnExerciseRemovedListener removedListener) {
         this.exercises = exercises;
+        this.removedListener = removedListener;
         this.repsList = new ArrayList<>();
         this.weightList = new ArrayList<>();
 
@@ -58,6 +58,18 @@ public class ExerciseDetailAdapter extends RecyclerView.Adapter<ExerciseDetailAd
                 weightList.add(0.0);
             }
         }
+    }
+
+    /**
+     * Removes the row at the given position and its associated reps/weight values.
+     */
+    public void removeAt(int position) {
+        if (position < 0 || position >= exercises.size()) return;
+        exercises.remove(position);
+        if (position < repsList.size()) repsList.remove(position);
+        if (position < weightList.size()) weightList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, exercises.size() - position);
     }
 
     public List<Integer> getRepsList() {
@@ -138,6 +150,14 @@ public class ExerciseDetailAdapter extends RecyclerView.Adapter<ExerciseDetailAd
 
         holder.etReps.addTextChangedListener(holder.repsWatcher);
         holder.etWeight.addTextChangedListener(holder.weightWatcher);
+
+        holder.btnRemoveExercise.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+            if (removedListener != null) {
+                removedListener.onExerciseRemoved(pos);
+            }
+        });
     }
 
     @Override
@@ -149,6 +169,7 @@ public class ExerciseDetailAdapter extends RecyclerView.Adapter<ExerciseDetailAd
         TextView tvExerciseName;
         EditText etReps;
         EditText etWeight;
+        android.widget.ImageButton btnRemoveExercise;
         TextWatcher repsWatcher;
         TextWatcher weightWatcher;
 
@@ -157,6 +178,7 @@ public class ExerciseDetailAdapter extends RecyclerView.Adapter<ExerciseDetailAd
             tvExerciseName = itemView.findViewById(R.id.tvExerciseName);
             etReps = itemView.findViewById(R.id.etReps);
             etWeight = itemView.findViewById(R.id.etWeight);
+            btnRemoveExercise = itemView.findViewById(R.id.btnRemoveExercise);
         }
     }
 }

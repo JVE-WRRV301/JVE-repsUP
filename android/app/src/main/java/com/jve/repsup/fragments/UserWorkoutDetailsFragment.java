@@ -30,6 +30,8 @@ public class UserWorkoutDetailsFragment extends Fragment {
 
     private TextInputEditText etWorkoutName;
     private ExerciseDetailAdapter adapter;
+    private RecyclerView rvExerciseDetails;
+    private android.widget.TextView tvNoExercises;
 
     public UserWorkoutDetailsFragment() {
         // Required empty public constructor
@@ -47,26 +49,40 @@ public class UserWorkoutDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         etWorkoutName = view.findViewById(R.id.etWorkoutName);
-        RecyclerView rvExerciseDetails = view.findViewById(R.id.rvExerciseDetails);
+        rvExerciseDetails = view.findViewById(R.id.rvExerciseDetails);
+        tvNoExercises = view.findViewById(R.id.tvNoExercises);
         Button btnSave = view.findViewById(R.id.btnSaveWorkout);
+        Button btnAddExercises = view.findViewById(R.id.btnAddExercises);
 
         CreateWorkoutActivity activity = (CreateWorkoutActivity) getActivity();
         if (activity == null) return;
 
         List<Exercise> exercises = activity.getSelectedExercises();
 
-        // Check if we are in edit mode and pre-populate data
         if (activity.isEditMode()) {
             etWorkoutName.setText(activity.getEditWorkoutName());
-            adapter = new ExerciseDetailAdapter(exercises,
-                    activity.getEditRepsList(), activity.getEditWeightList());
             btnSave.setText(R.string.edit_workout_save_button);
-        } else {
-            adapter = new ExerciseDetailAdapter(exercises);
         }
+
+        adapter = new ExerciseDetailAdapter(exercises,
+                activity.getDraftReps(), activity.getDraftWeights(),
+                position -> {
+                    // removeAt mutates the shared selectedExercises list plus the
+                    // adapter's reps/weight, so re-sync the activity draft afterwards.
+                    adapter.removeAt(position);
+                    activity.saveDraft(adapter.getRepsList(), adapter.getWeightList());
+                    updateEmptyState();
+                });
 
         rvExerciseDetails.setLayoutManager(new LinearLayoutManager(getContext()));
         rvExerciseDetails.setAdapter(adapter);
+        updateEmptyState();
+
+        btnAddExercises.setOnClickListener(v -> {
+            // Save current input so it survives the add-exercises detour.
+            activity.saveDraft(adapter.getRepsList(), adapter.getWeightList());
+            activity.onAddExercisesRequested();
+        });
 
         btnSave.setOnClickListener(v -> {
             String workoutName = etWorkoutName.getText() != null ?
@@ -78,10 +94,26 @@ public class UserWorkoutDetailsFragment extends Fragment {
                 return;
             }
 
+            if (activity.getSelectedExercises().isEmpty()) {
+                Toast.makeText(getContext(),
+                        R.string.create_workout_select_at_least_one, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             List<Integer> repsList = adapter.getRepsList();
             List<Double> weightList = adapter.getWeightList();
 
             activity.onWorkoutSaved(workoutName, repsList, weightList);
         });
+    }
+
+    /**
+     * Shows the empty-state message and hides the list when there are no exercises.
+     */
+    private void updateEmptyState() {
+        if (adapter == null || tvNoExercises == null || rvExerciseDetails == null) return;
+        boolean empty = adapter.getItemCount() == 0;
+        tvNoExercises.setVisibility(empty ? View.VISIBLE : View.GONE);
+        rvExerciseDetails.setVisibility(empty ? View.GONE : View.VISIBLE);
     }
 }
