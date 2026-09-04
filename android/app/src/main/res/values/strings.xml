@@ -506,4 +506,37 @@
     <string name="settings_measurement_error">Failed to update measurement system</string>
     <string name="settings_back">Back</string>
     <string name="settings_language_english">English</string>
+
+    <!-- Personal Details -->
+    <string name="personal_details_title">Personal Details</string>
+    <string name="personal_details_name_label">NAME</string>
+    <string name="personal_details_email_label">EMAIL</string>
+    <string name="personal_details_username_label">USERNAME</string>
+    <string name="personal_details_save">Save Changes</string>
+    <string name="personal_details_saved">Details updated</string>
+    <string name="personal_details_load_error">Failed to load details</string>
+    <string name="personal_details_save_error">Failed to save details. Please try again.</string>
+    <string name="personal_details_empty_error">All fields are required</string>
+    <string name="personal_details_email_error">Please enter a valid email address</string>
+    <string name="personal_details_username_taken">Username is already taken</string>
+
+    <!-- Account -->
+    <string name="account_title">Account</string>
+    <string name="account_section_password">CHANGE PASSWORD</string>
+    <string name="account_section_danger">DANGER ZONE</string>
+    <string name="account_current_password_hint">Current password</string>
+    <string name="account_new_password_hint">New password</string>
+    <string name="account_confirm_password_hint">Confirm new password</string>
+    <string name="account_change_password">Change Password</string>
+    <string name="account_password_changed">Password changed</string>
+    <string name="account_password_empty_error">All password fields are required</string>
+    <string name="account_password_too_short">New password must be at least 6 characters</string>
+    <string name="account_password_mismatch">New passwords do not match</string>
+    <string name="account_password_current_wrong">Current password is incorrect</string>
+    <string name="account_password_change_error">Failed to change password. Please try again.</string>
+    <string name="account_delete">Delete Account</string>
+    <string name="account_delete_confirm_title">Delete Account</string>
+    <string name="account_delete_confirm_message">This will permanently delete your account and all your data. This cannot be undone. Are you sure?</string>
+    <string name="account_deleted">Account deleted</string>
+    <string name="account_delete_error">Failed to delete account. Please try again.</string>
 </resources>

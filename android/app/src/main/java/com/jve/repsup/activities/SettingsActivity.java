@@ -3,6 +3,7 @@ package com.jve.repsup.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,15 @@ public class SettingsActivity extends AppCompatActivity {
         // Back button
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
+
+        // USER section rows
+        LinearLayout llPersonalDetails = findViewById(R.id.llPersonalDetails);
+        llPersonalDetails.setOnClickListener(v ->
+                startActivity(new Intent(this, PersonalDetailsActivity.class)));
+
+        LinearLayout llAccount = findViewById(R.id.llAccount);
+        llAccount.setOnClickListener(v ->
+                startActivity(new Intent(this, AccountActivity.class)));
 
         // Measurement system toggle
         btnMetric = findViewById(R.id.btnMetric);
