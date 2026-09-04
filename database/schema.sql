@@ -25,6 +25,7 @@ CREATE TABLE Cosmetic_Item (
     cosmetic_name VARCHAR(100) NOT NULL,
     cosmetic_type VARCHAR(30) NOT NULL,
     gender VARCHAR(10) NOT NULL DEFAULT 'unisex',
+    is_colourable BOOLEAN NOT NULL DEFAULT FALSE,
     unlock_type VARCHAR(20) NOT NULL,
     lvl_required INT DEFAULT 0,
     coin_cost INT DEFAULT 0,
@@ -81,6 +82,7 @@ CREATE TABLE Avatar (
     avatar_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
     skin_tone VARCHAR(20) NOT NULL,
+    hair_colour VARCHAR(20) NOT NULL DEFAULT 'grey',
     body_shape VARCHAR(20) NOT NULL,
     facial_details VARCHAR(250),
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
@@ -133,12 +135,14 @@ CREATE TABLE Outfit_Slot (
     bottom_id INT,
     shoes_id INT,
     socks_id INT,
+    hair_id INT,
     accessories_id INT,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (top_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (bottom_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (shoes_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (socks_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (hair_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (accessories_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL
 );
 

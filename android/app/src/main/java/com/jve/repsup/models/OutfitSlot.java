@@ -12,18 +12,20 @@ public class OutfitSlot {
     private Integer bottomId;
     private Integer shoesId;
     private Integer socksId;
+    private Integer hairId;
     private Integer accessoriesId;
 
     public OutfitSlot() {}
 
-    public OutfitSlot(int outfitSlotId, int userId, Integer topId,
-                      Integer bottomId, Integer shoesId, Integer socksId, Integer accessoriesId) {
+    public OutfitSlot(int outfitSlotId, int userId, Integer topId, Integer bottomId,
+                      Integer shoesId, Integer socksId, Integer hairId, Integer accessoriesId) {
         this.outfitSlotId = outfitSlotId;
         this.userId = userId;
         this.topId = topId;
         this.bottomId = bottomId;
         this.shoesId = shoesId;
         this.socksId = socksId;
+        this.hairId = hairId;
         this.accessoriesId = accessoriesId;
     }
 
@@ -46,6 +48,9 @@ public class OutfitSlot {
 
     public Integer getSocksId() { return socksId; }
     public void setSocksId(Integer socksId) { this.socksId = socksId; }
+
+    public Integer getHairId() { return hairId; }
+    public void setHairId(Integer hairId) { this.hairId = hairId; }
 
     public Integer getAccessoriesId() { return accessoriesId; }
     public void setAccessoriesId(Integer accessoriesId) { this.accessoriesId = accessoriesId; }

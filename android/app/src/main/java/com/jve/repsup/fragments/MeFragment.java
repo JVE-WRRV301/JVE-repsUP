@@ -143,11 +143,12 @@ public class MeFragment extends Fragment {
         if (avatar == null) return;
         final String bodyType = avatar.getBodyShape();
         final String skinTone = avatar.getSkinTone();
+        final String hairColour = avatar.getHairColour();
 
         new Thread(() -> {
             if (getContext() == null) return;
             Bitmap bmp = AvatarCompositor.composite(
-                    requireContext().getApplicationContext(), gender, bodyType, skinTone, equipped);
+                    requireContext().getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
             if (getActivity() == null || !isAdded()) return;
             getActivity().runOnUiThread(() -> ivAvatar.setImageBitmap(bmp));
         }).start();
