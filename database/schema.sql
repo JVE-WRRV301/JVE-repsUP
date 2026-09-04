@@ -24,6 +24,7 @@ CREATE TABLE Cosmetic_Item (
     cosmetic_id INT AUTO_INCREMENT PRIMARY KEY,
     cosmetic_name VARCHAR(100) NOT NULL,
     cosmetic_type VARCHAR(30) NOT NULL,
+    gender VARCHAR(10) NOT NULL DEFAULT 'unisex',
     unlock_type VARCHAR(20) NOT NULL,
     lvl_required INT DEFAULT 0,
     coin_cost INT DEFAULT 0,
@@ -131,11 +132,13 @@ CREATE TABLE Outfit_Slot (
     top_id INT,
     bottom_id INT,
     shoes_id INT,
+    socks_id INT,
     accessories_id INT,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (top_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (bottom_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (shoes_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
+    FOREIGN KEY (socks_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL,
     FOREIGN KEY (accessories_id) REFERENCES Cosmetic_Item(cosmetic_id) ON DELETE SET NULL
 );
 
@@ -161,6 +164,7 @@ CREATE TABLE Workout_Exercise (
     num_sets INT NOT NULL DEFAULT 3,
     num_reps INT NOT NULL DEFAULT 12,
     workout_exercise_order_index INT NOT NULL DEFAULT 0,
+    target_weight DECIMAL(6,2) NOT NULL DEFAULT 0.00,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (workout_id, exercise_id),
     FOREIGN KEY (workout_id) REFERENCES Workout(workout_id) ON DELETE CASCADE,

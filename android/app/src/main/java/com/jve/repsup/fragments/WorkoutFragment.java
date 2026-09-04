@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -323,11 +324,15 @@ public class WorkoutFragment extends Fragment implements
         RecyclerView rvReorder = dialogView.findViewById(R.id.rvReorderExercises);
         rvReorder.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        ReorderExerciseAdapter reorderAdapter = new ReorderExerciseAdapter(reorderableList);
-        rvReorder.setAdapter(reorderAdapter);
+        final ReorderExerciseAdapter[] adapterHolder = new ReorderExerciseAdapter[1];
 
         ItemTouchHelper.SimpleCallback touchCallback = new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return false;
+            }
+
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
@@ -335,7 +340,8 @@ public class WorkoutFragment extends Fragment implements
                 int fromPos = viewHolder.getAdapterPosition();
                 int toPos = target.getAdapterPosition();
                 java.util.Collections.swap(reorderableList, fromPos, toPos);
-                reorderAdapter.notifyItemMoved(fromPos, toPos);
+                adapterHolder[0].notifyItemMoved(fromPos, toPos);
+                adapterHolder[0].notifyItemRangeChanged(Math.min(fromPos, toPos), Math.abs(fromPos - toPos) + 1);
                 return true;
             }
 
@@ -343,7 +349,12 @@ public class WorkoutFragment extends Fragment implements
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             }
         };
-        new ItemTouchHelper(touchCallback).attachToRecyclerView(rvReorder);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchCallback);
+
+        adapterHolder[0] = new ReorderExerciseAdapter(reorderableList,
+                viewHolder -> itemTouchHelper.startDrag(viewHolder));
+        rvReorder.setAdapter(adapterHolder[0]);
+        itemTouchHelper.attachToRecyclerView(rvReorder);
 
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.workout_reorder_title)
@@ -382,12 +393,18 @@ public class WorkoutFragment extends Fragment implements
         });
     }
 
+    interface OnDragStartListener {
+        void onDragStart(RecyclerView.ViewHolder viewHolder);
+    }
+
     private static class ReorderExerciseAdapter extends RecyclerView.Adapter<ReorderExerciseAdapter.ViewHolder> {
 
         private final List<WorkoutExercise> exercises;
+        private final OnDragStartListener dragStartListener;
 
-        ReorderExerciseAdapter(List<WorkoutExercise> exercises) {
+        ReorderExerciseAdapter(List<WorkoutExercise> exercises, OnDragStartListener dragStartListener) {
             this.exercises = exercises;
+            this.dragStartListener = dragStartListener;
         }
 
         @NonNull
@@ -404,6 +421,12 @@ public class WorkoutFragment extends Fragment implements
             String name = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
             holder.tvName.setText(name);
             holder.tvOrder.setText(String.valueOf(position + 1));
+            holder.ivDragHandle.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    dragStartListener.onDragStart(holder);
+                }
+                return false;
+            });
         }
 
         @Override

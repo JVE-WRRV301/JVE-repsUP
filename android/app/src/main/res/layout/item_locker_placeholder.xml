@@ -13,32 +13,35 @@
         android:gravity="center"
         android:background="@drawable/bg_placeholder_item">
 
-        <!-- Placeholder icon (empty image area) -->
+        <!-- Item image (fills most of the cell so the user can see the garment) -->
         <ImageView
             android:id="@+id/img_placeholder"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:scaleType="centerInside"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="6dp"
+            android:scaleType="fitCenter"
             android:contentDescription="Cosmetic item"
             android:tint="@color/muted"
             tools:src="@drawable/ic_launcher_foreground" />
 
     </LinearLayout>
 
-    <!-- Lock overlay with price (visible only for locked items) -->
-    <LinearLayout
+    <!-- Lock overlay with price (visible only for locked items).
+         Dims the cell but keeps the garment visible; the lock sits top-start and
+         the price sits bottom-center so the user can still see what they're buying. -->
+    <FrameLayout
         android:id="@+id/lock_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="4dp"
-        android:orientation="vertical"
-        android:gravity="center"
         android:background="@drawable/bg_placeholder_locked"
         android:visibility="gone">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="top|start"
+            android:layout_margin="6dp"
             android:src="@drawable/ic_lock"
             android:contentDescription="Locked"
             android:tint="@color/white" />
@@ -46,9 +49,10 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="6dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="4dp">
+            android:gravity="center_vertical">
 
             <ImageView
                 android:layout_width="12dp"
@@ -68,7 +72,7 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Selected indicator -->
     <ImageView

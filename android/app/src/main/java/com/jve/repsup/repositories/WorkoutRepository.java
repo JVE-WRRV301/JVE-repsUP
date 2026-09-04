@@ -108,8 +108,8 @@ public class WorkoutRepository {
             }
 
             // Insert exercises
-            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
                 for (WorkoutExercise we : exercises) {
                     stmt.setLong(1, workoutId);
@@ -117,6 +117,7 @@ public class WorkoutRepository {
                     stmt.setInt(3, we.getSets());
                     stmt.setInt(4, we.getReps());
                     stmt.setInt(5, we.getOrderIndex());
+                    stmt.setDouble(6, we.getTargetWeight());
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
@@ -152,8 +153,8 @@ public class WorkoutRepository {
             }
 
             // Re-insert exercises
-            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
                 for (WorkoutExercise we : exercises) {
                     stmt.setInt(1, workout.getWorkoutId());
@@ -161,6 +162,7 @@ public class WorkoutRepository {
                     stmt.setInt(3, we.getSets());
                     stmt.setInt(4, we.getReps());
                     stmt.setInt(5, we.getOrderIndex());
+                    stmt.setDouble(6, we.getTargetWeight());
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
@@ -217,8 +219,8 @@ public class WorkoutRepository {
             }
 
             // Copy exercises
-            String copyExercises = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) " +
-                    "SELECT ?, exercise_id, num_sets, num_reps, workout_exercise_order_index FROM workout_exercise WHERE workout_id = ?";
+            String copyExercises = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                    "SELECT ?, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight FROM workout_exercise WHERE workout_id = ?";
             try (PreparedStatement stmt = connection.prepareStatement(copyExercises)) {
                 stmt.setLong(1, newId);
                 stmt.setInt(2, workoutId);
@@ -348,7 +350,7 @@ public class WorkoutRepository {
      */
     private List<WorkoutExercise> getExercisesForWorkout(Connection connection, int workoutId) throws java.sql.SQLException {
         String sql = "SELECT we.workout_id, we.exercise_id, we.num_sets, we.num_reps, " +
-                "we.workout_exercise_order_index, " +
+                "we.workout_exercise_order_index, we.target_weight, " +
                 "e.exercise_name, e.muscle_group, e.default_sets, e.default_reps, e.difficulty, e.base_xp " +
                 "FROM workout_exercise we " +
                 "JOIN exercise e ON we.exercise_id = e.exercise_id " +
@@ -365,6 +367,7 @@ public class WorkoutRepository {
                     we.setSets(rs.getInt("num_sets"));
                     we.setReps(rs.getInt("num_reps"));
                     we.setOrderIndex(rs.getInt("workout_exercise_order_index"));
+                    we.setTargetWeight(rs.getDouble("target_weight"));
 
                     Exercise exercise = new Exercise();
                     exercise.setExerciseId(rs.getInt("exercise_id"));

@@ -116,7 +116,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                         if (exercise != null) {
                             selectedExercises.add(exercise);
                             editRepsList.add(we.getReps());
-                            editWeightList.add(0.0); // Weight not stored in workout_exercise table
+                            editWeightList.add(we.getTargetWeight());
                         }
                     }
                 }
@@ -263,6 +263,9 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             we.setReps(repsList.get(i));
             we.setSets(exercise.getDefaultSets());
             we.setOrderIndex(i + 1);
+            if (weightList != null && i < weightList.size()) {
+                we.setTargetWeight(weightList.get(i));
+            }
             workoutExercises.add(we);
         }
 
