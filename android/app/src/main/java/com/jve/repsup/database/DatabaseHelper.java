@@ -21,7 +21,7 @@ public class DatabaseHelper {
     private final String connectionUrl;
 
     private DatabaseHelper() {
-        // Load JDBC driver (5.1.x driver class)
+        // Load JDBC driver (5.1.x driver class — Android-compatible)
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {

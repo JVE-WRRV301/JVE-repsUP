@@ -1,0 +1,152 @@
+package com.jve.repsup.activities;
+
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Patterns;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.jve.repsup.R;
+import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
+import com.jve.repsup.models.User;
+import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.SessionManager;
+
+/**
+ * PersonalDetailsActivity lets the user view and edit their name, email, and username.
+ * Reached from SettingsActivity's "Personal Details" row.
+ *
+ * Implements the Personal Details sub-screen described in spec C113.
+ */
+public class PersonalDetailsActivity extends AppCompatActivity {
+
+    private SessionManager sessionManager;
+    private UserRepository userRepository;
+
+    private EditText etName;
+    private EditText etEmail;
+    private EditText etUsername;
+    private Button btnSave;
+
+    private String originalUsername;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_personal_details);
+
+        sessionManager = new SessionManager(this);
+        userRepository = new UserRepository();
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
+
+        etName = findViewById(R.id.etName);
+        etEmail = findViewById(R.id.etEmail);
+        etUsername = findViewById(R.id.etUsername);
+        btnSave = findViewById(R.id.btnSave);
+
+        btnSave.setOnClickListener(v -> onSave());
+
+        loadCurrentDetails();
+    }
+
+    /**
+     * Loads the current user's details from the database into the fields.
+     */
+    private void loadCurrentDetails() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        userRepository.getUserById(userId, new DatabaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null) return;
+                runOnUiThread(() -> {
+                    etName.setText(user.getFirstName());
+                    etEmail.setText(user.getEmail());
+                    etUsername.setText(user.getUsername());
+                    originalUsername = user.getUsername();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
+                        R.string.personal_details_load_error, Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    /**
+     * Validates input and saves the updated details, checking username uniqueness
+     * only when the username has actually changed.
+     */
+    private void onSave() {
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String username = etUsername.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(username)) {
+            Toast.makeText(this, R.string.personal_details_empty_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, R.string.personal_details_email_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        // If username unchanged, skip the uniqueness check and save directly.
+        if (username.equalsIgnoreCase(originalUsername)) {
+            persistDetails(userId, name, email, username);
+            return;
+        }
+
+        userRepository.isUsernameTaken(username, new DatabaseCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean taken) {
+                if (Boolean.TRUE.equals(taken)) {
+                    runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
+                            R.string.personal_details_username_taken, Toast.LENGTH_SHORT).show());
+                } else {
+                    persistDetails(userId, name, email, username);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
+                        R.string.personal_details_save_error, Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void persistDetails(int userId, String name, String email, String username) {
+        userRepository.updatePersonalDetails(userId, name, email, username,
+                new DatabaseCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer rows) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(PersonalDetailsActivity.this,
+                                    R.string.personal_details_saved, Toast.LENGTH_SHORT).show();
+                            // Keep the session username in sync with the change.
+                            sessionManager.createSession(userId, username, name);
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
+                                R.string.personal_details_save_error, Toast.LENGTH_SHORT).show());
+                    }
+                });
+    }
+}

@@ -214,6 +214,63 @@ public class UserRepository {
     }
 
     /**
+     * Updates the user's personal details (name, email, username).
+     * Returns the number of affected rows.
+     *
+     * @param userId    the user's ID
+     * @param firstName the new first name
+     * @param email     the new email
+     * @param username  the new username
+     * @param callback  receives the number of affected rows or error
+     */
+    public void updatePersonalDetails(int userId, String firstName, String email, String username,
+                                      ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE user SET first_name = ?, email = ?, username = ? WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{firstName, email, username, userId}, callback);
+    }
+
+    /**
+     * Changes the user's password after verifying the current password matches.
+     * Passwords are compared/stored using the existing plaintext convention used by
+     * authenticate()/register(). NOTE: this should be migrated to hashed passwords
+     * across login, register, and this screen as a coordinated security follow-up.
+     *
+     * Returns the number of affected rows (1 on success, 0 if the current password
+     * did not match so no row was updated).
+     *
+     * @param userId          the user's ID
+     * @param currentPassword the user's current password (for verification)
+     * @param newPassword     the new password to set
+     * @param callback        receives rows affected (0 means current password wrong)
+     */
+    public void changePassword(int userId, String currentPassword, String newPassword,
+                               ConnectionManager.DatabaseCallback<Integer> callback) {
+        // The WHERE clause verifies the current password, so a 0-row result means
+        // the current password was incorrect.
+        String sql = "UPDATE user SET set_password = ? WHERE user_id = ? AND set_password = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{newPassword, userId, currentPassword}, callback);
+    }
+
+    /**
+     * Permanently deletes the user's account.
+     * Returns the number of affected rows (1 on success).
+     *
+     * WARNING: this is irreversible. Callers must confirm with the user first.
+     * Related rows in child tables are expected to be removed via ON DELETE CASCADE
+     * foreign keys defined in the schema.
+     *
+     * @param userId   the user's ID
+     * @param callback receives the number of affected rows or error
+     */
+    public void deleteAccount(int userId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "DELETE FROM user WHERE user_id = ?";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{userId}, callback);
+    }
+
+    /**
      * Queries the next eligible rank for the given level and current rank.
      * Returns the next rank where min_lvl_required <= currentLevel and rank_id > currentRankId,
      * or null if no promotion is available.

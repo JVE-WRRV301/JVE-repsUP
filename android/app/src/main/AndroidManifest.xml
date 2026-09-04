@@ -34,6 +34,12 @@
             android:name=".activities.SettingsActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.PersonalDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AccountActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.LoginActivity"
             android:exported="false" />
         <activity
