@@ -63,7 +63,7 @@
     <string name="home_today">TODAY</string>
     <string name="home_next_goal">NEXT GOAL</string>
     <string name="home_start">START</string>
-    <string name="home_rest_day">Rest day — no workout scheduled</string>
+    <string name="home_rest_day">Rest day, no workout scheduled</string>
     <string name="home_no_goals">No goals set</string>
     <string name="home_sets_format">%d sets</string>
     <string name="exercise_icon_desc">Exercise icon</string>
