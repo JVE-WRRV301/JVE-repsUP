@@ -21,7 +21,6 @@
             android:layout_margin="6dp"
             android:scaleType="fitCenter"
             android:contentDescription="Cosmetic item"
-            android:tint="@color/muted"
             tools:src="@drawable/ic_launcher_foreground" />
 
     </LinearLayout>

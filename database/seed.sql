@@ -63,38 +63,45 @@ INSERT INTO Exercise (exercise_name, muscle_group, default_sets, default_reps, d
 
 -- COSMETIC ITEMS (required) - starter wardrobe for the locker
 
--- IMPORTANT: rows 1-6 are the gendered default items equipped on registration.
--- AvatarGenerationActivity.java references these IDs as constants:
---   Male defaults:   top=1, bottom=2, socks=3
---   Female defaults: top=4, bottom=5, socks=6
--- Keep these IDs/order in sync with that file. Paths match the actual asset files.
+-- IMPORTANT: rows 1-6 are the gendered default items equipped on registration,
+-- and row 7 is the default hair. AvatarGenerationActivity.java references these
+-- IDs as constants:
+--   Male defaults:   top=1, bottom=2, socks=3, hair=7
+--   Female defaults: top=4, bottom=5, socks=6, hair=7
+-- Keep these IDs/order in sync with that file.
+--
+-- cosmetic_img_data holds the item KEY only. The compositor builds the full path:
+--   clothing: assets/{type}/{gender}-{bodytype}/{key}.png  (falls back to -average)
+--   hair:     assets/hair/{gender}-hair/{colour}_{key}.png (falls back to grey)
 -- Every clothing item is gender-specific (no unisex garments in this wardrobe).
-INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, unlock_type, lvl_required, coin_cost, cosmetic_img_data) VALUES
+INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, is_colourable, unlock_type, lvl_required, coin_cost, cosmetic_img_data) VALUES
     -- MALE default items (worn on registration): id 1-3
-    ('White Tank',    'top',    'male',   'default', 0, 0, 'assets/tops/white_tank_default_male.png'),      -- id 1
-    ('Black Shorts',  'bottom', 'male',   'default', 0, 0, 'assets/bottoms/shorts_black_default_male.png'), -- id 2
-    ('White Socks',   'socks',  'male',   'default', 0, 0, 'assets/socks/white_socks_default_male.png'),    -- id 3
+    ('White Tank',    'top',    'male',   FALSE, 'default', 0, 0, 'white_tank_default'),   -- id 1
+    ('Black Shorts',  'bottom', 'male',   FALSE, 'default', 0, 0, 'black_shorts_default'), -- id 2
+    ('White Socks',   'socks',  'male',   FALSE, 'default', 0, 0, 'white_socks_default'),  -- id 3
     -- FEMALE default items (worn on registration): id 4-6
-    ('White Tank',    'top',    'female', 'default', 0, 0, 'assets/tops/white_tank_default_female.png'),    -- id 4
-    ('Black Shorts',  'bottom', 'female', 'default', 0, 0, 'assets/bottoms/black_shorts_default_female.png'),-- id 5
-    ('White Socks',   'socks',  'female', 'default', 0, 0, 'assets/socks/white_socks_default_female.png'),  -- id 6
-    -- MALE items (all free except Nike-branded gear)
-    ('White Sneakers','shoes',  'male',   'default', 0, 0,  'assets/shoes/white_sneakers_male.png'),         -- id 7 (free)
-    ('Grey Sweatpants','bottom','male',   'coins',   0, 0,  'assets/bottoms/sweatpants_grey_male.png'),       -- id 8
-    -- FEMALE items (all free except Nike-branded gear)
-    ('White Sneakers','shoes',  'female', 'default', 0, 0,  'assets/shoes/white_sneakers_female.png'),       -- id 9 (free)
-    ('Blue Jacket',   'top',    'female', 'coins',   0, 0,  'assets/tops/blue_jacket_female.png'),           -- id 10
-    ('Blue Tank',     'top',    'female', 'coins',   0, 0,  'assets/tops/blue_tank_female.png'),             -- id 11
-    -- NOTE: temporarily free for testing. Lock/price these later per instructions.
-    ('Pink Nike Bra', 'top',    'female', 'coins',   0, 0,  'assets/tops/pink_nike_bra_female.png'),         -- id 12
-    ('Pink Nike Shorts','bottom','female','coins',   0, 0,  'assets/bottoms/pink_nike_shorts_female.png'),   -- id 13
-    ('Purple Pants',  'bottom', 'female', 'coins',   0, 0,  'assets/bottoms/purple_pants_female.png'),       -- id 14
-    -- Additional MALE items (all free for testing)
-    ('Blue Sweatpants','bottom','male',   'coins',   0, 0,  'assets/bottoms/blue_sweatpants_male.png'),      -- id 15
-    ('Red Nike Shorts','bottom','male',   'coins',   0, 0,  'assets/bottoms/red_nike_shorts_male.png'),      -- id 16
-    ('Nike Blazers',  'shoes',  'male',   'coins',   0, 0,  'assets/shoes/nike_blazers_male.png'),           -- id 17
-    ('Blue Tank',     'top',    'male',   'coins',   0, 0,  'assets/tops/blue_tank_male.png'),               -- id 18
-    ('White T-Shirt', 'top',    'male',   'coins',   0, 0,  'assets/tops/white_tshirt_male.png');            -- id 19
+    ('White Tank',    'top',    'female', FALSE, 'default', 0, 0, 'white_tank_default_female'),   -- id 4
+    ('Black Shorts',  'bottom', 'female', FALSE, 'default', 0, 0, 'black_shorts_default_female'), -- id 5
+    ('White Socks',   'socks',  'female', FALSE, 'default', 0, 0, 'white_socks_default_female'),  -- id 6
+    -- DEFAULT HAIR (shared, worn on registration): id 7. Colourable (grey/brown so far).
+    ('Default Hair',  'hair',   'male',   TRUE,  'default', 0, 0, 'default_hairstyle'),    -- id 7
+    -- MALE items (free items use 'default'; paid items use 'coins' + a cost)
+    ('White Sneakers','shoes',  'male',   FALSE, 'default', 0, 0,   'white_sneakers'),       -- id 8  (free)
+    ('Grey Sweatpants','bottom','male',   FALSE, 'default', 0, 0,   'grey_sweatpants'),      -- id 9  (free)
+    ('Blue Sweatpants','bottom','male',   FALSE, 'default', 0, 0,   'blue_sweatpants'),      -- id 10 (free)
+    ('Red Nike Shorts','bottom','male',   FALSE, 'coins',   0, 50,  'red_nike_shorts'),      -- id 11 (50 coins)
+    ('Nike Blazers',  'shoes',  'male',   FALSE, 'coins',   0, 100, 'white_nike_blazers'),   -- id 12 (100 coins)
+    ('Brown Sandals', 'shoes',  'male',   FALSE, 'coins',   0, 50,  'brown_sandels'),        -- id 13 (50 coins)
+    ('Blue Tank',     'top',    'male',   FALSE, 'default', 0, 0,   'blue_tank'),            -- id 14 (free)
+    ('White T-Shirt', 'top',    'male',   FALSE, 'default', 0, 0,   'white_tshirt'),         -- id 15 (free)
+    ('Red Nike Hoodie','top',   'male',   FALSE, 'coins',   0, 100, 'red_nike_hoodie'),      -- id 16 (100 coins)
+    -- FEMALE items (all free for testing)
+    ('White Sneakers','shoes',  'female', FALSE, 'default', 0, 0, 'white_sneakers_female'),     -- id 17
+    ('Blue Jacket',   'top',    'female', FALSE, 'coins',   0, 0, 'blue_jacket_female'),        -- id 18
+    ('Blue Tank',     'top',    'female', FALSE, 'coins',   0, 0, 'blue_tank_female'),          -- id 19
+    ('Pink Nike Bra', 'top',    'female', FALSE, 'coins',   0, 0, 'pink_nike_bra_female'),      -- id 20
+    ('Pink Nike Shorts','bottom','female',FALSE, 'coins',   0, 0, 'pink_nike_shorts_female'),   -- id 21
+    ('Purple Pants',  'bottom', 'female', FALSE, 'coins',   0, 0, 'purple_pants_female');       -- id 22
 
 
 -- ADMIN ACCOUNT (required) - so admins can create default workouts
@@ -194,20 +201,21 @@ INSERT INTO Goal (user_id, goal_description, deadline, goal_priority, is_complet
 
 -- USER COSMETICS (test data) 
 
--- Dylan (user 1) is male; he owns the male default set plus a couple of purchased items.
+-- Dylan (user 1) is male; he owns the male default set + hair, plus a couple of extras.
 INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUES
     (1, 1, TRUE, TRUE),   -- White Tank (male, equipped)
     (1, 2, TRUE, TRUE),   -- Black Shorts (male, equipped)
     (1, 3, TRUE, TRUE),   -- White Socks (male, equipped)
-    (1, 7, TRUE, FALSE),  -- White Sneakers (male, owned, not worn - socks only by default)
-    (1, 8, TRUE, FALSE);  -- Grey Sweatpants (male, owned, not equipped)
+    (1, 7, TRUE, TRUE),   -- Default Hair (equipped)
+    (1, 8, TRUE, FALSE),  -- White Sneakers (male, owned, not worn - socks only by default)
+    (1, 9, TRUE, FALSE);  -- Grey Sweatpants (male, owned, not equipped)
 
 
 -- OUTFIT SLOTS (test data) - Dylan's currently equipped outfit
 -- Wearing tank + shorts + socks (no shoes) by default.
 
-INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, accessories_id) VALUES
-    (1, 1, 2, NULL, 3, NULL);
+INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) VALUES
+    (1, 1, 2, NULL, 3, 7, NULL);
 
 
 -- STREAKS (test data) - Dylan's 2-week streak with XP multiplier

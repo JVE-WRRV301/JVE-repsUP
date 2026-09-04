@@ -312,9 +312,27 @@ public class HomeFragment extends Fragment {
         tvGoalDeadline.setText(getString(R.string.home_deadline_format,
                 dateFormat.format(goal.getDeadline())));
 
-        tvGoalTitle.setText(goal.getDescription());
+        // Description stores the title and optional notes joined by "\n---\n"
+        // (same format the schedule/goals list uses). Split them so the heading
+        // shows only the title and the subheading shows only the notes.
+        String description = goal.getDescription();
+        String title = description;
+        String notes = "";
+        if (description != null && description.contains("\n---\n")) {
+            int separatorIndex = description.indexOf("\n---\n");
+            title = description.substring(0, separatorIndex);
+            notes = description.substring(separatorIndex + 5);
+        }
+
+        tvGoalTitle.setText(title);
         tvGoalPriority.setText(goal.getPriority());
-        tvGoalDescription.setText(goal.getDescription());
+
+        if (!notes.isEmpty()) {
+            tvGoalDescription.setText(notes);
+            tvGoalDescription.setVisibility(View.VISIBLE);
+        } else {
+            tvGoalDescription.setVisibility(View.GONE);
+        }
     }
 
     /**

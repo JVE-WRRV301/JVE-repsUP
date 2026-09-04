@@ -1,6 +1,7 @@
 package com.jve.repsup;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -20,12 +21,18 @@ import com.jve.repsup.fragments.CalendarFragment;
 import com.jve.repsup.fragments.HomeFragment;
 import com.jve.repsup.fragments.MeFragment;
 import com.jve.repsup.fragments.WorkoutFragment;
+import com.jve.repsup.models.Avatar;
+import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.models.User;
+import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
 import com.jve.repsup.utils.XPCalculator;
+
+import java.util.List;
 
 /**
  * Main activity hosting the navigation shell with BottomNavigationView
@@ -54,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
     private UserRepository userRepository;
+    private CosmeticRepository cosmeticRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         userRepository = new UserRepository();
+        cosmeticRepository = new CosmeticRepository();
         fragmentManager = getSupportFragmentManager();
 
         initTopBar();
@@ -109,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
+        // Render the user's avatar face into the top-bar profile picture.
+        loadAvatarThumb(userId);
+
         userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -139,6 +151,83 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Failed to load top bar data", e);
             }
         });
+    }
+
+    /**
+     * Renders the user's avatar FACE (head + hair + neck) into the top-bar
+     * profile picture. Mirrors the full-body avatar load used on the Me tab, but
+     * crops to the face via {@link AvatarCompositor#compositeFace}.
+     *
+     * Resolution chain (all DB calls are off the UI thread):
+     *   gender (user_profile) -> avatar record -> equipped outfit items -> render.
+     * Falls back to sensible defaults so the picture still renders if a piece
+     * is missing, and leaves the placeholder in place on hard failures.
+     */
+    private void loadAvatarThumb(int userId) {
+        cosmeticRepository.getUserGender(userId, new ConnectionManager.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String gender) {
+                String g = (gender != null && !gender.trim().isEmpty())
+                        ? gender.trim().toLowerCase() : "male";
+                loadAvatarThumbBody(userId, g);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                loadAvatarThumbBody(userId, "male");
+            }
+        });
+    }
+
+    private void loadAvatarThumbBody(int userId, String gender) {
+        cosmeticRepository.getAvatar(userId, new ConnectionManager.DatabaseCallback<Avatar>() {
+            @Override
+            public void onSuccess(Avatar avatar) {
+                cosmeticRepository.getEquippedItemsForOutfit(userId,
+                        new ConnectionManager.DatabaseCallback<List<CosmeticItem>>() {
+                            @Override
+                            public void onSuccess(List<CosmeticItem> equipped) {
+                                renderAvatarThumb(gender, avatar, equipped);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                renderAvatarThumb(gender, avatar, null);
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) { /* leave placeholder image */ }
+        });
+    }
+
+    private void renderAvatarThumb(String gender, Avatar avatar, List<CosmeticItem> equipped) {
+        if (avatar == null) return;
+        final String bodyType = avatar.getBodyShape();
+        final String skinTone = avatar.getSkinTone();
+        final String hairColour = avatar.getHairColour();
+
+        final int bgColor = androidx.core.content.ContextCompat.getColor(
+                getApplicationContext(), R.color.dark_grey_surface);
+
+        new Thread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            Bitmap face = AvatarCompositor.compositeFace(
+                    getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
+            if (face == null) return;
+            // Circular, surface-backed profile picture so the head reads cleanly
+            // against a round chip regardless of the transparent face background.
+            Bitmap circle = AvatarCompositor.toCircle(face, bgColor);
+            if (face != circle) {
+                face.recycle();
+            }
+            if (circle == null) return;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed() || ivAvatarThumb == null) return;
+                ivAvatarThumb.setImageBitmap(circle);
+            });
+        }).start();
     }
 
     /**

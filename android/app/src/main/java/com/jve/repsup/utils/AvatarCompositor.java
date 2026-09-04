@@ -49,7 +49,8 @@ public class AvatarCompositor {
      * @return A composited Bitmap of the full avatar
      */
     public static Bitmap composite(Context context, String gender, String bodyType,
-                                   String skinTone, List<CosmeticItem> equippedItems) {
+                                   String skinTone, String hairColour,
+                                   List<CosmeticItem> equippedItems) {
         Bitmap result = Bitmap.createBitmap(AVATAR_SIZE, AVATAR_SIZE, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
 
@@ -68,12 +69,12 @@ public class AvatarCompositor {
         //   socks -> shoes -> bottom -> top -> hair -> accessories
         // Socks sit lowest so shoes cover them; bottoms (esp. long pants) draw
         // over both socks and shoes so trouser legs correctly overlap the footwear.
-        drawCosmeticLayer(context, canvas, socks, null);
-        drawCosmeticLayer(context, canvas, shoes, "shoes");
-        drawCosmeticLayer(context, canvas, bottom, "bottom");
-        drawCosmeticLayer(context, canvas, top, "top");
-        drawCosmeticLayer(context, canvas, hair, null);
-        drawCosmeticLayer(context, canvas, accessories, null);
+        drawClothingLayer(context, canvas, socks, gender, bodyType);
+        drawClothingLayer(context, canvas, shoes, gender, bodyType);
+        drawClothingLayer(context, canvas, bottom, gender, bodyType);
+        drawClothingLayer(context, canvas, top, gender, bodyType);
+        drawHairLayer(context, canvas, hair, gender, hairColour);
+        drawClothingLayer(context, canvas, accessories, gender, bodyType);
 
         return result;
     }
@@ -83,7 +84,7 @@ public class AvatarCompositor {
      * hair, and neck. Used to crop a face thumbnail from the full-body render.
      * Assumes the figure is drawn roughly head-at-top on the 512x512 canvas.
      */
-    private static final float FACE_CROP_FRACTION = 0.30f;
+    private static final float FACE_CROP_FRACTION = 0.22f;
 
     /**
      * Composites the avatar and returns just the head/hair/neck region as a
@@ -95,17 +96,73 @@ public class AvatarCompositor {
      * Does asset decoding (disk I/O) - call from a background thread.
      */
     public static Bitmap compositeFace(Context context, String gender, String bodyType,
-                                       String skinTone, List<CosmeticItem> equippedItems) {
-        Bitmap full = composite(context, gender, bodyType, skinTone, equippedItems);
+                                       String skinTone, String hairColour,
+                                       List<CosmeticItem> equippedItems) {
+        Bitmap full = composite(context, gender, bodyType, skinTone, hairColour, equippedItems);
 
-        // Square crop taken from the top of the figure (head + hair + neck).
-        int cropHeight = Math.round(full.getHeight() * FACE_CROP_FRACTION);
-        int size = Math.min(full.getWidth(), cropHeight);
-        int left = (full.getWidth() - size) / 2; // horizontally centered
-        int top = 0;                              // start at the very top (head)
+        int w = full.getWidth();
+        int h = full.getHeight();
 
-        // Guard against rounding pushing us out of bounds.
-        size = Math.max(1, Math.min(size, full.getHeight()));
+        // Only look at the top portion of the figure (head + hair + neck). This
+        // avoids the torso/arms pulling the crop's centre downward or sideways.
+        int scanHeight = Math.max(1, Math.round(h * FACE_CROP_FRACTION));
+
+        int[] pixels = new int[w * scanHeight];
+        full.getPixels(pixels, 0, w, 0, 0, w, scanHeight);
+
+        // Find the bounding box of the opaque (drawn) pixels in that top band, so
+        // we can centre the crop on the head itself rather than the raw canvas.
+        int minX = w, minY = scanHeight, maxX = -1, maxY = -1;
+        final int alphaThreshold = 12; // ignore near-transparent anti-aliasing fuzz
+        for (int y = 0; y < scanHeight; y++) {
+            int rowOffset = y * w;
+            for (int x = 0; x < w; x++) {
+                int alpha = (pixels[rowOffset + x] >>> 24);
+                if (alpha > alphaThreshold) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        int left;
+        int top;
+        int size;
+
+        if (maxX < minX || maxY < minY) {
+            // Nothing opaque found (shouldn't happen) - fall back to the old
+            // top-centred square crop.
+            size = Math.max(1, Math.min(w, scanHeight));
+            left = (w - size) / 2;
+            top = 0;
+        } else {
+            int contentW = maxX - minX + 1;
+            int contentH = maxY - minY + 1;
+
+            // Square crop sized to the larger content dimension, padded slightly so
+            // the head/hair doesn't touch the circle edge, then centred on the head.
+            // Kept tight so the picture zooms into the hair/face/neck (down to the
+            // t-shirt neckline) rather than showing the shoulders.
+            size = Math.max(contentW, contentH);
+            int padding = Math.round(size * 0.06f);
+            size += padding * 2;
+
+            int centerX = minX + contentW / 2;
+            int centerY = minY + contentH / 2;
+            left = centerX - size / 2;
+            top = centerY - size / 2;
+
+            // Clamp the square to the full render's bounds.
+            if (size > w) size = w;
+            if (size > h) size = h;
+            if (left < 0) left = 0;
+            if (top < 0) top = 0;
+            if (left + size > w) left = w - size;
+            if (top + size > h) top = h - size;
+        }
+
         Bitmap face = Bitmap.createBitmap(full, left, top, size, size);
 
         // createBitmap may return the same instance; only recycle if it's a copy.
@@ -126,9 +183,10 @@ public class AvatarCompositor {
      */
     public static Bitmap composite(Context context, Avatar avatar, List<CosmeticItem> equippedItems) {
         String skinTone = avatar != null ? avatar.getSkinTone() : null;
+        String hairColour = avatar != null ? avatar.getHairColour() : null;
         String bodyType = avatar != null ? avatar.getBodyShape() : null;
         // Gender is not stored on Avatar; default to male when unknown.
-        return composite(context, "male", bodyType, skinTone, equippedItems);
+        return composite(context, "male", bodyType, skinTone, hairColour, equippedItems);
     }
 
     /**
@@ -153,34 +211,123 @@ public class AvatarCompositor {
     }
 
     /**
-     * Draws a single cosmetic layer from its asset path, falling back to the
-     * bundled default drawable for the given type when the asset is unavailable.
-     *
-     * @param defaultType type key for the fallback drawable ("top"/"bottom"/"shoes"),
-     *                    or null to skip the fallback (e.g. accessories have no default)
+     * Default body type folder used when a garment has no art for the user's
+     * specific body type (only average + built exist so far).
      */
-    private static void drawCosmeticLayer(Context context, Canvas canvas,
-                                          CosmeticItem item, String defaultType) {
-        if (item == null) {
+    private static final String DEFAULT_BODY_TYPE = "average";
+
+    /**
+     * Draws a clothing layer (top/bottom/shoes/socks/accessory), resolving the
+     * per-body-type asset:
+     *   assets/{type}/{gender}-{bodytype}/{itemKey}.png
+     * Falls back to the gender's "average" folder when the specific body type
+     * has no art for this garment. The item's imageData holds the item KEY
+     * (e.g. "white_tshirt"), not a full path.
+     */
+    private static void drawClothingLayer(Context context, Canvas canvas,
+                                          CosmeticItem item, String gender, String bodyType) {
+        if (item == null || item.getImageData() == null) {
             return;
         }
-
-        Bitmap layer = AssetImageLoader.load(context, item.getImageData());
+        Bitmap layer = loadClothingBitmap(context, item, gender, bodyType);
         if (layer != null) {
-            Rect dst = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
-            canvas.drawBitmap(layer, null, dst, null);
+            canvas.drawBitmap(layer, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), null);
             layer.recycle();
+        } else {
+            Log.d(TAG, "No asset for " + item.getType() + " '" + item.getImageData() + "'");
+        }
+    }
+
+    /**
+     * Loads a clothing item's bitmap for the given gender + body type, trying the
+     * exact body type folder then falling back to the gender's "average" folder.
+     * Shared by the compositor and the locker thumbnails so they always agree.
+     * Returns null when no asset is found.
+     */
+    public static Bitmap loadClothingBitmap(Context context, CosmeticItem item,
+                                            String gender, String bodyType) {
+        if (item == null || item.getImageData() == null) {
+            return null;
+        }
+        String folderType = folderForType(item.getType() != null ? item.getType().toLowerCase() : "");
+        String g = normalize(gender, "male");
+        String bt = normalize(bodyType, DEFAULT_BODY_TYPE);
+        String key = item.getImageData().trim();
+
+        Bitmap layer = AssetImageLoader.load(context,
+                "assets/" + folderType + "/" + g + "-" + bt + "/" + key + ".png");
+        if (layer == null && !bt.equals(DEFAULT_BODY_TYPE)) {
+            layer = AssetImageLoader.load(context,
+                    "assets/" + folderType + "/" + g + "-" + DEFAULT_BODY_TYPE + "/" + key + ".png");
+        }
+        return layer;
+    }
+
+    /**
+     * Draws the hair layer, resolving by hairstyle key + colour:
+     *   assets/hair/{gender}-hair/{colour}_{styleKey}.png
+     * Falls back to the grey (default) colour when the chosen colour has no art.
+     * The item's imageData holds the hairstyle KEY (e.g. "default_hairstyle").
+     */
+    private static void drawHairLayer(Context context, Canvas canvas,
+                                      CosmeticItem hair, String gender, String hairColour) {
+        if (hair == null || hair.getImageData() == null) {
             return;
         }
-
-        // Asset missing - fall back to the bundled default for this type, if any.
-        if (defaultType != null) {
-            Log.d(TAG, "No asset for equipped " + defaultType + " (id=" + item.getCosmeticId()
-                    + "), using default layer");
-            drawLayer(context, canvas, getDefaultOutfitResource(defaultType));
+        Bitmap layer = loadHairBitmap(context, hair, gender, hairColour);
+        if (layer != null) {
+            canvas.drawBitmap(layer, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), null);
+            layer.recycle();
         } else {
-            Log.d(TAG, "No asset for equipped accessory (id=" + item.getCosmeticId()
-                    + ") and no default - skipping layer");
+            Log.d(TAG, "No hair asset for '" + hair.getImageData() + "' colour '" + hairColour + "'");
+        }
+    }
+
+    /**
+     * Loads a hairstyle's bitmap for the given gender + colour, falling back to
+     * the grey (default) colour when the chosen colour has no art. Shared by the
+     * compositor and the locker thumbnails. Returns null when no asset is found.
+     */
+    public static Bitmap loadHairBitmap(Context context, CosmeticItem hair,
+                                        String gender, String hairColour) {
+        if (hair == null || hair.getImageData() == null) {
+            return null;
+        }
+        String g = normalize(gender, "male");
+        String colour = normalize(hairColour, DEFAULT_HAIR_COLOUR);
+        String styleKey = hair.getImageData().trim();
+
+        Bitmap layer = AssetImageLoader.load(context,
+                "assets/hair/" + g + "-hair/" + colour + "_" + styleKey + ".png");
+        if (layer == null && !colour.equals(DEFAULT_HAIR_COLOUR)) {
+            layer = AssetImageLoader.load(context,
+                    "assets/hair/" + g + "-hair/" + DEFAULT_HAIR_COLOUR + "_" + styleKey + ".png");
+        }
+        return layer;
+    }
+
+    /** Default hair colour before the user picks one (matches grey base art). */
+    public static final String DEFAULT_HAIR_COLOUR = "grey";
+
+    /**
+     * Maps a cosmetic type (singular, as stored in the DB) to its asset subfolder
+     * (plural on disk): top->tops, bottom->bottoms, shoe(s)->shoes, sock(s)->socks,
+     * accessory->accessories.
+     */
+    private static String folderForType(String type) {
+        if (type == null) {
+            return "";
+        }
+        switch (type) {
+            case "top":         return "tops";
+            case "bottom":      return "bottoms";
+            case "shoe":
+            case "shoes":       return "shoes";
+            case "sock":
+            case "socks":       return "socks";
+            case "accessory":
+            case "accessories": return "accessories";
+            default:            return type;
         }
     }
 
@@ -317,6 +464,144 @@ public class AvatarCompositor {
             default:
                 return R.drawable.ic_avatar_body_default;
         }
+    }
+
+    /**
+     * Loads a locker THUMBNAIL for an item, cropped tightly to the garment so it
+     * fills the cell instead of appearing tiny in its natural body position.
+     *
+     * Each cosmetic PNG is drawn on a full-body canvas (e.g. shoes sit at the very
+     * bottom, hair at the very top, tops in the middle). If we scaled that whole
+     * canvas into a small square cell the actual item would be tiny and hard to
+     * see. Here we decode the item's art, find the bounding box of its opaque
+     * (non-transparent) pixels, and return just that region as a square bitmap.
+     * The caller can then scale that square to fill the cell, so every item —
+     * regardless of where it sits on the body — is zoomed in and centred at a
+     * comparable size.
+     *
+     * Does asset decoding (disk I/O) - call from a background thread.
+     *
+     * @param context    any Context (application context is fine)
+     * @param item       the cosmetic item to thumbnail
+     * @param gender     "male" or "female"
+     * @param bodyType   body type (for clothing) - ignored for hair
+     * @param hairColour chosen hair colour (for hair) - ignored for clothing
+     * @return a tightly-cropped square bitmap of the item, or null when no art exists
+     */
+    public static Bitmap loadItemThumbnail(Context context, CosmeticItem item,
+                                           String gender, String bodyType, String hairColour) {
+        if (item == null || item.getType() == null) {
+            return null;
+        }
+        boolean isHair = "hair".equalsIgnoreCase(item.getType());
+        Bitmap raw = isHair
+                ? loadHairBitmap(context, item, gender, hairColour)
+                : loadClothingBitmap(context, item, gender, bodyType);
+        if (raw == null) {
+            return null;
+        }
+        Bitmap cropped = cropToOpaqueSquare(raw);
+        if (cropped != raw) {
+            raw.recycle();
+        }
+        return cropped;
+    }
+
+    /**
+     * Returns a circular version of the given bitmap, for use as a round profile
+     * picture. The source is centre-cropped to a square and masked to a circle;
+     * the corners are transparent and the circle is filled with {@code bgColor}
+     * behind the image so a transparent face render (head on empty background)
+     * still reads as a solid round chip. The input bitmap is not recycled.
+     *
+     * @param src     any bitmap (typically a face render from {@link #compositeFace})
+     * @param bgColor solid colour drawn behind the image inside the circle
+     * @return a square bitmap with a circular, colour-backed region, or null when src is null
+     */
+    public static Bitmap toCircle(Bitmap src, int bgColor) {
+        if (src == null) {
+            return null;
+        }
+        int size = Math.min(src.getWidth(), src.getHeight());
+        int left = (src.getWidth() - size) / 2;
+        int top = (src.getHeight() - size) / 2;
+
+        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+
+        // Draw the filled circle (this both fills the background colour and acts as
+        // the mask); then draw the face only where the circle painted (SRC_IN),
+        // so anything outside the circle stays transparent.
+        float radius = size / 2f;
+        paint.setColor(bgColor);
+        canvas.drawCircle(radius, radius, radius, paint);
+        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_ATOP));
+        Rect srcRect = new Rect(left, top, left + size, top + size);
+        Rect dstRect = new Rect(0, 0, size, size);
+        canvas.drawBitmap(src, srcRect, dstRect, paint);
+
+        return output;
+    }
+
+    /**
+     * Crops a bitmap to the square bounding box of its non-transparent pixels,
+     * centred on that content. Adds a small padding margin so the item doesn't
+     * touch the cell edges. Returns the original bitmap when it has no detectable
+     * opaque content (fully transparent) so callers can still show something.
+     */
+    private static Bitmap cropToOpaqueSquare(Bitmap src) {
+        if (src == null) {
+            return null;
+        }
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int[] pixels = new int[w * h];
+        src.getPixels(pixels, 0, w, 0, 0, w, h);
+
+        int minX = w, minY = h, maxX = -1, maxY = -1;
+        final int alphaThreshold = 12; // ignore near-transparent anti-aliasing fuzz
+        for (int y = 0; y < h; y++) {
+            int rowOffset = y * w;
+            for (int x = 0; x < w; x++) {
+                int alpha = (pixels[rowOffset + x] >>> 24);
+                if (alpha > alphaThreshold) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        // Fully transparent (no opaque pixels found) - nothing to crop to.
+        if (maxX < minX || maxY < minY) {
+            return src;
+        }
+
+        int contentW = maxX - minX + 1;
+        int contentH = maxY - minY + 1;
+
+        // Make the crop square (the larger of the two dimensions) so every item
+        // ends up at a comparable scale and stays centred, then pad by ~12%.
+        int side = Math.max(contentW, contentH);
+        int padding = Math.round(side * 0.12f);
+        side += padding * 2;
+
+        int centerX = minX + contentW / 2;
+        int centerY = minY + contentH / 2;
+        int left = centerX - side / 2;
+        int top = centerY - side / 2;
+
+        // Clamp the square to the source bounds.
+        if (side > w) side = w;
+        if (side > h) side = h;
+        if (left < 0) left = 0;
+        if (top < 0) top = 0;
+        if (left + side > w) left = w - side;
+        if (top + side > h) top = h - side;
+
+        return Bitmap.createBitmap(src, left, top, side, side);
     }
 
     /**
