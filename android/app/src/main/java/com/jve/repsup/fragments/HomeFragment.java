@@ -89,7 +89,30 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        refreshData();
+    }
+
+    /**
+     * Called when this fragment is shown/hidden via the MainActivity hide/show
+     * tab pattern. Unlike onResume(), this fires on tab switches (the activity
+     * itself never pauses), so it's needed to refresh data after changes made
+     * on other tabs (e.g. scheduling a workout or creating a goal).
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            refreshData();
+        }
+    }
+
+    /**
+     * Reloads both today's workout and the next goal so the home page reflects
+     * the latest data.
+     */
+    private void refreshData() {
         loadTodaysWorkout();
+        loadNextGoal();
     }
 
     private void initViews(View view) {

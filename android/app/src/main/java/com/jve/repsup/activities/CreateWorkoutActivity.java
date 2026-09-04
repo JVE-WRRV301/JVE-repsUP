@@ -45,12 +45,18 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     private List<Exercise> selectedExercises = new ArrayList<>();
     private String selectedDifficulty;
 
+    // True while the user is picking additional exercises to merge into the current set.
+    private boolean addingExercises = false;
+
+    // Draft reps/weight values kept in sync with selectedExercises (by index).
+    // These survive navigating to the add-exercises sub-flow and back.
+    private List<Integer> draftReps = new ArrayList<>();
+    private List<Double> draftWeights = new ArrayList<>();
+
     // Edit mode fields
     private boolean isEditMode = false;
     private int editWorkoutId = -1;
     private String editWorkoutName = "";
-    private List<Integer> editRepsList = new ArrayList<>();
-    private List<Double> editWeightList = new ArrayList<>();
 
     private WorkoutRepository workoutRepository;
     private SessionManager sessionManager;
@@ -107,16 +113,16 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 editWorkoutName = workout.getName();
                 List<WorkoutExercise> workoutExercises = workout.getExercises();
                 selectedExercises.clear();
-                editRepsList.clear();
-                editWeightList.clear();
+                draftReps.clear();
+                draftWeights.clear();
 
                 if (workoutExercises != null) {
                     for (WorkoutExercise we : workoutExercises) {
                         Exercise exercise = we.getExercise();
                         if (exercise != null) {
                             selectedExercises.add(exercise);
-                            editRepsList.add(we.getReps());
-                            editWeightList.add(we.getTargetWeight());
+                            draftReps.add(we.getReps());
+                            draftWeights.add(we.getTargetWeight());
                         }
                     }
                 }
@@ -171,11 +177,87 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when user confirms exercise selection (Create mode).
+     * Called when user confirms exercise selection.
+     * In the normal create flow this sets the exercise list and moves to details.
+     * When adding exercises to an existing set (e.g. editing a workout), the newly
+     * selected exercises are merged into the current list, skipping duplicates and
+     * respecting the MAX_EXERCISES limit, then we return to the details screen.
      */
     public void onExercisesSelected(List<Exercise> exercises) {
-        this.selectedExercises = exercises;
-        showFragment(new UserWorkoutDetailsFragment(), true);
+        if (addingExercises) {
+            mergeExercises(exercises);
+            addingExercises = false;
+            // Pop the muscle-group and exercise-selection screens off the back stack,
+            // then show a fresh details screen so it rebuilds with the merged exercises.
+            getSupportFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStack();
+            showFragment(new UserWorkoutDetailsFragment(), false);
+        } else {
+            this.selectedExercises = exercises;
+            seedDraftsFromExercises();
+            showFragment(new UserWorkoutDetailsFragment(), true);
+        }
+    }
+
+    /**
+     * Initialises draft reps/weight lists from the current exercises' defaults.
+     */
+    private void seedDraftsFromExercises() {
+        draftReps.clear();
+        draftWeights.clear();
+        for (Exercise exercise : selectedExercises) {
+            draftReps.add(exercise.getDefaultReps());
+            draftWeights.add(0.0);
+        }
+    }
+
+    /**
+     * Merges newly selected exercises into the current selection without duplicating
+     * exercises already present, capping the total at MAX_EXERCISES.
+     */
+    private void mergeExercises(List<Exercise> newExercises) {
+        for (Exercise exercise : newExercises) {
+            if (selectedExercises.size() >= MAX_EXERCISES) {
+                Toast.makeText(this, R.string.create_workout_max_exercises_reached,
+                        Toast.LENGTH_SHORT).show();
+                break;
+            }
+            boolean alreadyPresent = false;
+            for (Exercise existing : selectedExercises) {
+                if (existing.getExerciseId() == exercise.getExerciseId()) {
+                    alreadyPresent = true;
+                    break;
+                }
+            }
+            if (!alreadyPresent) {
+                selectedExercises.add(exercise);
+                draftReps.add(exercise.getDefaultReps());
+                draftWeights.add(0.0);
+            }
+        }
+    }
+
+    /**
+     * Persists the reps/weight the user has currently entered on the details screen so
+     * the values are not lost when navigating to add more exercises.
+     */
+    public void saveDraft(List<Integer> repsList, List<Double> weightList) {
+        this.draftReps = new ArrayList<>(repsList);
+        this.draftWeights = new ArrayList<>(weightList);
+    }
+
+    /**
+     * Called from the details screen to start the add-exercises sub-flow.
+     * Reuses the muscle group -> exercise selection screens.
+     */
+    public void onAddExercisesRequested() {
+        if (selectedExercises.size() >= MAX_EXERCISES) {
+            Toast.makeText(this, R.string.create_workout_max_exercises_reached,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        addingExercises = true;
+        showFragment(new UserMuscleGroupSelectionFragment(), true);
     }
 
     /**
@@ -241,6 +323,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
         }
 
         this.selectedExercises = new ArrayList<>(exercises);
+        seedDraftsFromExercises();
         showFragment(new UserWorkoutDetailsFragment(), true);
     }
 
@@ -351,11 +434,11 @@ public class CreateWorkoutActivity extends AppCompatActivity {
         return editWorkoutName;
     }
 
-    public List<Integer> getEditRepsList() {
-        return editRepsList;
+    public List<Integer> getDraftReps() {
+        return draftReps;
     }
 
-    public List<Double> getEditWeightList() {
-        return editWeightList;
+    public List<Double> getDraftWeights() {
+        return draftWeights;
     }
 }
