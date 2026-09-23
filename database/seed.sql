@@ -85,23 +85,50 @@ INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, is_colourable, 
     ('White Socks',   'socks',  'female', FALSE, 'default', 0, 0, 'white_socks_default_female'),  -- id 6
     -- DEFAULT HAIR (shared, worn on registration): id 7. Colourable (grey/brown so far).
     ('Default Hair',  'hair',   'male',   TRUE,  'default', 0, 0, 'default_hairstyle'),    -- id 7
-    -- MALE items (free items use 'default'; paid items use 'coins' + a cost)
-    ('White Sneakers','shoes',  'male',   FALSE, 'default', 0, 0,   'white_sneakers'),       -- id 8  (free)
-    ('Grey Sweatpants','bottom','male',   FALSE, 'default', 0, 0,   'grey_sweatpants'),      -- id 9  (free)
-    ('Blue Sweatpants','bottom','male',   FALSE, 'default', 0, 0,   'blue_sweatpants'),      -- id 10 (free)
-    ('Red Nike Shorts','bottom','male',   FALSE, 'coins',   0, 50,  'red_nike_shorts'),      -- id 11 (50 coins)
-    ('Nike Blazers',  'shoes',  'male',   FALSE, 'coins',   0, 100, 'white_nike_blazers'),   -- id 12 (100 coins)
-    ('Brown Sandals', 'shoes',  'male',   FALSE, 'coins',   0, 50,  'brown_sandels'),        -- id 13 (50 coins)
-    ('Blue Tank',     'top',    'male',   FALSE, 'default', 0, 0,   'blue_tank'),            -- id 14 (free)
-    ('White T-Shirt', 'top',    'male',   FALSE, 'default', 0, 0,   'white_tshirt'),         -- id 15 (free)
-    ('Red Nike Hoodie','top',   'male',   FALSE, 'coins',   0, 100, 'red_nike_hoodie'),      -- id 16 (100 coins)
+    -- MALE items (all free for testing so items can be tried on freely)
+    ('White Sneakers','shoes',  'male',   FALSE, 'default', 0, 0, 'white_sneakers'),       -- id 8  (free)
+    ('Grey Sweatpants','bottom','male',   FALSE, 'default', 0, 0, 'grey_sweatpants'),      -- id 9  (free)
+    ('Blue Sweatpants','bottom','male',   FALSE, 'default', 0, 0, 'blue_sweatpants'),      -- id 10 (free)
+    ('Red Nike Shorts','bottom','male',   FALSE, 'default', 0, 0, 'red_nike_shorts'),      -- id 11 (free)
+    ('Nike Blazers',  'shoes',  'male',   FALSE, 'default', 0, 0, 'white_nike_blazers'),   -- id 12 (free)
+    ('Brown Sandals', 'shoes',  'male',   FALSE, 'default', 0, 0, 'brown_sandels'),        -- id 13 (free)
+    ('Blue Tank',     'top',    'male',   FALSE, 'default', 0, 0, 'blue_tank'),            -- id 14 (free)
+    ('White T-Shirt', 'top',    'male',   FALSE, 'default', 0, 0, 'white_tshirt'),         -- id 15 (free)
+    ('Red Nike Hoodie','top',   'male',   FALSE, 'default', 0, 0, 'red_nike_hoodie'),      -- id 16 (free)
     -- FEMALE items (all free for testing)
     ('White Sneakers','shoes',  'female', FALSE, 'default', 0, 0, 'white_sneakers_female'),     -- id 17
-    ('Blue Jacket',   'top',    'female', FALSE, 'coins',   0, 0, 'blue_jacket_female'),        -- id 18
-    ('Blue Tank',     'top',    'female', FALSE, 'coins',   0, 0, 'blue_tank_female'),          -- id 19
-    ('Pink Nike Bra', 'top',    'female', FALSE, 'coins',   0, 0, 'pink_nike_bra_female'),      -- id 20
-    ('Pink Nike Shorts','bottom','female',FALSE, 'coins',   0, 0, 'pink_nike_shorts_female'),   -- id 21
-    ('Purple Pants',  'bottom', 'female', FALSE, 'coins',   0, 0, 'purple_pants_female');       -- id 22
+    ('Blue Jacket',   'top',    'female', FALSE, 'default', 0, 0, 'blue_jacket_female'),        -- id 18
+    ('Blue Tank',     'top',    'female', FALSE, 'default', 0, 0, 'blue_tank_female'),          -- id 19
+    ('Pink Nike Bra', 'top',    'female', FALSE, 'default', 0, 0, 'pink_nike_bra_female'),      -- id 20
+    ('Pink Nike Shorts','bottom','female',FALSE, 'default', 0, 0, 'pink_nike_shorts_female'),   -- id 21
+    ('Purple Pants',  'bottom', 'female', FALSE, 'default', 0, 0, 'purple_pants_female'),       -- id 22
+    -- NEW MALE shoes (free for testing): id 23-24
+    ('Converse',      'shoes',  'male',   FALSE, 'default', 0, 0, 'black_converse_sneakers'),   -- id 23
+    ('Running Shoes', 'shoes',  'male',   FALSE, 'default', 0, 0, 'blue_running_shoes'),        -- id 24
+    -- NEW MALE hair (set-colour styles: is_colourable=FALSE, colour baked into the
+    -- key; free for testing): id 25-30. imageData is the FULL filename stem.
+    ('Cornrows',      'hair',   'male',   FALSE, 'default', 0, 0, 'black_cornrows_hairstyle'),      -- id 25
+    ('Flynn',         'hair',   'male',   FALSE, 'default', 0, 0, 'black_flynn_hairstyle'),         -- id 26
+    ('Short Afro',    'hair',   'male',   FALSE, 'default', 0, 0, 'black_short_afro_hairstyle'),    -- id 27
+    ('Surfer Curls',  'hair',   'male',   FALSE, 'default', 0, 0, 'blonde_surfer_curly_hairstyle'), -- id 28
+    ('Buzz Cut',      'hair',   'male',   FALSE, 'default', 0, 0, 'brown_buzz_hairstyle'),          -- id 29
+    ('Short Dreads',  'hair',   'male',   FALSE, 'default', 0, 0, 'brown_short_dreads_hairstyle'),  -- id 30
+    -- PLACEHOLDER (non-wearable) filler items: unlock_type='placeholder'. They sit
+    -- LOCKED in the locker as "coming soon". imageData is the .jpeg filename stem in
+    -- assets/{type}/male-placeholders/. Display price shown but not purchasable yet.
+    ('Adidas Hoodie',        'top',    'male', FALSE, 'placeholder', 0, 100, 'black_adidas_hoodie'),       -- id 31
+    ('Compression Shirt',    'top',    'male', FALSE, 'placeholder', 0, 100, 'black_compression_shirt'),   -- id 32
+    ('Blue T-Shirt',         'top',    'male', FALSE, 'placeholder', 0, 100, 'blue_tshirt'),               -- id 33
+    ('Under Armour Shirt',   'top',    'male', FALSE, 'placeholder', 0, 100, 'navy_under_armour_shirt'),   -- id 34
+    ('Red T-Shirt',          'top',    'male', FALSE, 'placeholder', 0, 100, 'red_tshirt'),                -- id 35
+    ('Adidas Shorts',        'bottom', 'male', FALSE, 'placeholder', 0, 100, 'black_adidas_shorts'),       -- id 36
+    ('Black Sweatpants',     'bottom', 'male', FALSE, 'placeholder', 0, 100, 'black_sweatpants'),          -- id 37
+    ('Grey Shorts',          'bottom', 'male', FALSE, 'placeholder', 0, 100, 'grey_shorts'),               -- id 38
+    ('Under Armour Shorts',  'bottom', 'male', FALSE, 'placeholder', 0, 100, 'navy_under_armour_shorts'),  -- id 39
+    ('Green Jordans',        'shoes',  'male', FALSE, 'placeholder', 0, 100, 'green_jordan_sneakers_placeholder'),  -- id 40
+    ('Pink Running Shoes',   'shoes',  'male', FALSE, 'placeholder', 0, 100, 'pink_running_shoes_placeholder'),     -- id 41
+    ('Red Jordans',          'shoes',  'male', FALSE, 'placeholder', 0, 100, 'red_jordan_sneakers_placeholder'),    -- id 42
+    ('Adidas Sambas',        'shoes',  'male', FALSE, 'placeholder', 0, 100, 'white_adidas_sambas_placeholder');    -- id 43
 
 
 -- ADMIN ACCOUNT (required) - so admins can create default workouts
