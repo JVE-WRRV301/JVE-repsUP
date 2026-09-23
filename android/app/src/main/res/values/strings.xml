@@ -465,6 +465,7 @@
     <string name="locker_purchase_prompt">Purchase for %d coins?</string>
     <string name="locker_not_enough_coins">Not enough coins</string>
     <string name="locker_item_purchased">Purchased %s!</string>
+    <string name="locker_item_coming_soon">Coming soon!</string>
     <string name="locker_outfit_saved">Outfit saved!</string>
     <string name="locker_save_error">Failed to save outfit</string>
     <string name="locker_tab_body">Body</string>

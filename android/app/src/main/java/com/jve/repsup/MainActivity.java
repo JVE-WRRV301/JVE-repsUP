@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private UserRepository userRepository;
     private CosmeticRepository cosmeticRepository;
 
+    /** Guards the top-bar avatar face render so it runs once, not on every resume. */
+    private boolean avatarThumbLoaded;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,8 +121,14 @@ public class MainActivity extends AppCompatActivity {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
-        // Render the user's avatar face into the top-bar profile picture.
-        loadAvatarThumb(userId);
+        // Render the user's avatar face into the top-bar profile picture. The
+        // avatar rarely changes, so render it once per session (not on every
+        // resume) to avoid re-running its 3-query load chain each time a tab is
+        // shown. The locker calls refreshAvatarThumb() when the avatar changes.
+        if (!avatarThumbLoaded) {
+            avatarThumbLoaded = true;
+            loadAvatarThumb(userId);
+        }
 
         userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
             @Override
@@ -151,6 +160,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Failed to load top bar data", e);
             }
         });
+    }
+
+    /**
+     * Forces the top-bar avatar face to re-render (e.g. after the user changes
+     * their outfit/hair/skin in the locker). Safe to call from any fragment.
+     */
+    public void refreshAvatarThumb() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+        avatarThumbLoaded = true;
+        loadAvatarThumb(userId);
     }
 
     /**

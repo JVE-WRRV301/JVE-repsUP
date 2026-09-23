@@ -631,6 +631,18 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         // so the grid shows the exact garment/hair art (with colour), body-type aware.
         loadItemThumbnail(imgItem, item);
 
+        // Placeholder items are non-wearable filler: always shown locked, never
+        // equippable, and tapping tells the user they're coming soon.
+        if (AvatarCompositor.isPlaceholder(item)) {
+            container.setBackgroundResource(R.drawable.bg_placeholder_item);
+            imgCheck.setVisibility(View.GONE);
+            lockOverlay.setVisibility(View.VISIBLE);
+            txtPrice.setText(String.valueOf(item.getCoinCost()));
+            view.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.locker_item_coming_soon, Toast.LENGTH_SHORT).show());
+            return view;
+        }
+
         // Free items (cost 0) are treated as owned so they can be equipped directly,
         // without a 0-coin "purchase" step. Paid items must be bought first.
         boolean owned = item.getCoinCost() <= 0 || ownedCosmeticIds.contains(item.getCosmeticId());

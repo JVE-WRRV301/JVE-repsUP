@@ -294,14 +294,24 @@ public class AvatarCompositor {
             return null;
         }
         String g = normalize(gender, "male");
-        String colour = normalize(hairColour, DEFAULT_HAIR_COLOUR);
-        String styleKey = hair.getImageData().trim();
+        String key = hair.getImageData().trim();
 
+        // Set-colour (non-colourable) hairstyles bake the colour into the file, so
+        // imageData already holds the full filename stem (e.g. "black_cornrows_hairstyle").
+        // Load it as-is without prepending the chosen colour.
+        if (!hair.isColourable()) {
+            return AssetImageLoader.load(context,
+                    "assets/hair/" + g + "-hair/" + key + ".png");
+        }
+
+        // Colourable hairstyles (e.g. the default) store only the style key; the
+        // compositor builds {colour}_{styleKey}.png and falls back to grey.
+        String colour = normalize(hairColour, DEFAULT_HAIR_COLOUR);
         Bitmap layer = AssetImageLoader.load(context,
-                "assets/hair/" + g + "-hair/" + colour + "_" + styleKey + ".png");
+                "assets/hair/" + g + "-hair/" + colour + "_" + key + ".png");
         if (layer == null && !colour.equals(DEFAULT_HAIR_COLOUR)) {
             layer = AssetImageLoader.load(context,
-                    "assets/hair/" + g + "-hair/" + DEFAULT_HAIR_COLOUR + "_" + styleKey + ".png");
+                    "assets/hair/" + g + "-hair/" + DEFAULT_HAIR_COLOUR + "_" + key + ".png");
         }
         return layer;
     }
@@ -493,6 +503,14 @@ public class AvatarCompositor {
         if (item == null || item.getType() == null) {
             return null;
         }
+
+        // Placeholder items are non-wearable filler: a single opaque .jpeg per type
+        // (not body-type specific) shown locked in the locker. Load it whole (no
+        // opaque-crop, since the whole image is opaque on a grey background).
+        if (isPlaceholder(item)) {
+            return loadPlaceholderBitmap(context, item, gender);
+        }
+
         boolean isHair = "hair".equalsIgnoreCase(item.getType());
         Bitmap raw = isHair
                 ? loadHairBitmap(context, item, gender, hairColour)
@@ -505,6 +523,34 @@ public class AvatarCompositor {
             raw.recycle();
         }
         return cropped;
+    }
+
+    /**
+     * Unlock type marking a non-wearable placeholder cosmetic. These sit locked in
+     * the locker as "coming soon" filler and have no compositable art.
+     */
+    public static final String PLACEHOLDER_UNLOCK_TYPE = "placeholder";
+
+    /** True when the item is a non-wearable placeholder filler item. */
+    public static boolean isPlaceholder(CosmeticItem item) {
+        return item != null && PLACEHOLDER_UNLOCK_TYPE.equalsIgnoreCase(item.getUnlockType());
+    }
+
+    /**
+     * Loads a placeholder item's thumbnail from its single per-type folder:
+     *   assets/{type}/{gender}-placeholders/{key}.jpeg
+     * Placeholders aren't body-type specific and use the .jpeg extension.
+     * Returns null when the asset is missing.
+     */
+    public static Bitmap loadPlaceholderBitmap(Context context, CosmeticItem item, String gender) {
+        if (item == null || item.getImageData() == null) {
+            return null;
+        }
+        String folderType = folderForType(item.getType() != null ? item.getType().toLowerCase() : "");
+        String g = normalize(gender, "male");
+        String key = item.getImageData().trim();
+        return AssetImageLoader.load(context,
+                "assets/" + folderType + "/" + g + "-placeholders/" + key + ".jpeg");
     }
 
     /**
