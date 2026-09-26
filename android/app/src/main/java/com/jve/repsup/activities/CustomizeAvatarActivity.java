@@ -52,22 +52,23 @@ import java.util.Set;
  */
 public class CustomizeAvatarActivity extends AppCompatActivity {
 
-    private static final String[] CATEGORIES = {"Body", "Face", "Hair", "Clothing"};
-    private static final String[] FACE_SUBTABS = {"Nose", "Eyes", "Mouth", "Eyebrows"};
-    private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes", "Accessories", "Special"};
+    private static final String[] CATEGORIES = {"Body", "Hair", "Clothing"};
+    private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes", "Special"};
 
     // Skin tones: names stored in Avatar.skin_tone, with a representative swatch each.
-    private static final String[] SKIN_TONE_NAMES = {"fair", "beige", "tan", "dark"};
-    private static final String[] SKIN_TONE_SWATCHES = {"#F0CB8B", "#D19B5B", "#A0683B", "#5C3A1E"};
+    private static final String[] SKIN_TONE_NAMES = {"fair", "tan", "dark"};
+    private static final String[] SKIN_TONE_SWATCHES = {"#F0CB8B", "#A0683B", "#5C3A1E"};
 
     // Hair colours: names stored in Avatar.hair_colour, with a representative swatch each.
     // Colours without art yet fall back to grey in the compositor.
     private static final String[] HAIR_COLOUR_NAMES = {"grey", "brown", "black", "blonde", "ginger"};
     private static final String[] HAIR_COLOUR_SWATCHES = {"#9E9E9E", "#5A3A1E", "#1A1A1A", "#E6C878", "#B0592B"};
 
-    // Body types the user can pick on the Body tab (stored in Avatar.body_shape).
+    // Body types the user can pick on the Body tab (stored in Avatar.body_shape),
+    // gender-specific since the app only ships art for these three per gender.
     // Each is previewed with the avatar_{gender}_{bodytype} drawable.
-    private static final String[] BODY_TYPES = {"skinny", "average", "toned", "built", "chubby", "overweight"};
+    private static final String[] MALE_BODY_TYPES = {"average", "built", "chubby"};
+    private static final String[] FEMALE_BODY_TYPES = {"average", "toned", "chubby"};
 
     // Views
     private ImageView imgAvatarPreview;
@@ -94,7 +95,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
     private String currentCategory = "Body";
     private String currentSubcategory = "";
-    private int selectedSkinColorIndex = 0;
+    private int selectedSkinColorIndex = -1; // -1 = no tone chosen yet (grey default)
     private int selectedHairColourIndex = 0;
     private String userGender = "male"; // loaded from User_Profile; drives base body art
 
@@ -116,7 +117,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                discardAndFinish();
+                confirmDiscardOrFinish();
             }
         });
 
@@ -204,7 +205,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> discardAndFinish());
+        btnBack.setOnClickListener(v -> confirmDiscardOrFinish());
         btnSave.setOnClickListener(v -> saveEquippedItems());
     }
 
@@ -214,9 +215,6 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         switch (currentCategory) {
             case "Body":
                 showBodyTab();
-                break;
-            case "Face":
-                showFaceTab();
                 break;
             case "Hair":
                 showHairTab();
@@ -232,14 +230,6 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         skinColorScroll.setVisibility(View.VISIBLE);
         populateSkinColors();
         populateBodyPlaceholders();
-    }
-
-    private void showFaceTab() {
-        skinColorScroll.setVisibility(View.GONE);
-        setupSubTabs(FACE_SUBTABS);
-        tabSubcategories.setVisibility(View.VISIBLE);
-        currentSubcategory = FACE_SUBTABS[0];
-        populateFacePlaceholders();
     }
 
     private void showHairTab() {
@@ -308,14 +298,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         if (userAvatar != null) {
             userAvatar.setHairColour(colour);
         }
-        cosmeticRepository.updateHairColour(userId, colour, new DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer result) { /* no-op */ }
-
-            @Override
-            public void onError(Exception e) { /* best-effort; preview still updates */ }
-        });
-
+        // Held locally only - persisted on Save (see saveEquippedItems).
         populateHairColours(); // refresh selection ring
         updateAvatarPreview();
     }
@@ -377,9 +360,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     }
 
     private void onSubcategoryChanged() {
-        if ("Face".equals(currentCategory)) {
-            populateFacePlaceholders();
-        } else if ("Clothing".equals(currentCategory)) {
+        if ("Clothing".equals(currentCategory)) {
             populateClothingTab();
         }
     }
@@ -391,11 +372,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
      */
     private String currentClothingType() {
         switch (currentSubcategory) {
-            case "Top":         return "top";
-            case "Bottom":      return "bottom";
-            case "Shoes":       return "shoes";
-            case "Accessories": return "accessory";
-            default:            return null; // "Special" has no items yet
+            case "Top":     return "top";
+            case "Bottom":  return "bottom";
+            case "Shoes":   return "shoes";
+            default:        return null; // "Special" has no items yet
         }
     }
 
@@ -438,6 +418,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
      * implying the user has chosen a tone.
      */
     private void syncSelectedToneFromAvatar() {
+        // Default to "no selection" so a brand-new (grey) avatar shows no ring.
+        selectedSkinColorIndex = -1;
         if (userAvatar == null || userAvatar.getSkinTone() == null) {
             return;
         }
@@ -448,6 +430,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
                 return;
             }
         }
+        // Tone is grey/unset or no longer offered - leave nothing selected.
     }
 
     /**
@@ -463,16 +446,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             userAvatar.setSkinTone(tone);
         }
 
-        // Persist the tone immediately (avatar body is a per-user attribute,
-        // not part of the outfit save).
-        cosmeticRepository.updateSkinTone(userId, tone, new DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer result) { /* no-op */ }
-
-            @Override
-            public void onError(Exception e) { /* best-effort; preview still updates */ }
-        });
-
+        // Held locally only - persisted (with body, hair colour, and outfit) when
+        // the user taps Save. Nothing is written to the DB here, so backing out
+        // without saving discards the change.
         populateSkinColors(); // refresh selection ring
         updateAvatarPreview();
     }
@@ -485,7 +461,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         String currentBody = userAvatar != null && userAvatar.getBodyShape() != null
                 ? userAvatar.getBodyShape().trim().toLowerCase() : "";
 
-        for (String bodyType : BODY_TYPES) {
+        String[] bodyTypes = "female".equalsIgnoreCase(userGender)
+                ? FEMALE_BODY_TYPES : MALE_BODY_TYPES;
+        for (String bodyType : bodyTypes) {
             gridItems.addView(createBodyTypeView(bodyType, bodyType.equals(currentBody)));
         }
     }
@@ -543,24 +521,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         userAvatar.setBodyShape(bodyType);
         hasUnsavedChanges = true;
 
-        cosmeticRepository.updateBodyShape(userId, bodyType, new DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer result) { /* no-op */ }
-
-            @Override
-            public void onError(Exception e) { /* best-effort; preview still updates */ }
-        });
-
+        // Held locally only - persisted on Save (see saveEquippedItems).
         populateBodyPlaceholders(); // refresh selection highlight
         updateAvatarPreview();
-    }
-
-    // ==================== FACE TAB (no cosmetic data yet) ====================
-
-    private void populateFacePlaceholders() {
-        // Face details are stored on Avatar.facial_details, not as cosmetics.
-        // There is no Cosmetic_Item data backing this tab yet, so show empty.
-        showEmptyGrid();
     }
 
     // ==================== REAL DB-BACKED GRID ====================
@@ -684,8 +647,12 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         }
 
         final String gender = userGender;
-        final String bodyType = userAvatar != null ? userAvatar.getBodyShape() : null;
-        final String hairColour = userAvatar != null ? userAvatar.getHairColour() : null;
+        // Thumbnails always use the AVERAGE body art (chubby/built garments can have
+        // arm/hand cut-outs that look odd shrunk into a cell) and the GREY default
+        // hair colour, regardless of the avatar's actual body/colour. The item still
+        // renders correctly on the real body when equipped.
+        final String bodyType = "average";
+        final String hairColour = AvatarCompositor.DEFAULT_HAIR_COLOUR;
 
         new Thread(() -> {
             // Load a tightly-cropped thumbnail so the item is zoomed in and centred
@@ -779,9 +746,6 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         switch (currentCategory) {
             case "Body":
                 populateBodyPlaceholders();
-                break;
-            case "Face":
-                populateFacePlaceholders();
                 break;
             case "Hair":
                 populateGridForType("hair");
@@ -930,8 +894,35 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     // ==================== SAVE / DISCARD ====================
 
     private void saveEquippedItems() {
-        List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
+        // An avatar must be wearing at least a top and a bottom - no shirtless or
+        // pantless avatars allowed.
+        if (!localEquipped.containsKey("top") || !localEquipped.containsKey("bottom")) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.locker_invalid_outfit_title)
+                    .setMessage(R.string.locker_top_bottom_required)
+                    .setPositiveButton(R.string.locker_invalid_outfit_ok, (d, w) -> d.dismiss())
+                    .show();
+            return;
+        }
 
+        // Persist the avatar body attributes (skin tone, body shape, hair colour)
+        // together with the outfit. These were held locally until now so that
+        // backing out without saving discards them.
+        final String skinTone = userAvatar != null ? userAvatar.getSkinTone() : null;
+        final String bodyShape = userAvatar != null ? userAvatar.getBodyShape() : null;
+        final String hairColour = userAvatar != null ? userAvatar.getHairColour() : null;
+
+        if (skinTone != null) {
+            cosmeticRepository.updateSkinTone(userId, skinTone, noOpCallback());
+        }
+        if (bodyShape != null) {
+            cosmeticRepository.updateBodyShape(userId, bodyShape, noOpCallback());
+        }
+        if (hairColour != null) {
+            cosmeticRepository.updateHairColour(userId, hairColour, noOpCallback());
+        }
+
+        List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
         cosmeticRepository.saveAllEquipped(userId, equippedList, new DatabaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
@@ -950,6 +941,35 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
                                 getString(R.string.locker_save_error), Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    /** A no-op DB callback for best-effort avatar-attribute writes during save. */
+    private DatabaseCallback<Integer> noOpCallback() {
+        return new DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) { /* no-op */ }
+
+            @Override
+            public void onError(Exception e) { /* best-effort */ }
+        };
+    }
+
+    /**
+     * Handles a back/exit request: if there are unsaved avatar changes, confirm
+     * before discarding; otherwise finish immediately. Nothing is written to the
+     * DB until Save, so discarding simply exits without persisting.
+     */
+    private void confirmDiscardOrFinish() {
+        if (!hasUnsavedChanges) {
+            finish();
+            return;
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.locker_discard_title)
+                .setMessage(R.string.locker_discard_message)
+                .setPositiveButton(R.string.locker_discard_confirm, (d, w) -> discardAndFinish())
+                .setNegativeButton(R.string.locker_discard_cancel, (d, w) -> d.dismiss())
+                .show();
     }
 
     private void discardAndFinish() {
