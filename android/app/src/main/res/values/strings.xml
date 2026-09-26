@@ -466,6 +466,13 @@
     <string name="locker_not_enough_coins">Not enough coins</string>
     <string name="locker_item_purchased">Purchased %s!</string>
     <string name="locker_item_coming_soon">Coming soon!</string>
+    <string name="locker_top_bottom_required">Your avatar needs to be wearing a top and a bottom before you can save.</string>
+    <string name="locker_invalid_outfit_title">Incomplete outfit</string>
+    <string name="locker_invalid_outfit_ok">Got it</string>
+    <string name="locker_discard_title">Discard changes?</string>
+    <string name="locker_discard_message">You have unsaved changes to your avatar. Leaving now will discard them.</string>
+    <string name="locker_discard_confirm">Discard</string>
+    <string name="locker_discard_cancel">Keep editing</string>
     <string name="locker_outfit_saved">Outfit saved!</string>
     <string name="locker_save_error">Failed to save outfit</string>
     <string name="locker_tab_body">Body</string>

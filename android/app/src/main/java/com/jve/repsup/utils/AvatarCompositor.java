@@ -305,16 +305,36 @@ public class AvatarCompositor {
         }
 
         // Colourable hairstyles (e.g. the default) store only the style key; the
-        // compositor builds {colour}_{styleKey}.png and falls back to grey.
+        // compositor builds {colour}_{styleKey}.png. Try the chosen colour first,
+        // then grey, then any other known colour so the hair still renders even
+        // when a particular colour has no art for this gender (e.g. female hair
+        // has no grey_default_hairstyle, so a new grey-default female still shows
+        // hair by falling through to brown/black/etc.).
         String colour = normalize(hairColour, DEFAULT_HAIR_COLOUR);
         Bitmap layer = AssetImageLoader.load(context,
                 "assets/hair/" + g + "-hair/" + colour + "_" + key + ".png");
-        if (layer == null && !colour.equals(DEFAULT_HAIR_COLOUR)) {
-            layer = AssetImageLoader.load(context,
-                    "assets/hair/" + g + "-hair/" + DEFAULT_HAIR_COLOUR + "_" + key + ".png");
+        if (layer != null) {
+            return layer;
         }
-        return layer;
+        for (String fallback : HAIR_COLOUR_FALLBACKS) {
+            if (fallback.equals(colour)) {
+                continue;
+            }
+            layer = AssetImageLoader.load(context,
+                    "assets/hair/" + g + "-hair/" + fallback + "_" + key + ".png");
+            if (layer != null) {
+                return layer;
+            }
+        }
+        return null;
     }
+
+    /**
+     * Colour fallbacks for colourable hair when the chosen colour has no art.
+     * Ordered so grey (the pre-selection default) is tried first, then common
+     * colours. Ensures hair renders even where a gender lacks a grey variant.
+     */
+    private static final String[] HAIR_COLOUR_FALLBACKS = {"grey", "brown", "black", "blonde", "ginger"};
 
     /** Default hair colour before the user picks one (matches grey base art). */
     public static final String DEFAULT_HAIR_COLOUR = "grey";
@@ -346,10 +366,10 @@ public class AvatarCompositor {
      * This is a single pre-rendered image (greyscale, default outfit, waving pose)
      * based on gender and body type only.
      *
-     * Body types: skinny, average, toned, built, chubby, overweight
+     * Supported body types: male = average/built/chubby, female = average/toned/chubby.
      *
      * @param gender   "male" or "female"
-     * @param bodyType "skinny", "average", "toned", "built", "chubby", or "overweight"
+     * @param bodyType male: "average"/"built"/"chubby"; female: "average"/"toned"/"chubby"
      * @return Drawable resource ID for the full initial avatar
      */
     public static int getInitialAvatarResource(String gender, String bodyType) {
@@ -360,35 +380,28 @@ public class AvatarCompositor {
         String g = gender.toLowerCase().trim();
         String bt = bodyType.toLowerCase().trim();
 
+        // Only three body types per gender are supported:
+        //   Male:   average, built, chubby
+        //   Female: average, toned, chubby
         String key = g + "_" + bt;
         switch (key) {
-            case "male_skinny":
-                return R.drawable.avatar_male_skinny;
             case "male_average":
                 return R.drawable.avatar_male_average;
-            case "male_toned":
-                return R.drawable.avatar_male_toned;
             case "male_built":
                 return R.drawable.avatar_male_built;
             case "male_chubby":
                 return R.drawable.avatar_male_chubby;
-            case "male_overweight":
-                return R.drawable.avatar_male_overweight;
-            case "female_skinny":
-                return R.drawable.avatar_female_skinny;
             case "female_average":
                 return R.drawable.avatar_female_average;
             case "female_toned":
                 return R.drawable.avatar_female_toned;
-            case "female_built":
-                return R.drawable.avatar_female_built;
             case "female_chubby":
                 return R.drawable.avatar_female_chubby;
-            case "female_overweight":
-                return R.drawable.avatar_female_overweight;
             default:
-                // Default to male average if unknown combination
-                return R.drawable.avatar_male_average;
+                // Default to average of the requested gender for any unknown combo.
+                return "female".equals(g)
+                        ? R.drawable.avatar_female_average
+                        : R.drawable.avatar_male_average;
         }
     }
 
@@ -516,7 +529,11 @@ public class AvatarCompositor {
                 ? loadHairBitmap(context, item, gender, hairColour)
                 : loadClothingBitmap(context, item, gender, bodyType);
         if (raw == null) {
-            return null;
+            // Some wearable items intentionally have no body overlay (e.g. the
+            // female default bottom: the base body already shows black shorts, so
+            // it draws nothing when equipped). For the locker we still want a
+            // thumbnail, so fall back to a same-key .jpeg in the placeholder folder.
+            return loadPlaceholderBitmap(context, item, gender);
         }
         Bitmap cropped = cropToOpaqueSquare(raw);
         if (cropped != raw) {

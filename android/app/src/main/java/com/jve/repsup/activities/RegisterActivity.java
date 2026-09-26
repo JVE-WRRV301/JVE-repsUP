@@ -318,18 +318,83 @@ public class RegisterActivity extends AppCompatActivity {
         // Disable button while processing
         btnGetStarted.setEnabled(false);
 
-        // Final username uniqueness check before registering
-        userRepository.isUsernameTaken(username, new ConnectionManager.DatabaseCallback<Boolean>() {
+        // Register directly. The `username` and `email` columns are UNIQUE in the
+        // schema, so the INSERT itself is the source of truth for uniqueness - no
+        // separate pre-check round-trip needed.
+        performRegistration(name, username, email, password);
+    }
+
+    /**
+     * Inserts the new user with a single INSERT (no blind retry - the INSERT is not
+     * idempotent, so retrying could insert twice or cause a false "username taken").
+     *
+     * On error we don't assume failure: a slow connection can insert the row but
+     * fail to report success. So we verify by looking the user up. If the row
+     * exists, the insert actually worked and we proceed; otherwise we show the
+     * appropriate error (username/email taken vs. a real connection failure).
+     */
+    private void performRegistration(String name, String username, String email, String password) {
+        User newUser = new User();
+        newUser.setFirstName(name);
+        newUser.setUsername(username);
+        newUser.setEmail(email);
+        newUser.setPassword(password);
+
+        userRepository.register(newUser, new ConnectionManager.DatabaseCallback<Long>() {
             @Override
-            public void onSuccess(Boolean isTaken) {
-                runOnUiThread(() -> {
-                    if (isTaken) {
-                        showUsernameError(getString(R.string.error_username_taken));
-                        btnGetStarted.setEnabled(true);
-                    } else {
-                        performRegistration(name, username, email, password);
-                    }
-                });
+            public void onSuccess(Long userId) {
+                proceedToAssessment(userId.intValue(), username, name);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // The INSERT may have actually committed even though the response
+                // failed (slow connection). Verify before reporting anything.
+                verifyRegistrationOutcome(name, username, email, password);
+            }
+        });
+    }
+
+    /**
+     * Recovers from an ambiguous register() error by checking the actual DB state.
+     * Looks the user up by their exact credentials:
+     *   - found  -> the INSERT succeeded despite the error; log in and continue.
+     *   - absent -> the INSERT didn't happen. If the username is now taken by a
+     *               different account it's a real conflict; otherwise it was a
+     *               genuine connection failure.
+     */
+    private void verifyRegistrationOutcome(String name, String username, String email, String password) {
+        userRepository.authenticate(username, password, new ConnectionManager.DatabaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null) {
+                    // Our own row landed - registration effectively succeeded.
+                    proceedToAssessment(user.getUserId(), username, name);
+                } else {
+                    // Row isn't ours. Distinguish "username already taken" from a
+                    // plain failure by checking if the username exists at all.
+                    userRepository.isUsernameTaken(username, new ConnectionManager.DatabaseCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean taken) {
+                            runOnUiThread(() -> {
+                                if (Boolean.TRUE.equals(taken)) {
+                                    showUsernameError(getString(R.string.error_username_taken));
+                                } else {
+                                    showError(tvNameError, getString(R.string.error_registration_failed));
+                                }
+                                btnGetStarted.setEnabled(true);
+                            });
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            runOnUiThread(() -> {
+                                showError(tvNameError, getString(R.string.error_registration_failed));
+                                btnGetStarted.setEnabled(true);
+                            });
+                        }
+                    });
+                }
             }
 
             @Override
@@ -342,34 +407,15 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void performRegistration(String name, String username, String email, String password) {
-        User newUser = new User();
-        newUser.setFirstName(name);
-        newUser.setUsername(username);
-        newUser.setEmail(email);
-        newUser.setPassword(password);
-
-        userRepository.register(newUser, new ConnectionManager.DatabaseCallback<Long>() {
-            @Override
-            public void onSuccess(Long userId) {
-                runOnUiThread(() -> {
-                    // Store session with name
-                    sessionManager.createSession(userId.intValue(), username, name);
-
-                    // Navigate to FitnessAssessmentActivity with name extra
-                    Intent intent = new Intent(RegisterActivity.this, FitnessAssessmentActivity.class);
-                    intent.putExtra("user_name", name);
-                    startActivity(intent);
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    showError(tvNameError, getString(R.string.error_registration_failed));
-                    btnGetStarted.setEnabled(true);
-                });
-            }
+    /**
+     * Stores the session and navigates to the fitness assessment.
+     */
+    private void proceedToAssessment(int userId, String username, String name) {
+        runOnUiThread(() -> {
+            sessionManager.createSession(userId, username, name);
+            Intent intent = new Intent(RegisterActivity.this, FitnessAssessmentActivity.class);
+            intent.putExtra("user_name", name);
+            startActivity(intent);
         });
     }
 
