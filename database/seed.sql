@@ -224,6 +224,7 @@ INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, user_heig
 -- skin_tone must have art: grey (default), fair, tan, dark. (No 'beige' art.)
 -- body_shape must be one of the 3 offered per gender (same as body_type above):
 --   male = average/built/chubby, female = average/toned/chubby.
+INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) VALUES
     (1, 'tan',   'built',   'short_brown_hair'),
     (2, 'fair',  'average', 'long_blonde_hair'),
     (3, 'tan',   'built',   'short_black_hair');
