@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.models.Goal;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.WorkoutExercise;
@@ -207,8 +208,7 @@ public class HomeFragment extends Fragment {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     showRestDayState();
-                    Toast.makeText(getContext(),
-                            R.string.login_connection_error, Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(getContext(), R.string.login_connection_error);
                 });
             }
         });
@@ -294,8 +294,7 @@ public class HomeFragment extends Fragment {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     showNoGoalsState();
-                    Toast.makeText(getContext(),
-                            R.string.login_connection_error, Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(getContext(), R.string.login_connection_error);
                 });
             }
         });

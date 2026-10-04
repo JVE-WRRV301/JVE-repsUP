@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -90,16 +91,16 @@ public class AccountActivity extends AppCompatActivity {
                         clearPasswordFields();
                     } else {
                         // No row updated -> current password did not match.
-                        Toast.makeText(AccountActivity.this,
-                                R.string.account_password_current_wrong, Toast.LENGTH_SHORT).show();
+                        DialogUtils.showError(AccountActivity.this,
+                                R.string.account_password_current_wrong);
                     }
                 });
             }
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(AccountActivity.this,
-                        R.string.account_password_change_error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> DialogUtils.showError(AccountActivity.this,
+                        R.string.account_password_change_error));
             }
         });
     }
@@ -145,8 +146,8 @@ public class AccountActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(AccountActivity.this,
-                        R.string.account_delete_error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> DialogUtils.showError(AccountActivity.this,
+                        R.string.account_delete_error));
             }
         });
     }

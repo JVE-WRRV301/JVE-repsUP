@@ -371,18 +371,41 @@ public class RegisterActivity extends AppCompatActivity {
                     // Our own row landed - registration effectively succeeded.
                     proceedToAssessment(user.getUserId(), username, name);
                 } else {
-                    // Row isn't ours. Distinguish "username already taken" from a
-                    // plain failure by checking if the username exists at all.
+                    // Row isn't ours. The username and email columns are both
+                    // UNIQUE, so the conflict could be either. Check each so we
+                    // can show the user exactly which field collided instead of
+                    // a vague "registration failed".
                     userRepository.isUsernameTaken(username, new ConnectionManager.DatabaseCallback<Boolean>() {
                         @Override
-                        public void onSuccess(Boolean taken) {
-                            runOnUiThread(() -> {
-                                if (Boolean.TRUE.equals(taken)) {
+                        public void onSuccess(Boolean usernameTaken) {
+                            if (Boolean.TRUE.equals(usernameTaken)) {
+                                runOnUiThread(() -> {
                                     showUsernameError(getString(R.string.error_username_taken));
-                                } else {
-                                    showError(tvNameError, getString(R.string.error_registration_failed));
+                                    btnGetStarted.setEnabled(true);
+                                });
+                                return;
+                            }
+                            // Username is free, so check whether the email is the conflict.
+                            userRepository.isEmailTaken(email, new ConnectionManager.DatabaseCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean emailTaken) {
+                                    runOnUiThread(() -> {
+                                        if (Boolean.TRUE.equals(emailTaken)) {
+                                            showError(tvEmailError, getString(R.string.error_email_taken));
+                                        } else {
+                                            showError(tvNameError, getString(R.string.error_registration_failed));
+                                        }
+                                        btnGetStarted.setEnabled(true);
+                                    });
                                 }
-                                btnGetStarted.setEnabled(true);
+
+                                @Override
+                                public void onError(Exception e) {
+                                    runOnUiThread(() -> {
+                                        showError(tvNameError, getString(R.string.error_registration_failed));
+                                        btnGetStarted.setEnabled(true);
+                                    });
+                                }
                             });
                         }
 

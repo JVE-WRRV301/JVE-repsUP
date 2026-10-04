@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -25,7 +26,9 @@ import com.jve.repsup.utils.SessionManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Activity for executing a workout one exercise at a time.
@@ -50,6 +53,29 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     private List<WorkoutExercise> exercises;
     private int currentExerciseIndex = 0;
     private ArrayList<ExerciseResult> exerciseResults = new ArrayList<>();
+
+    // Raw per-set input the user entered, kept per exercise index so we can
+    // repopulate the rows exactly when the user navigates back to edit a
+    // previously completed exercise. Indices line up with `exercises`.
+    private final Map<Integer, List<SetInput>> enteredSetsByIndex = new HashMap<>();
+
+    private ImageButton btnBack;
+
+    /**
+     * Snapshot of a single set row's raw input, used to restore the UI when the
+     * user goes back to a previous exercise.
+     */
+    private static class SetInput {
+        final String reps;
+        final String weight;
+        final boolean done;
+
+        SetInput(String reps, String weight, boolean done) {
+            this.reps = reps;
+            this.weight = weight;
+            this.done = done;
+        }
+    }
 
     private WorkoutRepository workoutRepository;
     private ScheduleRepository scheduleRepository;
@@ -79,9 +105,11 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         llSetRows = findViewById(R.id.llSetRows);
         btnAddSet = findViewById(R.id.btnAddSet);
         btnNext = findViewById(R.id.btnNext);
+        btnBack = findViewById(R.id.btnBack);
 
         btnAddSet.setOnClickListener(v -> addSetRow());
         btnNext.setOnClickListener(v -> onNextClicked());
+        btnBack.setOnClickListener(v -> onBackClicked());
     }
 
     /**
@@ -181,14 +209,28 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             btnNext.setText(R.string.workout_execution_next);
         }
 
-        // Clear and populate set rows
+        // Show the back button on every exercise except the first.
+        btnBack.setVisibility(currentExerciseIndex > 0 ? View.VISIBLE : View.GONE);
+
+        // Clear and populate set rows.
         llSetRows.removeAllViews();
-        int defaultSets = workoutExercise.getSets();
-        if (defaultSets <= 0) {
-            defaultSets = 3; // fallback
-        }
-        for (int i = 0; i < defaultSets; i++) {
-            addSetRow(workoutExercise.getReps(), workoutExercise.getTargetWeight());
+
+        List<SetInput> saved = enteredSetsByIndex.get(currentExerciseIndex);
+        if (saved != null && !saved.isEmpty()) {
+            // Returning to an exercise the user already worked on: restore exactly
+            // what they entered so they can review and edit it.
+            for (SetInput input : saved) {
+                addSetRow(input);
+            }
+        } else {
+            // First visit: populate with the exercise's default sets/reps/weight.
+            int defaultSets = workoutExercise.getSets();
+            if (defaultSets <= 0) {
+                defaultSets = 3; // fallback
+            }
+            for (int i = 0; i < defaultSets; i++) {
+                addSetRow(workoutExercise.getReps(), workoutExercise.getTargetWeight());
+            }
         }
 
         // Reset next button state
@@ -228,6 +270,33 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
      */
     private void addSetRow() {
         addSetRow(0, 0.0);
+    }
+
+    /**
+     * Adds a set row restored from previously-entered input, including the
+     * checked state, so a user returning to an exercise sees exactly what they
+     * logged and can edit it.
+     */
+    private void addSetRow(SetInput input) {
+        View setRow = LayoutInflater.from(this)
+                .inflate(R.layout.item_set_row, llSetRows, false);
+
+        int setNumber = llSetRows.getChildCount() + 1;
+
+        TextView tvSetNumber = setRow.findViewById(R.id.tvSetNumber);
+        EditText etReps = setRow.findViewById(R.id.etReps);
+        EditText etWeight = setRow.findViewById(R.id.etWeight);
+        CheckBox cbDone = setRow.findViewById(R.id.cbDone);
+
+        tvSetNumber.setText(String.valueOf(setNumber));
+        etReps.setText(input.reps);
+        etWeight.setText(input.weight);
+        cbDone.setChecked(input.done);
+
+        cbDone.setOnCheckedChangeListener((buttonView, isChecked) -> updateNextButtonState());
+
+        llSetRows.addView(setRow);
+        updateNextButtonState();
     }
 
     /**
@@ -302,7 +371,27 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     }
 
     /**
-     * Collects data from set rows and creates an ExerciseResult for the current exercise.
+     * Handles Back button click: preserves whatever the user has entered on the
+     * current exercise (so in-progress edits aren't lost), then moves back to the
+     * previous exercise and restores its entered data for editing.
+     */
+    private void onBackClicked() {
+        if (currentExerciseIndex <= 0) {
+            return;
+        }
+        // Keep the current exercise's input so returning forward restores it.
+        saveCurrentExerciseResult();
+
+        currentExerciseIndex--;
+        displayCurrentExercise();
+    }
+
+    /**
+     * Collects data from the current set rows and records it against the current
+     * exercise index. Storing by index (rather than appending) means navigating
+     * back and forward re-saves the same exercise in place instead of creating
+     * duplicate results. Also snapshots the raw per-set input so the rows can be
+     * restored for editing if the user returns to this exercise.
      */
     private void saveCurrentExerciseResult() {
         WorkoutExercise workoutExercise = exercises.get(currentExerciseIndex);
@@ -313,19 +402,24 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         int totalReps = 0;
         double totalWeight = 0;
 
+        List<SetInput> rawSets = new ArrayList<>();
+
         int childCount = llSetRows.getChildCount();
         for (int i = 0; i < childCount; i++) {
             View row = llSetRows.getChildAt(i);
             CheckBox cbDone = row.findViewById(R.id.cbDone);
+            EditText etReps = row.findViewById(R.id.etReps);
+            EditText etWeight = row.findViewById(R.id.etWeight);
 
-            if (cbDone.isChecked()) {
+            String repsText = etReps.getText().toString().trim();
+            String weightText = etWeight.getText().toString().trim();
+            boolean done = cbDone.isChecked();
+
+            // Snapshot every row's raw input for restore-on-back.
+            rawSets.add(new SetInput(repsText, weightText, done));
+
+            if (done) {
                 setsCompleted++;
-
-                EditText etReps = row.findViewById(R.id.etReps);
-                EditText etWeight = row.findViewById(R.id.etWeight);
-
-                String repsText = etReps.getText().toString().trim();
-                String weightText = etWeight.getText().toString().trim();
 
                 int reps = 0;
                 double weight = 0;
@@ -346,18 +440,35 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             }
         }
 
+        // Preserve the raw input for this exercise index (overwrites any prior snapshot).
+        enteredSetsByIndex.put(currentExerciseIndex, rawSets);
+
+        // Store the aggregate result at this exercise's index, overwriting any
+        // previous result for the same exercise rather than appending a duplicate.
         ExerciseResult result = new ExerciseResult(exerciseId, baseXp, setsCompleted, totalReps, totalWeight);
-        exerciseResults.add(result);
+        while (exerciseResults.size() <= currentExerciseIndex) {
+            exerciseResults.add(null);
+        }
+        exerciseResults.set(currentExerciseIndex, result);
     }
 
     /**
      * Navigates to the WorkoutCompleteActivity with all exercise results.
      */
     private void navigateToComplete() {
+        // Drop any null placeholders (padding left by index-based storage) so the
+        // complete screen only receives real results.
+        ArrayList<ExerciseResult> finalResults = new ArrayList<>();
+        for (ExerciseResult r : exerciseResults) {
+            if (r != null) {
+                finalResults.add(r);
+            }
+        }
+
         Intent intent = new Intent(this, WorkoutCompleteActivity.class);
         intent.putExtra(EXTRA_SCHEDULED_WORKOUT_ID, scheduledWorkoutId);
         intent.putExtra(EXTRA_WORKOUT_ID, workoutId);
-        intent.putExtra(EXTRA_EXERCISE_RESULTS, (Serializable) exerciseResults);
+        intent.putExtra(EXTRA_EXERCISE_RESULTS, (Serializable) finalResults);
         startActivity(intent);
         finish();
     }

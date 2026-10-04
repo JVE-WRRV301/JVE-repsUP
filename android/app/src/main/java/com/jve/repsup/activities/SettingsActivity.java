@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.models.User;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
 
@@ -126,8 +127,8 @@ public class SettingsActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(SettingsActivity.this,
-                        R.string.settings_measurement_error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> DialogUtils.showError(SettingsActivity.this,
+                        R.string.settings_measurement_error));
             }
         });
     }

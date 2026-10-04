@@ -28,37 +28,53 @@ INSERT INTO Ranks (tier, subtier, min_lvl_required) VALUES
 
 INSERT INTO Exercise (exercise_name, muscle_group, default_sets, default_reps, difficulty, base_xp) VALUES
     -- Chest
-    ('Bench Press',           'chest',       3, 10, 'medium', 30),
-    ('Dumbbell Chest Press',  'chest',       3, 12, 'medium', 25),
-    ('Push Ups',              'chest',       3, 15, 'easy',   15),
-    -- Shoulders
-    ('Dumbbell Shoulder Press', 'shoulders', 3, 12, 'medium', 25),
-    ('Dumbbell Lateral Raises', 'shoulders', 3, 12, 'easy',   20),
-    -- Triceps
-    ('Tricep Pushdown',       'triceps',     3, 12, 'easy',   20),
-    ('Cable Tricep Pushdown', 'triceps',     3, 12, 'easy',   20),
-    -- Biceps
-    ('Bicep Curls',           'biceps',      3, 12, 'easy',   20),
-    ('Hammer Curls',          'biceps',      3, 12, 'easy',   20),
-    -- Back
-    ('Lat Pulldown',          'lats',        3, 10, 'medium', 25),
-    ('Seated Row',            'lats',        3, 10, 'medium', 25),
-    -- Glutes
-    ('Barbell Hip Thrusts',   'glutes',      3, 10, 'medium', 30),
-    ('Sumo Squats',           'glutes',      3, 12, 'easy',   20),
-    ('Bulgarian Split Squats','glutes',      3, 10, 'hard',   40),
-    ('Walking Lunges',        'glutes',      3, 12, 'easy',   20),
-    ('Cable Kickbacks',       'glutes',      3, 15, 'easy',   15),
-    ('Fire Hydrants',         'glutes',      3, 15, 'easy',   15),
-    -- Hamstrings
-    ('Barbell RDLs',          'hamstrings',  3, 10, 'medium', 30),
-    ('Hamstring Extension',   'hamstrings',  3, 12, 'easy',   20),
-    -- Quads
-    ('Squats',                'quads',       3, 10, 'medium', 30),
-    ('Leg Press',             'quads',       3, 12, 'medium', 25),
-    -- Abs
-    ('Plank',                 'abdominals',  3, 30, 'easy',   15),
-    ('Crunches',              'abdominals',  3, 20, 'easy',   15);
+    -- Muscle group names match the groups shown in the app's workout UI
+    -- (Chest, Back, Shoulders, Biceps, Triceps, Legs, Glutes, Abs, Calves,
+    -- Forearms). Every group has at least two exercises.
+    --
+    -- IMPORTANT: exercise IDs 1-23 below must keep their original order, the
+    -- seed Workout_Exercise rows reference these exercises by numeric id. Any
+    -- NEW exercises are appended at the end (ids 24+) so existing ids don't shift.
+    --
+    -- Chest (ids 1-3)
+    ('Bench Press',           'Chest',       3, 10, 'medium', 30),
+    ('Dumbbell Chest Press',  'Chest',       3, 12, 'medium', 25),
+    ('Push Ups',              'Chest',       3, 15, 'easy',   15),
+    -- Shoulders (ids 4-5)
+    ('Dumbbell Shoulder Press', 'Shoulders', 3, 12, 'medium', 25),
+    ('Dumbbell Lateral Raises', 'Shoulders', 3, 12, 'easy',   20),
+    -- Triceps (ids 6-7)
+    ('Tricep Pushdown',       'Triceps',     3, 12, 'easy',   20),
+    ('Cable Tricep Pushdown', 'Triceps',     3, 12, 'easy',   20),
+    -- Biceps (ids 8-9)
+    ('Bicep Curls',           'Biceps',      3, 12, 'easy',   20),
+    ('Hammer Curls',          'Biceps',      3, 12, 'easy',   20),
+    -- Back (ids 10-11)
+    ('Lat Pulldown',          'Back',        3, 10, 'medium', 25),
+    ('Seated Row',            'Back',        3, 10, 'medium', 25),
+    -- Glutes (ids 12-17)
+    ('Barbell Hip Thrusts',   'Glutes',      3, 10, 'medium', 30),
+    ('Sumo Squats',           'Glutes',      3, 12, 'easy',   20),
+    ('Bulgarian Split Squats','Glutes',      3, 10, 'hard',   40),
+    ('Walking Lunges',        'Glutes',      3, 12, 'easy',   20),
+    ('Cable Kickbacks',       'Glutes',      3, 15, 'easy',   15),
+    ('Fire Hydrants',         'Glutes',      3, 15, 'easy',   15),
+    -- Legs (ids 18-21: former hamstrings + quads, now one group)
+    ('Barbell RDLs',          'Legs',        3, 10, 'medium', 30),
+    ('Hamstring Extension',   'Legs',        3, 12, 'easy',   20),
+    ('Squats',                'Legs',        3, 10, 'medium', 30),
+    ('Leg Press',             'Legs',        3, 12, 'medium', 25),
+    -- Abs (ids 22-23)
+    ('Plank',                 'Abs',         3, 30, 'easy',   15),
+    ('Crunches',              'Abs',         3, 20, 'easy',   15),
+    -- Back, additional (id 24)
+    ('Pull Ups',              'Back',        3, 8,  'hard',   40),
+    -- Calves (ids 25-26)
+    ('Standing Calf Raises',  'Calves',      3, 15, 'easy',   15),
+    ('Seated Calf Raises',    'Calves',      3, 15, 'easy',   15),
+    -- Forearms (ids 27-28)
+    ('Wrist Curls',           'Forearms',    3, 15, 'easy',   15),
+    ('Farmer''s Carry',       'Forearms',    3, 12, 'medium', 25);
 
 
 -- COSMETIC ITEMS (required) - starter wardrobe for the locker

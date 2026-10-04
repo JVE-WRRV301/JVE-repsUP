@@ -15,6 +15,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.repositories.WorkoutRepository;
 
 /**
@@ -31,10 +32,11 @@ public class AdminCreateExerciseActivity extends AppCompatActivity {
     private WorkoutRepository workoutRepository;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    // Must match the muscle groups the user-facing workout UI queries, otherwise
+    // admin-created exercises land in a group users can't browse.
     private static final String[] MUSCLE_GROUPS = {
-            "Abs", "Obliques", "Core", "Full Body", "Compound",
-            "Quads", "Hamstrings", "Glutes", "Calves",
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps"
+            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
+            "Legs", "Glutes", "Abs", "Calves", "Forearms"
     };
 
     private static final String[] DIFFICULTIES = {"Easy", "Medium", "Hard"};
@@ -159,8 +161,8 @@ public class AdminCreateExerciseActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 mainHandler.post(() -> {
                     btnSaveExercise.setEnabled(true);
-                    Toast.makeText(AdminCreateExerciseActivity.this,
-                            R.string.exercise_created_error, Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(AdminCreateExerciseActivity.this,
+                            R.string.exercise_created_error);
                 });
             }
         });

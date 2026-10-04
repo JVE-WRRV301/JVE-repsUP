@@ -18,6 +18,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.ExerciseSelectionAdapter;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 
@@ -129,8 +130,7 @@ public class UserExerciseSelectionFragment extends Fragment {
                             if (getActivity() == null) return;
                             getActivity().runOnUiThread(() -> {
                                 if (allExercises.isEmpty()) {
-                                    Toast.makeText(getContext(),
-                                            R.string.create_workout_load_error, Toast.LENGTH_SHORT).show();
+                                    DialogUtils.showError(getContext(), R.string.create_workout_load_error);
                                 } else {
                                     adapter.setExercises(allExercises);
                                 }

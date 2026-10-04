@@ -26,6 +26,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.repositories.CosmeticRepository;
@@ -733,8 +734,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        runOnUiThread(() -> Toast.makeText(CustomizeAvatarActivity.this,
-                                getString(R.string.locker_save_error), Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> DialogUtils.showError(CustomizeAvatarActivity.this,
+                                getString(R.string.locker_save_error)));
                     }
                 });
     }
@@ -937,8 +938,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 runOnUiThread(() ->
-                        Toast.makeText(CustomizeAvatarActivity.this,
-                                getString(R.string.locker_save_error), Toast.LENGTH_SHORT).show());
+                        DialogUtils.showError(CustomizeAvatarActivity.this,
+                                getString(R.string.locker_save_error)));
             }
         });
     }

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CreateWorkoutModeFragment;
 import com.jve.repsup.fragments.GenerateWorkoutOptionsFragment;
@@ -102,8 +103,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             public void onSuccess(Workout workout) {
                 if (workout == null) {
                     runOnUiThread(() -> {
-                        Toast.makeText(CreateWorkoutActivity.this,
-                                R.string.edit_workout_load_error, Toast.LENGTH_SHORT).show();
+                        DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_load_error);
                         finish();
                     });
                     return;
@@ -133,8 +133,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(CreateWorkoutActivity.this,
-                            R.string.edit_workout_load_error, Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_load_error);
                     finish();
                 });
             }
@@ -334,7 +333,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     public void onWorkoutSaved(String workoutName, List<Integer> repsList, List<Double> weightList) {
         int userId = sessionManager.getUserId();
         if (userId == -1) {
-            Toast.makeText(this, R.string.create_workout_error, Toast.LENGTH_SHORT).show();
+            DialogUtils.showError(this, R.string.create_workout_error);
             return;
         }
 
@@ -373,10 +372,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(CreateWorkoutActivity.this,
-                                R.string.edit_workout_error, Toast.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() ->
+                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
                 }
             });
         } else {
@@ -399,10 +396,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(CreateWorkoutActivity.this,
-                                R.string.create_workout_error, Toast.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() ->
+                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.create_workout_error));
                 }
             });
         }

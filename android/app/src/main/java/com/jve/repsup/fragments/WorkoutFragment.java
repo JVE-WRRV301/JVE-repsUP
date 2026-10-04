@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.adapters.ExerciseListAdapter;
 import com.jve.repsup.adapters.MuscleGroupAdapter;
 import com.jve.repsup.adapters.WorkoutCardAdapter;
@@ -207,8 +208,7 @@ public class WorkoutFragment extends Fragment implements
                 getActivity().runOnUiThread(() -> {
                     tvSavedEmpty.setVisibility(View.VISIBLE);
                     rvSavedWorkouts.setVisibility(View.GONE);
-                    Toast.makeText(getContext(),
-                            R.string.workout_load_error, Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(getContext(), R.string.workout_load_error);
                 });
             }
         });
@@ -229,8 +229,7 @@ public class WorkoutFragment extends Fragment implements
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(),
-                                R.string.workout_exercises_load_error, Toast.LENGTH_SHORT).show()
+                        DialogUtils.showError(getContext(), R.string.workout_exercises_load_error)
                 );
             }
         });
@@ -298,8 +297,7 @@ public class WorkoutFragment extends Fragment implements
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(),
-                                R.string.workout_duplicated_error, Toast.LENGTH_SHORT).show()
+                        DialogUtils.showError(getContext(), R.string.workout_duplicated_error)
                 );
             }
         });
@@ -386,8 +384,7 @@ public class WorkoutFragment extends Fragment implements
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(),
-                                R.string.workout_reorder_error, Toast.LENGTH_SHORT).show()
+                        DialogUtils.showError(getContext(), R.string.workout_reorder_error)
                 );
             }
         });
@@ -473,8 +470,7 @@ public class WorkoutFragment extends Fragment implements
                         public void onError(Exception e) {
                             if (getActivity() == null || !isAdded()) return;
                             getActivity().runOnUiThread(() ->
-                                    Toast.makeText(getContext(),
-                                            R.string.workout_deleted_error, Toast.LENGTH_SHORT).show()
+                                    DialogUtils.showError(getContext(), R.string.workout_deleted_error)
                             );
                         }
                     });

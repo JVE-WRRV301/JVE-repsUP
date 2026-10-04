@@ -65,6 +65,18 @@ public class UserRepository {
     }
 
     /**
+     * Checks whether the given email is already registered to a user.
+     * The email column is UNIQUE in the schema; this lets the UI report a
+     * duplicate-email conflict specifically instead of a generic failure.
+     * Returns true if taken, false if available.
+     */
+    public void isEmailTaken(String email, ConnectionManager.DatabaseCallback<Boolean> callback) {
+        String sql = "SELECT COUNT(*) AS cnt FROM user WHERE email = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{email}, rs -> rs.getInt("cnt") > 0, callback);
+    }
+
+    /**
      * Updates the user's XP by adding the specified delta amount.
      * Returns the number of affected rows.
      */
