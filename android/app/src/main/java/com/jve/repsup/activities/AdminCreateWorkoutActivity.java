@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.jve.repsup.R;
 import com.jve.repsup.fragments.CreateWorkoutCategoryFragment;
 import com.jve.repsup.fragments.CreateWorkoutExercisesFragment;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.fragments.CreateWorkoutMuscleGroupFragment;
 import com.jve.repsup.fragments.CreateWorkoutNamingFragment;
 import com.jve.repsup.models.Exercise;
@@ -128,10 +129,9 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(AdminCreateWorkoutActivity.this,
-                            getString(R.string.admin_workout_create_error), Toast.LENGTH_SHORT).show();
-                });
+                runOnUiThread(() ->
+                        DialogUtils.showError(AdminCreateWorkoutActivity.this,
+                                getString(R.string.admin_workout_create_error)));
             }
         });
     }

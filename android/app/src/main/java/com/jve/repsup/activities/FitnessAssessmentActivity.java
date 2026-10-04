@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.jve.repsup.R;
 import com.jve.repsup.adapters.AssessmentPagerAdapter;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -260,9 +261,8 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(FitnessAssessmentActivity.this,
-                            "Failed to save profile. Please try again.",
-                            Toast.LENGTH_LONG).show();
+                    DialogUtils.showError(FitnessAssessmentActivity.this,
+                            "Failed to save profile. Please try again.");
                 });
             }
         });

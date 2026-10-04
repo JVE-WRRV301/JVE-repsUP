@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.AdminCreateWorkoutActivity;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.adapters.ExerciseSelectionAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
@@ -98,7 +99,7 @@ public class CreateWorkoutExercisesFragment extends Fragment {
             public void onError(Exception e) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), getString(R.string.admin_load_exercises_error), Toast.LENGTH_SHORT).show()
+                            DialogUtils.showError(requireContext(), R.string.admin_load_exercises_error)
                     );
                 }
             }
