@@ -14,6 +14,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -76,8 +77,8 @@ public class PersonalDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
-                        R.string.personal_details_load_error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> DialogUtils.showError(PersonalDetailsActivity.this,
+                        R.string.personal_details_load_error));
             }
         });
     }
@@ -122,8 +123,8 @@ public class PersonalDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
-                        R.string.personal_details_save_error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> DialogUtils.showError(PersonalDetailsActivity.this,
+                        R.string.personal_details_save_error));
             }
         });
     }
@@ -144,8 +145,8 @@ public class PersonalDetailsActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
-                                R.string.personal_details_save_error, Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> DialogUtils.showError(PersonalDetailsActivity.this,
+                                R.string.personal_details_save_error));
                     }
                 });
     }

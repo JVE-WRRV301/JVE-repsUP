@@ -51,6 +51,7 @@
     <string name="error_fields_required">All fields are required</string>
     <string name="error_password_mismatch">Passwords do not match</string>
     <string name="error_username_taken">Username is taken</string>
+    <string name="error_email_taken">This email is already registered. Try logging in instead.</string>
     <string name="error_registration_failed">Registration failed. Please try again.</string>
     <string name="error_invalid_email">Please enter a valid email address</string>
     <string name="error_password_too_short">Password must be at least 6 characters</string>
@@ -530,6 +531,10 @@
     <string name="personal_details_empty_error">All fields are required</string>
     <string name="personal_details_email_error">Please enter a valid email address</string>
     <string name="personal_details_username_taken">Username is already taken</string>
+
+    <!-- Error dialog (shared) -->
+    <string name="error_dialog_title">Something went wrong</string>
+    <string name="error_dialog_ok">OK</string>
 
     <!-- Account -->
     <string name="account_title">Account</string>

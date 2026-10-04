@@ -8,8 +8,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:orientation="vertical"
         android:padding="16dp">
+
+        <!-- Back button (hidden on the first exercise) -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/settings_back"
+            android:src="@drawable/ic_back"
+            android:tint="@color/white"
+            android:visibility="gone" />
 
         <!-- Progress indicator -->
         <TextView

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.activities.CreateGoalActivity;
 import com.jve.repsup.adapters.GoalCardAdapter;
 import com.jve.repsup.database.ConnectionManager;
@@ -170,8 +171,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                     public void onError(Exception e) {
                         if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), R.string.goal_complete_error,
-                                    Toast.LENGTH_SHORT).show();
+                            DialogUtils.showError(getContext(), R.string.goal_complete_error);
                         });
                     }
                 });
@@ -181,8 +181,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), R.string.goal_complete_error,
-                            Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(getContext(), R.string.goal_complete_error);
                 });
             }
         });
@@ -396,8 +395,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), R.string.goal_delete_error,
-                            Toast.LENGTH_SHORT).show();
+                    DialogUtils.showError(getContext(), R.string.goal_delete_error);
                 });
             }
         });
