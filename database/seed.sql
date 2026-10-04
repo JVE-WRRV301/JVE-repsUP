@@ -209,19 +209,22 @@ INSERT INTO User (first_name, email, username, set_password, xp, coins, current_
 
 -- USER PROFILES (test data) - fitness assessment results
 
--- body_type matches the base_* body art: skinny, average, toned, built, chubby, overweight
+-- body_type must be one of the 3 offered per gender (the only ones with art):
+--   male   = average, built, chubby
+--   female = average, toned, chubby
+-- skinny/overweight were removed from the app; 'toned' has no MALE art.
 INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) VALUES
-    (1, 'Male',   25, 80.00,  185.00, 'toned',   'intermediate', 5, 'build_muscle'),
+    (1, 'Male',   25, 80.00,  185.00, 'built',   'intermediate', 5, 'build_muscle'),
     (2, 'Female', 28, 62.50,  168.00, 'average', 'beginner',     3, 'get_fitter'),
     (3, 'Male',   31, 75.00,  178.00, 'built',   'advanced',     6, 'build_muscle');
 
 
 -- AVATARS (test data) - one per user
 
--- skin_tone is one of: grey (default, pre-selection), fair, beige, tan, dark
--- body_shape matches the base_* body art: skinny, average, toned, built, chubby, overweight
-INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) VALUES
-    (1, 'beige', 'toned',   'short_brown_hair'),
+-- skin_tone must have art: grey (default), fair, tan, dark. (No 'beige' art.)
+-- body_shape must be one of the 3 offered per gender (same as body_type above):
+--   male = average/built/chubby, female = average/toned/chubby.
+    (1, 'tan',   'built',   'short_brown_hair'),
     (2, 'fair',  'average', 'long_blonde_hair'),
     (3, 'tan',   'built',   'short_black_hair');
 
@@ -263,6 +266,13 @@ INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, worko
     (5, 1, 3, 10, 1),  -- Bench Press
     (5, 4, 3, 12, 2),  -- Dumbbell Shoulder Press
     (5, 6, 3, 12, 3);  -- Tricep Pushdown
+
+-- Dylan's "Back and Biceps" workout 
+INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (6, 10, 3, 10, 1), -- Lat Pulldown
+    (6, 11, 3, 10, 2), -- Seated Row
+    (6, 8,  3, 12, 3), -- Bicep Curls
+    (6, 9,  3, 12, 4); -- Hammer Curls
 
 -- Dylan's "Glutes and Hamstrings" workout 
 INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES

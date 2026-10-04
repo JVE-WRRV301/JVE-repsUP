@@ -43,7 +43,7 @@ public class AvatarCompositor {
      *
      * @param context       Application or Activity context
      * @param gender        "male" or "female"
-     * @param bodyType      body type, e.g. "average", "toned", "built"
+     * @param bodyType      body type: male = average/built/chubby, female = average/toned/chubby
      * @param skinTone      skin tone, e.g. "grey", "fair", "beige", "tan", "dark"
      * @param equippedItems the resolved CosmeticItems currently equipped (may be null/empty)
      * @return A composited Bitmap of the full avatar
@@ -411,7 +411,7 @@ public class AvatarCompositor {
     /**
      * Resolves the base body drawable for a gender + body type + skin tone combo,
      * following the naming convention base_{gender}_{bodytype}_{skintone}
-     * (e.g. base_female_average_beige, base_male_toned_grey).
+     * (e.g. base_female_average_tan, base_male_built_grey).
      *
      * Resolution is by resource name via {@link android.content.res.Resources#getIdentifier},
      * so new body/tone drawables are picked up automatically once added to res/drawable.
@@ -419,7 +419,7 @@ public class AvatarCompositor {
      * missing tone never crashes rendering.
      *
      * @param gender   "male" or "female"
-     * @param bodyType body type, e.g. "average", "toned", "built", "chubby", "overweight", "skinny"
+     * @param bodyType body type: male = "average"/"built"/"chubby", female = "average"/"toned"/"chubby"
      * @param skinTone skin tone, e.g. "grey", "fair", "beige", "tan", "dark"
      * @return a drawable resource ID for the base body
      */
