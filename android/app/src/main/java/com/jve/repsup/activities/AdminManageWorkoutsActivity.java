@@ -19,6 +19,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.adapters.ManageWorkoutsAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.repositories.WorkoutRepository;
 
@@ -152,9 +153,8 @@ public class AdminManageWorkoutsActivity extends AppCompatActivity
                                 @Override
                                 public void onSuccess(Integer result) {
                                     runOnUiThread(() -> {
-                                        Toast.makeText(AdminManageWorkoutsActivity.this,
-                                                getString(R.string.admin_workout_deleted),
-                                                Toast.LENGTH_SHORT).show();
+                                        SnackbarUtils.show(AdminManageWorkoutsActivity.this,
+                                                getString(R.string.admin_workout_deleted));
                                         loadWorkouts();
                                     });
                                 }

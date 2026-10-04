@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +14,7 @@ import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.AvatarCompositor;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -135,8 +135,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
                     // Still show the avatar visually even if DB fails
                     displayAvatar();
                     btnContinue.setEnabled(true);
-                    Toast.makeText(AvatarGenerationActivity.this,
-                            getString(R.string.avatar_save_error), Toast.LENGTH_SHORT).show();
+                    SnackbarUtils.show(AvatarGenerationActivity.this, getString(R.string.avatar_save_error));
                 });
             }
         });

@@ -16,6 +16,7 @@ import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.SnackbarUtils;
 
 /**
  * AccountActivity lets the user change their password or delete their account.
@@ -66,15 +67,15 @@ public class AccountActivity extends AppCompatActivity {
         String confirm = etConfirmPassword.getText().toString();
 
         if (TextUtils.isEmpty(current) || TextUtils.isEmpty(next) || TextUtils.isEmpty(confirm)) {
-            Toast.makeText(this, R.string.account_password_empty_error, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.account_password_empty_error);
             return;
         }
         if (next.length() < MIN_PASSWORD_LENGTH) {
-            Toast.makeText(this, R.string.account_password_too_short, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.account_password_too_short);
             return;
         }
         if (!next.equals(confirm)) {
-            Toast.makeText(this, R.string.account_password_mismatch, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.account_password_mismatch);
             return;
         }
 
@@ -86,8 +87,7 @@ public class AccountActivity extends AppCompatActivity {
             public void onSuccess(Integer rows) {
                 runOnUiThread(() -> {
                     if (rows != null && rows > 0) {
-                        Toast.makeText(AccountActivity.this,
-                                R.string.account_password_changed, Toast.LENGTH_SHORT).show();
+                        SnackbarUtils.show(AccountActivity.this, R.string.account_password_changed);
                         clearPasswordFields();
                     } else {
                         // No row updated -> current password did not match.

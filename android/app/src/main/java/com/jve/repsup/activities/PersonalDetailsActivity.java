@@ -16,6 +16,7 @@ import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.SnackbarUtils;
 
 /**
  * PersonalDetailsActivity lets the user view and edit their name, email, and username.
@@ -93,11 +94,11 @@ public class PersonalDetailsActivity extends AppCompatActivity {
         String username = etUsername.getText().toString().trim();
 
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(username)) {
-            Toast.makeText(this, R.string.personal_details_empty_error, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.personal_details_empty_error);
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, R.string.personal_details_email_error, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.personal_details_email_error);
             return;
         }
 
@@ -114,8 +115,8 @@ public class PersonalDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Boolean taken) {
                 if (Boolean.TRUE.equals(taken)) {
-                    runOnUiThread(() -> Toast.makeText(PersonalDetailsActivity.this,
-                            R.string.personal_details_username_taken, Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> SnackbarUtils.show(PersonalDetailsActivity.this,
+                            R.string.personal_details_username_taken));
                 } else {
                     persistDetails(userId, name, email, username);
                 }

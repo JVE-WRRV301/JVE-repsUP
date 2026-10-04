@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CreateWorkoutModeFragment;
 import com.jve.repsup.fragments.GenerateWorkoutOptionsFragment;
@@ -217,8 +218,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     private void mergeExercises(List<Exercise> newExercises) {
         for (Exercise exercise : newExercises) {
             if (selectedExercises.size() >= MAX_EXERCISES) {
-                Toast.makeText(this, R.string.create_workout_max_exercises_reached,
-                        Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(this, R.string.create_workout_max_exercises_reached);
                 break;
             }
             boolean alreadyPresent = false;
@@ -251,8 +251,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
      */
     public void onAddExercisesRequested() {
         if (selectedExercises.size() >= MAX_EXERCISES) {
-            Toast.makeText(this, R.string.create_workout_max_exercises_reached,
-                    Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.create_workout_max_exercises_reached);
             return;
         }
         addingExercises = true;
@@ -311,7 +310,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
      */
     private void onExercisesLoaded(List<Exercise> exercises) {
         if (exercises.isEmpty()) {
-            Toast.makeText(this, R.string.generate_workout_no_exercises, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(this, R.string.generate_workout_no_exercises);
             return;
         }
 

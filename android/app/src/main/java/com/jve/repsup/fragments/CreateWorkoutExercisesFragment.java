@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.AdminCreateWorkoutActivity;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.adapters.ExerciseSelectionAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
@@ -77,7 +77,7 @@ public class CreateWorkoutExercisesFragment extends Fragment {
         btnConfirm.setOnClickListener(v -> {
             List<Exercise> selected = adapter.getSelectedExercises();
             if (selected.isEmpty()) {
-                Toast.makeText(requireContext(), getString(R.string.admin_select_at_least_one), Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(requireView(), R.string.admin_select_at_least_one);
                 return;
             }
             ((AdminCreateWorkoutActivity) requireActivity()).onExercisesConfirmed(selected);

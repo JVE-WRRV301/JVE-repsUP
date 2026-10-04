@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.activities.CreateGoalActivity;
 import com.jve.repsup.adapters.GoalCardAdapter;
 import com.jve.repsup.database.ConnectionManager;
@@ -380,8 +380,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
                     adapter.removeGoal(position);
-                    Toast.makeText(getContext(), R.string.goal_delete_success,
-                            Toast.LENGTH_SHORT).show();
+                    SnackbarUtils.show(requireView(), R.string.goal_delete_success);
 
                     // Show empty state if no goals remain
                     if (adapter.getItemCount() == 0) {

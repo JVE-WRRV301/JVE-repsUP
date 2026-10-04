@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +18,7 @@ import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.ExerciseSelectionAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 
@@ -63,8 +63,7 @@ public class UserExerciseSelectionFragment extends Fragment {
         adapter = new ExerciseSelectionAdapter(MAX_EXERCISES, count -> {
             updateCountText(count);
             if (count >= MAX_EXERCISES) {
-                Toast.makeText(getContext(),
-                        R.string.create_workout_max_exercises_reached, Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(requireView(), R.string.create_workout_max_exercises_reached);
             }
         });
 
@@ -77,8 +76,7 @@ public class UserExerciseSelectionFragment extends Fragment {
         btnConfirm.setOnClickListener(v -> {
             List<Exercise> selected = adapter.getSelectedExercises();
             if (selected.isEmpty()) {
-                Toast.makeText(getContext(),
-                        R.string.create_workout_select_at_least_one, Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(v, R.string.create_workout_select_at_least_one);
                 return;
             }
 
