@@ -175,12 +175,12 @@
 
     <!-- Body Type (new names) -->
     <string name="assessment_body_type_subtitle">Choose which one best depicts you.</string>
-    <string name="assessment_body_skinny">Skinny</string>
+    <!-- Body types actually offered (3 per gender): male = average/built/chubby,
+         female = average/toned/chubby. skinny/overweight were removed (no art). -->
     <string name="assessment_body_average">Average</string>
     <string name="assessment_body_toned">Toned</string>
     <string name="assessment_body_muscular">Muscular</string>
     <string name="assessment_body_chubby">Chubby</string>
-    <string name="assessment_body_overweight">Overweight</string>
 
     <!-- Schedule buttons -->
     <string name="schedule_1_day">1 day / week</string>

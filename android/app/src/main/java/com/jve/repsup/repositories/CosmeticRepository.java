@@ -381,8 +381,9 @@ public class CosmeticRepository {
     }
 
     /**
-     * Updates the user's body shape (e.g. "skinny", "average", "toned", "built",
-     * "chubby", "overweight"). Drives which base body + per-body-type clothing renders.
+     * Updates the user's body shape. Valid values (the only ones with art):
+     * male = "average"/"built"/"chubby", female = "average"/"toned"/"chubby".
+     * Drives which base body + per-body-type clothing renders.
      */
     public void updateBodyShape(int userId, String bodyShape, DatabaseCallback<Integer> callback) {
         String sql = "UPDATE avatar SET body_shape = ? WHERE user_id = ?";
