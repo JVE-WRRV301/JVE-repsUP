@@ -43,92 +43,51 @@
             android:layout_marginTop="8dp"
             android:gravity="center" />
 
-        <!-- 2x3 Grid of body type images -->
-        <GridLayout
-            android:id="@+id/glBodyTypes"
+        <!-- Three body-type options, stacked one per row -->
+        <LinearLayout
+            android:id="@+id/llBodyTypes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:columnCount="2"
-            android:rowCount="3"
-            android:alignmentMode="alignBounds">
+            android:orientation="vertical"
+            android:layout_marginTop="16dp">
 
-            <!-- Row 1 -->
             <ImageView
                 android:id="@+id/ivBodyType0"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
-                android:background="@drawable/bg_bodytype_background"
-                android:foreground="@drawable/bg_bodytype_unselected"
-                android:clipToOutline="true"
-                android:contentDescription="@string/assessment_body_skinny" />
-
-            <ImageView
-                android:id="@+id/ivBodyType1"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:scaleType="fitCenter"
                 android:background="@drawable/bg_bodytype_background"
                 android:foreground="@drawable/bg_bodytype_unselected"
                 android:clipToOutline="true"
                 android:contentDescription="@string/assessment_body_average" />
 
-            <!-- Row 2 -->
             <ImageView
-                android:id="@+id/ivBodyType2"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
+                android:id="@+id/ivBodyType1"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:scaleType="fitCenter"
                 android:background="@drawable/bg_bodytype_background"
                 android:foreground="@drawable/bg_bodytype_unselected"
                 android:clipToOutline="true"
                 android:contentDescription="@string/assessment_body_toned" />
 
             <ImageView
-                android:id="@+id/ivBodyType3"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
-                android:background="@drawable/bg_bodytype_background"
-                android:foreground="@drawable/bg_bodytype_unselected"
-                android:clipToOutline="true"
-                android:contentDescription="@string/assessment_body_muscular" />
-
-            <!-- Row 3 -->
-            <ImageView
-                android:id="@+id/ivBodyType4"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
+                android:id="@+id/ivBodyType2"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:scaleType="fitCenter"
                 android:background="@drawable/bg_bodytype_background"
                 android:foreground="@drawable/bg_bodytype_unselected"
                 android:clipToOutline="true"
                 android:contentDescription="@string/assessment_body_chubby" />
 
-            <ImageView
-                android:id="@+id/ivBodyType5"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="6dp"
-                android:scaleType="centerCrop"
-                android:background="@drawable/bg_bodytype_background"
-                android:foreground="@drawable/bg_bodytype_unselected"
-                android:clipToOutline="true"
-                android:contentDescription="@string/assessment_body_overweight" />
-
-        </GridLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

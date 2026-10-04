@@ -10,19 +10,21 @@ public class CosmeticItem {
     private String name;
     private String type;        // e.g. "top", "bottom", "shoes", "socks", "hair", "accessory"
     private String gender;      // "male", "female", or "unisex"
+    private boolean colourable; // whether this item (e.g. a hairstyle) supports colour swaps
     private String unlockType;  // e.g. "default", "coins", "level"
     private int levelRequired;
     private int coinCost;
-    private String imageData;   // path or reference to the cosmetic image
+    private String imageData;   // item key used to resolve the per-body-type asset path
 
     public CosmeticItem() {}
 
-    public CosmeticItem(int cosmeticId, String name, String type, String gender, String unlockType,
-                        int levelRequired, int coinCost, String imageData) {
+    public CosmeticItem(int cosmeticId, String name, String type, String gender, boolean colourable,
+                        String unlockType, int levelRequired, int coinCost, String imageData) {
         this.cosmeticId = cosmeticId;
         this.name = name;
         this.type = type;
         this.gender = gender;
+        this.colourable = colourable;
         this.unlockType = unlockType;
         this.levelRequired = levelRequired;
         this.coinCost = coinCost;
@@ -42,6 +44,9 @@ public class CosmeticItem {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+
+    public boolean isColourable() { return colourable; }
+    public void setColourable(boolean colourable) { this.colourable = colourable; }
 
     public String getUnlockType() { return unlockType; }
     public void setUnlockType(String unlockType) { this.unlockType = unlockType; }

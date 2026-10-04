@@ -89,6 +89,12 @@ public class MeFragment extends Fragment {
         loadUserProfile();
         // Refresh the avatar so outfit/skin-tone changes made in the locker show here.
         loadAvatar();
+        // Also refresh the top-bar profile picture: the avatar may have changed in
+        // the locker, and the top bar otherwise renders the face only once per
+        // session. This keeps the profile picture in sync with the avatar.
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).refreshAvatarThumb();
+        }
     }
 
     /**
@@ -143,11 +149,12 @@ public class MeFragment extends Fragment {
         if (avatar == null) return;
         final String bodyType = avatar.getBodyShape();
         final String skinTone = avatar.getSkinTone();
+        final String hairColour = avatar.getHairColour();
 
         new Thread(() -> {
             if (getContext() == null) return;
             Bitmap bmp = AvatarCompositor.composite(
-                    requireContext().getApplicationContext(), gender, bodyType, skinTone, equipped);
+                    requireContext().getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
             if (getActivity() == null || !isAdded()) return;
             getActivity().runOnUiThread(() -> ivAvatar.setImageBitmap(bmp));
         }).start();

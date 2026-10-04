@@ -14,33 +14,26 @@ import com.jve.repsup.R;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
- * Step 6: Body type selection in a 2x3 grid with gender-aware images.
- * Body types: Skinny, Average, Toned, Muscular, Chubby, Overweight.
+ * Step 6: Body type selection, three options stacked one per row, gender-aware.
+ *
+ * The three body types differ by gender (the app only ships art for these):
+ *   Male:   average, built, chubby
+ *   Female: average, toned, chubby
+ *
+ * The stored value is the lowercase key (e.g. "average", "built") so it matches
+ * the body_shape used everywhere else - the base body drawables
+ * (base_{gender}_{bodytype}_{tone}) and the per-body-type clothing folders.
  */
 public class AssessmentBodyTypeFragment extends Fragment {
 
     private ImageView[] bodyTypeViews;
-    private String[] bodyTypeNames = {"Skinny", "Average", "Toned", "Muscular", "Chubby", "Overweight"};
 
-    // Male image resources
-    private int[] maleImages = {
-            R.drawable.ic_bodytype_male_skinny,
-            R.drawable.ic_bodytype_male_average,
-            R.drawable.ic_bodytype_male_toned,
-            R.drawable.ic_bodytype_male_muscular,
-            R.drawable.ic_bodytype_male_chubby,
-            R.drawable.ic_bodytype_male_overweight
-    };
+    // Lowercase body-type keys per gender (index-aligned with the 3 image slots).
+    private static final String[] MALE_BODY_TYPES = {"average", "built", "chubby"};
+    private static final String[] FEMALE_BODY_TYPES = {"average", "toned", "chubby"};
 
-    // Female image resources
-    private int[] femaleImages = {
-            R.drawable.ic_bodytype_female_skinny,
-            R.drawable.ic_bodytype_female_average,
-            R.drawable.ic_bodytype_female_toned,
-            R.drawable.ic_bodytype_female_muscular,
-            R.drawable.ic_bodytype_female_chubby,
-            R.drawable.ic_bodytype_female_overweight
-    };
+    // The keys actually in use for the current gender (set in onViewCreated).
+    private String[] bodyTypeKeys = MALE_BODY_TYPES;
 
     @Nullable
     @Override
@@ -57,29 +50,31 @@ public class AssessmentBodyTypeFragment extends Fragment {
         bodyTypeViews = new ImageView[]{
                 view.findViewById(R.id.ivBodyType0),
                 view.findViewById(R.id.ivBodyType1),
-                view.findViewById(R.id.ivBodyType2),
-                view.findViewById(R.id.ivBodyType3),
-                view.findViewById(R.id.ivBodyType4),
-                view.findViewById(R.id.ivBodyType5)
+                view.findViewById(R.id.ivBodyType2)
         };
 
-        // Determine gender for image selection
+        // Gender drives both which body types are offered and which art is shown.
         String gender = getAssessmentActivity().getAssessmentData().getGender();
-        boolean isFemale = "Female".equals(gender);
-        int[] images = isFemale ? femaleImages : maleImages;
+        boolean isFemale = "Female".equalsIgnoreCase(gender);
+        String g = isFemale ? "female" : "male";
+        bodyTypeKeys = isFemale ? FEMALE_BODY_TYPES : MALE_BODY_TYPES;
 
-        // Set images and click listeners
+        // Preview each option with the full-body avatar_{gender}_{bodytype} image.
         for (int i = 0; i < bodyTypeViews.length; i++) {
-            bodyTypeViews[i].setImageResource(images[i]);
+            int resId = getResources().getIdentifier(
+                    "avatar_" + g + "_" + bodyTypeKeys[i], "drawable", requireContext().getPackageName());
+            if (resId != 0) {
+                bodyTypeViews[i].setImageResource(resId);
+            }
             final int index = i;
             bodyTypeViews[i].setOnClickListener(v -> selectBodyType(index));
         }
 
-        // Restore saved selection
+        // Restore a previously chosen body type (stored as the lowercase key).
         String savedBodyType = getAssessmentActivity().getAssessmentData().getBodyType();
         if (savedBodyType != null) {
-            for (int i = 0; i < bodyTypeNames.length; i++) {
-                if (bodyTypeNames[i].equals(savedBodyType)) {
+            for (int i = 0; i < bodyTypeKeys.length; i++) {
+                if (bodyTypeKeys[i].equalsIgnoreCase(savedBodyType)) {
                     highlightSelected(i);
                     break;
                 }
@@ -88,7 +83,7 @@ public class AssessmentBodyTypeFragment extends Fragment {
     }
 
     private void selectBodyType(int index) {
-        getAssessmentActivity().getAssessmentData().setBodyType(bodyTypeNames[index]);
+        getAssessmentActivity().getAssessmentData().setBodyType(bodyTypeKeys[index]);
         highlightSelected(index);
         getAssessmentActivity().notifyDataChanged();
     }

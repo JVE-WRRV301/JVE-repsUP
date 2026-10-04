@@ -9,15 +9,18 @@ public class Avatar {
     private int avatarId;
     private int userId;
     private String skinTone;
+    private String hairColour;
     private String bodyShape;
     private String facialDetails;
 
     public Avatar() {}
 
-    public Avatar(int avatarId, int userId, String skinTone, String bodyShape, String facialDetails) {
+    public Avatar(int avatarId, int userId, String skinTone, String hairColour,
+                  String bodyShape, String facialDetails) {
         this.avatarId = avatarId;
         this.userId = userId;
         this.skinTone = skinTone;
+        this.hairColour = hairColour;
         this.bodyShape = bodyShape;
         this.facialDetails = facialDetails;
     }
@@ -32,6 +35,9 @@ public class Avatar {
 
     public String getSkinTone() { return skinTone; }
     public void setSkinTone(String skinTone) { this.skinTone = skinTone; }
+
+    public String getHairColour() { return hairColour; }
+    public void setHairColour(String hairColour) { this.hairColour = hairColour; }
 
     public String getBodyShape() { return bodyShape; }
     public void setBodyShape(String bodyShape) { this.bodyShape = bodyShape; }

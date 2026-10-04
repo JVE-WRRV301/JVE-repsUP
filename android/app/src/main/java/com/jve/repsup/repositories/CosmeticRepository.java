@@ -19,13 +19,14 @@ public class CosmeticRepository {
      * Gets the user's avatar record from the database.
      */
     public void getAvatar(int userId, DatabaseCallback<Avatar> callback) {
-        String sql = "SELECT avatar_id, user_id, skin_tone, body_shape, facial_details " +
+        String sql = "SELECT avatar_id, user_id, skin_tone, hair_colour, body_shape, facial_details " +
                 "FROM avatar WHERE user_id = ?";
         ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
             Avatar avatar = new Avatar();
             avatar.setAvatarId(rs.getInt("avatar_id"));
             avatar.setUserId(rs.getInt("user_id"));
             avatar.setSkinTone(rs.getString("skin_tone"));
+            avatar.setHairColour(rs.getString("hair_colour"));
             avatar.setBodyShape(rs.getString("body_shape"));
             avatar.setFacialDetails(rs.getString("facial_details"));
             return avatar;
@@ -37,7 +38,7 @@ public class CosmeticRepository {
      */
     public void getUserCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
-                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci";
         ConnectionManager.queryList(sql, null, CosmeticRepository::mapCosmetic, callback);
     }
@@ -47,7 +48,7 @@ public class CosmeticRepository {
      */
     public void getOwnedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
-                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci " +
                 "INNER JOIN User_Cosmetic uc ON ci.cosmetic_id = uc.cosmetic_id " +
                 "WHERE uc.user_id = ? AND uc.is_unlocked = 1";
@@ -59,7 +60,7 @@ public class CosmeticRepository {
      */
     public void getLockedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
-                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci " +
                 "WHERE ci.cosmetic_id NOT IN " +
                 "(SELECT uc.cosmetic_id FROM User_Cosmetic uc WHERE uc.user_id = ? AND uc.is_unlocked = 1)";
@@ -81,7 +82,7 @@ public class CosmeticRepository {
     public void getCosmeticsForTab(String cosmeticType, String gender,
                                    DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
-                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Cosmetic_Item ci " +
                 "WHERE ci.cosmetic_type = ? AND (ci.gender = ? OR ci.gender = 'unisex') " +
                 "ORDER BY ci.cosmetic_id";
@@ -99,6 +100,7 @@ public class CosmeticRepository {
         item.setName(rs.getString("cosmetic_name"));
         item.setType(rs.getString("cosmetic_type"));
         item.setGender(rs.getString("gender"));
+        item.setColourable(rs.getBoolean("is_colourable"));
         item.setUnlockType(rs.getString("unlock_type"));
         item.setLevelRequired(rs.getInt("lvl_required"));
         item.setCoinCost(rs.getInt("coin_cost"));
@@ -197,7 +199,7 @@ public class CosmeticRepository {
      * Gets the user's current outfit slot.
      */
     public void getOutfitSlot(int userId, DatabaseCallback<OutfitSlot> callback) {
-        String sql = "SELECT outfit_slot_id, user_id, top_id, bottom_id, shoes_id, socks_id, accessories_id " +
+        String sql = "SELECT outfit_slot_id, user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id " +
                 "FROM Outfit_Slot WHERE user_id = ?";
         ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
             OutfitSlot slot = new OutfitSlot();
@@ -207,6 +209,7 @@ public class CosmeticRepository {
             slot.setBottomId(rs.getObject("bottom_id") != null ? rs.getInt("bottom_id") : null);
             slot.setShoesId(rs.getObject("shoes_id") != null ? rs.getInt("shoes_id") : null);
             slot.setSocksId(rs.getObject("socks_id") != null ? rs.getInt("socks_id") : null);
+            slot.setHairId(rs.getObject("hair_id") != null ? rs.getInt("hair_id") : null);
             slot.setAccessoriesId(rs.getObject("accessories_id") != null ? rs.getInt("accessories_id") : null);
             return slot;
         }, callback);
@@ -216,14 +219,14 @@ public class CosmeticRepository {
      * Saves (inserts or updates) the outfit slot for the user.
      */
     public void saveOutfitSlot(OutfitSlot slot, DatabaseCallback<Integer> callback) {
-        String sql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, accessories_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?) " +
+        String sql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE top_id = VALUES(top_id), bottom_id = VALUES(bottom_id), " +
-                "shoes_id = VALUES(shoes_id), socks_id = VALUES(socks_id), " +
+                "shoes_id = VALUES(shoes_id), socks_id = VALUES(socks_id), hair_id = VALUES(hair_id), " +
                 "accessories_id = VALUES(accessories_id)";
         ConnectionManager.executeUpdate(sql, new Object[]{
                 slot.getUserId(), slot.getTopId(), slot.getBottomId(),
-                slot.getShoesId(), slot.getSocksId(), slot.getAccessoriesId()
+                slot.getShoesId(), slot.getSocksId(), slot.getHairId(), slot.getAccessoriesId()
         }, callback);
     }
 
@@ -297,13 +300,16 @@ public class CosmeticRepository {
                 case "socks":
                     slot.setSocksId(item.getCosmeticId());
                     break;
+                case "hair":
+                    slot.setHairId(item.getCosmeticId());
+                    break;
                 case "accessory":
                 case "accessories":
                     slot.setAccessoriesId(item.getCosmeticId());
                     break;
                 default:
-                    // hair, face, and other non-outfit-slot types are tracked
-                    // in User_Cosmetic (is_equipped) but not in Outfit_Slot.
+                    // face and other non-outfit-slot types are tracked in
+                    // User_Cosmetic (is_equipped) but not in Outfit_Slot.
                     break;
             }
         }
@@ -342,10 +348,10 @@ public class CosmeticRepository {
      */
     public void getEquippedItemsForOutfit(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
-                "ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
+                "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
                 "FROM Outfit_Slot os " +
                 "INNER JOIN Cosmetic_Item ci ON ci.cosmetic_id IN " +
-                "(os.top_id, os.bottom_id, os.shoes_id, os.socks_id, os.accessories_id) " +
+                "(os.top_id, os.bottom_id, os.shoes_id, os.socks_id, os.hair_id, os.accessories_id) " +
                 "WHERE os.user_id = ?";
         ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
     }
@@ -364,6 +370,23 @@ public class CosmeticRepository {
     public void updateSkinTone(int userId, String skinTone, DatabaseCallback<Integer> callback) {
         String sql = "UPDATE avatar SET skin_tone = ? WHERE user_id = ?";
         ConnectionManager.executeUpdate(sql, new Object[]{skinTone, userId}, callback);
+    }
+
+    /**
+     * Updates the user's hair colour (e.g. "grey", "brown", "black", "blonde", "ginger").
+     */
+    public void updateHairColour(int userId, String hairColour, DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE avatar SET hair_colour = ? WHERE user_id = ?";
+        ConnectionManager.executeUpdate(sql, new Object[]{hairColour, userId}, callback);
+    }
+
+    /**
+     * Updates the user's body shape (e.g. "skinny", "average", "toned", "built",
+     * "chubby", "overweight"). Drives which base body + per-body-type clothing renders.
+     */
+    public void updateBodyShape(int userId, String bodyShape, DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE avatar SET body_shape = ? WHERE user_id = ?";
+        ConnectionManager.executeUpdate(sql, new Object[]{bodyShape, userId}, callback);
     }
 
     /**
