@@ -536,6 +536,9 @@
     <string name="error_dialog_title">Something went wrong</string>
     <string name="error_dialog_ok">OK</string>
 
+    <!-- Snackbar (shared) -->
+    <string name="snackbar_dismiss">Dismiss</string>
+
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_section_password">CHANGE PASSWORD</string>

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.AdminCreateWorkoutActivity;
+import com.jve.repsup.utils.SnackbarUtils;
 
 /**
  * Step 4: Naming screen.
@@ -50,7 +50,7 @@ public class CreateWorkoutNamingFragment extends Fragment {
         String repsStr = etReps.getText().toString().trim();
 
         if (name.isEmpty() || setsStr.isEmpty() || repsStr.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.admin_fill_all_fields), Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(requireView(), R.string.admin_fill_all_fields);
             return;
         }
 
@@ -60,12 +60,12 @@ public class CreateWorkoutNamingFragment extends Fragment {
             sets = Integer.parseInt(setsStr);
             reps = Integer.parseInt(repsStr);
         } catch (NumberFormatException e) {
-            Toast.makeText(requireContext(), getString(R.string.admin_invalid_numbers), Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(requireView(), R.string.admin_invalid_numbers);
             return;
         }
 
         if (sets <= 0 || reps <= 0) {
-            Toast.makeText(requireContext(), getString(R.string.admin_invalid_numbers), Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(requireView(), R.string.admin_invalid_numbers);
             return;
         }
 

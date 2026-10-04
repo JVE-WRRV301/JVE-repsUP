@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
+import com.jve.repsup.utils.SnackbarUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,16 +63,14 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
             // Get selected difficulty
             String difficulty = getSelectedDifficulty();
             if (difficulty == null) {
-                Toast.makeText(getContext(),
-                        R.string.generate_workout_select_difficulty, Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(v, R.string.generate_workout_select_difficulty);
                 return;
             }
 
             // Get selected muscle groups
             List<String> selectedGroups = muscleGroupAdapter.getSelectedMuscleGroups();
             if (selectedGroups.isEmpty()) {
-                Toast.makeText(getContext(),
-                        R.string.generate_workout_select_muscle_group, Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(v, R.string.generate_workout_select_muscle_group);
                 return;
             }
 

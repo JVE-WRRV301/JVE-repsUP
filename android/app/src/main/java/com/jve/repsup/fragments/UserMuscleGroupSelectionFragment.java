@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
+import com.jve.repsup.utils.SnackbarUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -58,8 +58,7 @@ public class UserMuscleGroupSelectionFragment extends Fragment {
         btnConfirm.setOnClickListener(v -> {
             List<String> selected = adapter.getSelectedMuscleGroups();
             if (selected.isEmpty()) {
-                Toast.makeText(getContext(),
-                        R.string.create_workout_select_muscle_group_first, Toast.LENGTH_SHORT).show();
+                SnackbarUtils.show(v, R.string.create_workout_select_muscle_group_first);
                 return;
             }
 

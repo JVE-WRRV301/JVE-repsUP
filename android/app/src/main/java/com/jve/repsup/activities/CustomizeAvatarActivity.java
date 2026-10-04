@@ -27,6 +27,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.repositories.CosmeticRepository;
@@ -602,8 +603,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             imgCheck.setVisibility(View.GONE);
             lockOverlay.setVisibility(View.VISIBLE);
             txtPrice.setText(String.valueOf(item.getCoinCost()));
-            view.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.locker_item_coming_soon, Toast.LENGTH_SHORT).show());
+            view.setOnClickListener(v -> SnackbarUtils.show(this, R.string.locker_item_coming_soon));
             return view;
         }
 
@@ -725,9 +725,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
                         ownedCosmeticIds.add(item.getCosmeticId());
                         runOnUiThread(() -> {
                             txtCoinBalance.setText(String.valueOf(coinBalance));
-                            Toast.makeText(CustomizeAvatarActivity.this,
-                                    getString(R.string.locker_item_purchased, item.getName()),
-                                    Toast.LENGTH_SHORT).show();
+                            SnackbarUtils.show(CustomizeAvatarActivity.this,
+                                    getString(R.string.locker_item_purchased, item.getName()));
                             refreshCurrentGrid();
                         });
                     }

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +15,7 @@ import com.jve.repsup.models.User;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.SnackbarUtils;
 
 /**
  * SettingsActivity provides user profile management and app preferences.
@@ -120,8 +120,7 @@ public class SettingsActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     currentMeasurementSystem = system;
                     updateMeasurementToggleUI();
-                    Toast.makeText(SettingsActivity.this,
-                            R.string.settings_measurement_updated, Toast.LENGTH_SHORT).show();
+                    SnackbarUtils.show(SettingsActivity.this, R.string.settings_measurement_updated);
                 });
             }
 

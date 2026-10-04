@@ -11,7 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +24,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.adapters.ExerciseListAdapter;
 import com.jve.repsup.adapters.MuscleGroupAdapter;
 import com.jve.repsup.adapters.WorkoutCardAdapter;
@@ -287,8 +287,7 @@ public class WorkoutFragment extends Fragment implements
             public void onSuccess(Long result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(),
-                            R.string.workout_duplicated_success, Toast.LENGTH_SHORT).show();
+                    SnackbarUtils.show(requireView(), R.string.workout_duplicated_success);
                     loadSavedWorkouts();
                 });
             }
@@ -307,7 +306,7 @@ public class WorkoutFragment extends Fragment implements
     public void onWorkoutReorder(Workout workout, int position) {
         List<WorkoutExercise> exercises = workout.getExercises();
         if (exercises == null || exercises.isEmpty()) {
-            Toast.makeText(getContext(), R.string.workout_reorder_no_exercises, Toast.LENGTH_SHORT).show();
+            SnackbarUtils.show(requireView(), R.string.workout_reorder_no_exercises);
             return;
         }
 
@@ -374,8 +373,7 @@ public class WorkoutFragment extends Fragment implements
             public void onSuccess(Integer result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(),
-                            R.string.workout_reorder_success, Toast.LENGTH_SHORT).show();
+                    SnackbarUtils.show(requireView(), R.string.workout_reorder_success);
                     loadSavedWorkouts();
                 });
             }
@@ -457,8 +455,7 @@ public class WorkoutFragment extends Fragment implements
                             if (getActivity() == null || !isAdded()) return;
                             getActivity().runOnUiThread(() -> {
                                 workoutCardAdapter.removeWorkout(position);
-                                Toast.makeText(getContext(),
-                                        R.string.workout_deleted_success, Toast.LENGTH_SHORT).show();
+                                SnackbarUtils.show(requireView(), R.string.workout_deleted_success);
                                 if (workoutCardAdapter.getItemCount() == 0) {
                                     rvSavedWorkouts.setVisibility(View.GONE);
                                     tvSavedEmpty.setVisibility(View.VISIBLE);
