@@ -277,12 +277,11 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 public void onSuccess(List<Exercise> result) {
                     synchronized (allMatching) {
                         if (result != null) {
-                            for (Exercise exercise : result) {
-                                if (exercise.getDifficulty() != null &&
-                                        exercise.getDifficulty().equalsIgnoreCase(difficulty)) {
-                                    allMatching.add(exercise);
-                                }
-                            }
+                            // Include every exercise from the selected muscle groups,
+                            // regardless of difficulty. The chosen difficulty is used
+                            // later to bias (not restrict) which ones get picked, so a
+                            // workout stays populated even when few match exactly.
+                            allMatching.addAll(result);
                         }
                         loadedCount[0]++;
                         if (loadedCount[0] >= totalGroups) {
@@ -314,13 +313,31 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             return;
         }
 
-        // Shuffle and pick up to MAX_EXERCISES
-        Collections.shuffle(exercises);
-        if (exercises.size() > MAX_EXERCISES) {
-            exercises = exercises.subList(0, MAX_EXERCISES);
+        // Bias the selection toward the chosen difficulty without excluding others.
+        // Split into "matches chosen difficulty" and "the rest", shuffle each, then
+        // take matches first and top up with the rest. This keeps the workout focused
+        // on the chosen difficulty while still populating it when exact matches are few.
+        List<Exercise> preferred = new ArrayList<>();
+        List<Exercise> others = new ArrayList<>();
+        for (Exercise exercise : exercises) {
+            if (selectedDifficulty != null && exercise.getDifficulty() != null
+                    && exercise.getDifficulty().equalsIgnoreCase(selectedDifficulty)) {
+                preferred.add(exercise);
+            } else {
+                others.add(exercise);
+            }
+        }
+        Collections.shuffle(preferred);
+        Collections.shuffle(others);
+
+        List<Exercise> ordered = new ArrayList<>(preferred);
+        ordered.addAll(others);
+
+        if (ordered.size() > MAX_EXERCISES) {
+            ordered = ordered.subList(0, MAX_EXERCISES);
         }
 
-        this.selectedExercises = new ArrayList<>(exercises);
+        this.selectedExercises = new ArrayList<>(ordered);
         seedDraftsFromExercises();
         showFragment(new UserWorkoutDetailsFragment(), true);
     }
