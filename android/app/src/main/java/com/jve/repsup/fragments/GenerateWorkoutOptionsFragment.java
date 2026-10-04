@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
@@ -33,7 +32,9 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
             "Legs", "Glutes", "Abs", "Calves", "Forearms"
     );
 
-    private ChipGroup chipGroupDifficulty;
+    private Chip chipEasy;
+    private Chip chipMedium;
+    private Chip chipHard;
     private SelectableMuscleGroupAdapter muscleGroupAdapter;
 
     public GenerateWorkoutOptionsFragment() {
@@ -51,7 +52,11 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        chipGroupDifficulty = view.findViewById(R.id.chipGroupDifficulty);
+        chipEasy = view.findViewById(R.id.chipEasy);
+        chipMedium = view.findViewById(R.id.chipMedium);
+        chipHard = view.findViewById(R.id.chipHard);
+        setupSingleSelectDifficulty();
+
         RecyclerView rvMuscleGroups = view.findViewById(R.id.rvMuscleGroups);
         Button btnGenerate = view.findViewById(R.id.btnGenerate);
 
@@ -81,13 +86,28 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
         });
     }
 
+    /**
+     * Enforces single-selection across the three difficulty chips: checking one
+     * unchecks the others. (We manage this manually since the chips are laid out
+     * in a weighted LinearLayout rather than a ChipGroup.)
+     */
+    private void setupSingleSelectDifficulty() {
+        Chip[] chips = {chipEasy, chipMedium, chipHard};
+        for (Chip chip : chips) {
+            chip.setOnClickListener(v -> {
+                for (Chip other : chips) {
+                    other.setChecked(other == v);
+                }
+            });
+        }
+    }
+
     private String getSelectedDifficulty() {
-        int checkedId = chipGroupDifficulty.getCheckedChipId();
-        if (checkedId == R.id.chipEasy) {
+        if (chipEasy.isChecked()) {
             return "Easy";
-        } else if (checkedId == R.id.chipMedium) {
+        } else if (chipMedium.isChecked()) {
             return "Medium";
-        } else if (checkedId == R.id.chipHard) {
+        } else if (chipHard.isChecked()) {
             return "Hard";
         }
         return null;

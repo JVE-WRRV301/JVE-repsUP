@@ -27,24 +27,31 @@
         android:textColor="@color/muted"
         android:textSize="14sp" />
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupDifficulty"
+    <!-- Difficulty chips span the full width, evenly split three ways via equal
+         layout_weight. Selection is managed in the fragment (single-select), so a
+         plain LinearLayout is used instead of ChipGroup (which can't weight-size
+         its children). -->
+    <LinearLayout
+        android:id="@+id/difficultyRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        app:singleSelection="true">
+        android:orientation="horizontal">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipEasy"
             style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:checkable="true"
             android:clickable="true"
             android:focusable="true"
             android:fontFamily="@font/inter"
+            android:gravity="center"
             android:text="@string/difficulty_easy"
+            android:textAlignment="center"
             android:textColor="@color/chip_difficulty_text"
             app:chipBackgroundColor="@color/chip_difficulty_background"
             app:chipStrokeColor="@color/light_blue"
@@ -53,14 +60,17 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMedium"
             style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:checkable="true"
             android:clickable="true"
             android:focusable="true"
             android:fontFamily="@font/inter"
+            android:gravity="center"
             android:text="@string/difficulty_medium"
+            android:textAlignment="center"
             android:textColor="@color/chip_difficulty_text"
             app:chipBackgroundColor="@color/chip_difficulty_background"
             app:chipStrokeColor="@color/light_blue"
@@ -69,19 +79,22 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chipHard"
             style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:checkable="true"
             android:clickable="true"
             android:focusable="true"
             android:fontFamily="@font/inter"
+            android:gravity="center"
             android:text="@string/difficulty_hard"
+            android:textAlignment="center"
             android:textColor="@color/chip_difficulty_text"
             app:chipBackgroundColor="@color/chip_difficulty_background"
             app:chipStrokeColor="@color/light_blue"
             app:chipStrokeWidth="1dp" />
 
-    </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
