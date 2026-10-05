@@ -1,11 +1,9 @@
 package com.jve.repsup.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -87,10 +85,6 @@ public class UserWorkoutDetailsFragment extends Fragment {
         });
 
         btnSave.setOnClickListener(v -> {
-            // Dismiss the soft keyboard first so its key-preview bubbles don't
-            // overlap the validation toast at the bottom of the screen.
-            hideKeyboard(v);
-
             String workoutName = etWorkoutName.getText() != null ?
                     etWorkoutName.getText().toString().trim() : "";
 
@@ -109,18 +103,6 @@ public class UserWorkoutDetailsFragment extends Fragment {
 
             activity.onWorkoutSaved(workoutName, repsList, weightList);
         });
-    }
-
-    /**
-     * Hides the soft keyboard, if showing, using the given view's window token.
-     */
-    private void hideKeyboard(View view) {
-        if (getContext() == null || view == null) return;
-        InputMethodManager imm = (InputMethodManager)
-                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
     }
 
     /**

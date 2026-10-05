@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -134,13 +133,15 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Integer rows) {
                 runOnUiThread(() -> {
-                    Toast.makeText(AccountActivity.this,
-                            R.string.account_deleted, Toast.LENGTH_LONG).show();
                     sessionManager.clearSession();
-                    Intent intent = new Intent(AccountActivity.this, WelcomeActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    // Show confirmation, then navigate to Welcome once it's been seen.
+                    SnackbarUtils.show(AccountActivity.this, R.string.account_deleted);
+                    findViewById(android.R.id.content).postDelayed(() -> {
+                        Intent intent = new Intent(AccountActivity.this, WelcomeActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }, 1500);
                 });
             }
 

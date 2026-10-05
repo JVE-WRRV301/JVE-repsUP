@@ -2,7 +2,6 @@ package com.jve.repsup.activities;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -380,9 +379,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Integer result) {
                     runOnUiThread(() -> {
-                        Toast.makeText(CreateWorkoutActivity.this,
-                                R.string.edit_workout_success, Toast.LENGTH_SHORT).show();
-                        finish();
+                        SnackbarUtils.show(CreateWorkoutActivity.this, R.string.edit_workout_success);
+                        findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
                     });
                 }
 
@@ -404,9 +402,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Long workoutId) {
                     runOnUiThread(() -> {
-                        Toast.makeText(CreateWorkoutActivity.this,
-                                R.string.create_workout_success, Toast.LENGTH_SHORT).show();
-                        finish();
+                        SnackbarUtils.show(CreateWorkoutActivity.this, R.string.create_workout_success);
+                        findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
                     });
                 }
 

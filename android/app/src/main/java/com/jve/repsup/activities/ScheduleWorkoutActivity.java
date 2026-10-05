@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,6 +21,7 @@ import com.jve.repsup.models.Workout;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.SnackbarUtils;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -277,10 +277,13 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Long id) {
                         runOnUiThread(() -> {
-                            Toast.makeText(ScheduleWorkoutActivity.this,
-                                    R.string.schedule_workout_success, Toast.LENGTH_SHORT).show();
                             setResult(RESULT_OK);
-                            finish();
+                            // Show the confirmation, then close once it has been seen.
+                            // A Snackbar can't display on an activity that finishes
+                            // immediately, so delay finish() until after it shows.
+                            SnackbarUtils.show(ScheduleWorkoutActivity.this,
+                                    R.string.schedule_workout_success);
+                            btnSave.postDelayed(() -> finish(), 1500);
                         });
                     }
 

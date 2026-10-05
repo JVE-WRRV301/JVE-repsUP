@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,8 +26,9 @@ import java.util.List;
 
 /**
  * Activity for admins to manage default workouts.
- * Displays workouts in collapsible category/difficulty sections with search filtering.
- * Provides Edit and Delete actions via a 3-dot popup menu on each workout card.
+ * Displays all default workouts in a flat list under "All Default Workouts" with
+ * search filtering. Tapping a workout opens its detail/edit screen; the 3-dot menu
+ * provides Edit and Delete.
  */
 public class AdminManageWorkoutsActivity extends AppCompatActivity
         implements ManageWorkoutsAdapter.WorkoutActionListener {
@@ -136,7 +136,20 @@ public class AdminManageWorkoutsActivity extends AppCompatActivity
     // --- WorkoutActionListener implementation ---
 
     @Override
+    public void onWorkoutClick(Workout workout) {
+        openEdit(workout);
+    }
+
+    @Override
     public void onEditWorkout(Workout workout) {
+        openEdit(workout);
+    }
+
+    /**
+     * Opens the create/edit activity in edit mode for the given workout, so it
+     * loads the existing exercises and updates in place (never duplicates).
+     */
+    private void openEdit(Workout workout) {
         Intent intent = new Intent(this, AdminCreateWorkoutActivity.class);
         intent.putExtra(EXTRA_EDIT_WORKOUT_ID, workout.getWorkoutId());
         startActivity(intent);

@@ -6,7 +6,6 @@ import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -136,11 +135,10 @@ public class PersonalDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Integer rows) {
                         runOnUiThread(() -> {
-                            Toast.makeText(PersonalDetailsActivity.this,
-                                    R.string.personal_details_saved, Toast.LENGTH_SHORT).show();
+                            SnackbarUtils.show(PersonalDetailsActivity.this, R.string.personal_details_saved);
                             // Keep the session username in sync with the change.
                             sessionManager.createSession(userId, username, name);
-                            finish();
+                            findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
                         });
                     }
 

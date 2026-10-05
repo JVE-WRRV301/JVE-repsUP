@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
@@ -11,17 +12,41 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:fontFamily="@font/orbitron_bold"
         android:text="@string/admin_select_muscle_group"
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold" />
 
+    <!-- Running count of exercises added so far (across all muscle groups) -->
+    <TextView
+        android:id="@+id/tvAddedCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/light_blue"
+        android:textSize="14sp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMuscleGroups"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <!-- Persistent Review / Create button -->
+    <Button
+        android:id="@+id/btnReview"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/light_blue"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/admin_review_create"
+        android:textColor="@color/dark_text"
+        android:textSize="16sp"
+        app:cornerRadius="12dp" />
 
 </LinearLayout>
