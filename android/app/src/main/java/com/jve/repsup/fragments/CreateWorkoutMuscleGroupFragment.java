@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,24 +16,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.AdminCreateWorkoutActivity;
 import com.jve.repsup.adapters.MuscleGroupAdapter;
-
-import java.util.List;
+import com.jve.repsup.utils.SnackbarUtils;
 
 /**
- * Step 2: Muscle group grid screen.
- * Shows muscle groups filtered by the selected category.
+ * First step of the admin create-workout flow: a grid of the 10 muscle groups.
+ * (There is no category layer.) Shows the running "X / 8 added" count at the top
+ * and a persistent "Review / Create" button at the bottom.
  */
 public class CreateWorkoutMuscleGroupFragment extends Fragment {
 
-    private static final String ARG_CATEGORY = "category";
-
-    public static CreateWorkoutMuscleGroupFragment newInstance(String category) {
-        CreateWorkoutMuscleGroupFragment fragment = new CreateWorkoutMuscleGroupFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_CATEGORY, category);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private TextView tvAddedCount;
 
     @Nullable
     @Override
@@ -45,20 +38,41 @@ public class CreateWorkoutMuscleGroupFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String category = getArguments() != null ? getArguments().getString(ARG_CATEGORY) : "";
+        AdminCreateWorkoutActivity activity = (AdminCreateWorkoutActivity) requireActivity();
 
         TextView tvTitle = view.findViewById(R.id.tvMuscleGroupTitle);
         tvTitle.setText(getString(R.string.admin_select_muscle_group));
 
+        tvAddedCount = view.findViewById(R.id.tvAddedCount);
+        updateAddedCount();
+
         RecyclerView recyclerView = view.findViewById(R.id.rvMuscleGroups);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        List<String> muscleGroups = AdminCreateWorkoutActivity.CATEGORY_MUSCLE_GROUPS.get(category);
-        if (muscleGroups != null) {
-            MuscleGroupAdapter adapter = new MuscleGroupAdapter(muscleGroups, muscleGroup -> {
-                ((AdminCreateWorkoutActivity) requireActivity()).onMuscleGroupSelected(muscleGroup);
-            });
-            recyclerView.setAdapter(adapter);
-        }
+        MuscleGroupAdapter adapter = new MuscleGroupAdapter(
+                AdminCreateWorkoutActivity.MUSCLE_GROUPS,
+                muscleGroup -> activity.onMuscleGroupSelected(muscleGroup));
+        recyclerView.setAdapter(adapter);
+
+        Button btnReview = view.findViewById(R.id.btnReview);
+        btnReview.setOnClickListener(v -> {
+            if (activity.getSelectedCount() == 0) {
+                SnackbarUtils.show(requireView(), R.string.admin_add_at_least_one);
+                return;
+            }
+            activity.openReview();
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateAddedCount();
+    }
+
+    private void updateAddedCount() {
+        int added = ((AdminCreateWorkoutActivity) requireActivity()).getSelectedCount();
+        tvAddedCount.setText(getString(R.string.admin_exercises_added, added,
+                AdminCreateWorkoutActivity.MAX_EXERCISES));
     }
 }

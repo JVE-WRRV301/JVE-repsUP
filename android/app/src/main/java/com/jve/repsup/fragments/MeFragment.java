@@ -86,6 +86,24 @@ public class MeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        refreshData();
+    }
+
+    /**
+     * Fires when this fragment is shown/hidden via the MainActivity hide/show tab
+     * pattern. Unlike onResume(), this runs on tab switches (the activity never
+     * pauses), so it's needed to reflect XP/level changes made on other tabs
+     * (e.g. completing a goal) as soon as the user returns to the Me tab.
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            refreshData();
+        }
+    }
+
+    private void refreshData() {
         loadUserProfile();
         // Refresh the avatar so outfit/skin-tone changes made in the locker show here.
         loadAvatar();

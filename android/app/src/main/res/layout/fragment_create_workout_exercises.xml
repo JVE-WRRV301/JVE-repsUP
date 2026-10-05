@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
@@ -17,15 +18,16 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
+    <!-- Running count of exercises added so far (across all muscle groups) -->
     <TextView
-        android:id="@+id/tvSelectionCount"
+        android:id="@+id/tvAddedCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/inter"
-        android:textColor="@color/muted"
+        android:textColor="@color/light_blue"
         android:textSize="14sp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -34,17 +36,17 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <!-- Persistent Review / Create button -->
     <Button
-        android:id="@+id/btnConfirmExercises"
+        android:id="@+id/btnReview"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/light_blue"
         android:fontFamily="@font/inter_bold"
-        android:text="@string/admin_confirm_selection"
+        android:text="@string/admin_review_create"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
+        app:cornerRadius="12dp" />
 
 </LinearLayout>

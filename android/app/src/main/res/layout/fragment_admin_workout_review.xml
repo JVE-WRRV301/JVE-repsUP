@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_grey"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/orbitron_bold"
+        android:text="@string/admin_review_title"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/admin_workout_name_label"
+        android:textColor="@color/light_blue"
+        android:textSize="12sp" />
+
+    <EditText
+        android:id="@+id/etWorkoutName"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="16dp"
+        android:autofillHints="name"
+        android:background="@color/dark_grey_surface"
+        android:fontFamily="@font/inter"
+        android:hint="@string/admin_workout_name_hint"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/muted" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvReviewExercises"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btnAddMore"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/dark_grey_surface"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/admin_add_more"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:cornerRadius="12dp" />
+
+    <Button
+        android:id="@+id/btnFinish"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/light_blue"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/admin_finish_create"
+        android:textColor="@color/dark_text"
+        android:textSize="16sp"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

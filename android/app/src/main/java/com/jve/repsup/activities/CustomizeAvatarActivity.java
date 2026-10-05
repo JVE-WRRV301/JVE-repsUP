@@ -928,9 +928,8 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             public void onSuccess(Integer result) {
                 hasUnsavedChanges = false;
                 runOnUiThread(() -> {
-                    Toast.makeText(CustomizeAvatarActivity.this,
-                            getString(R.string.locker_outfit_saved), Toast.LENGTH_SHORT).show();
-                    finish();
+                    SnackbarUtils.show(CustomizeAvatarActivity.this, getString(R.string.locker_outfit_saved));
+                    findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
                 });
             }
 

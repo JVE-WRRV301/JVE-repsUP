@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * RecyclerView adapter for exercise selection.
- * Allows the admin to select up to a maximum number of exercises.
- * Selected items are highlighted in blue.
+ * RecyclerView adapter for multi-select exercise selection (user create-workout
+ * flow). Allows selecting up to a maximum number of exercises; selected items are
+ * highlighted in blue.
  */
 public class ExerciseSelectionAdapter extends RecyclerView.Adapter<ExerciseSelectionAdapter.ExerciseViewHolder> {
 
@@ -39,7 +39,7 @@ public class ExerciseSelectionAdapter extends RecyclerView.Adapter<ExerciseSelec
     }
 
     public void setExercises(List<Exercise> exercises) {
-        this.exercises = exercises;
+        this.exercises = exercises != null ? exercises : new ArrayList<>();
         this.selectedPositions.clear();
         notifyDataSetChanged();
     }
@@ -73,7 +73,7 @@ public class ExerciseSelectionAdapter extends RecyclerView.Adapter<ExerciseSelec
                         exercise.getDefaultSets(), exercise.getDefaultReps(), exercise.getDifficulty())
         );
 
-        // Highlight selected items in blue
+        // Highlight selected items in blue.
         if (isSelected) {
             holder.cardView.setCardBackgroundColor(
                     holder.itemView.getContext().getResources().getColor(R.color.light_blue, null));

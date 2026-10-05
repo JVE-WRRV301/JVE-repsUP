@@ -346,6 +346,10 @@
     <string name="admin_select_exercises">Select Exercises</string>
     <string name="admin_exercises_selected">%1$d / %2$d selected</string>
     <string name="admin_confirm_selection">Confirm Selection</string>
+    <string name="admin_add_exercise">Add Exercise</string>
+    <string name="admin_done_adding">Done</string>
+    <string name="admin_exercises_added">%1$d / %2$d added</string>
+    <string name="admin_add_at_least_one">Add at least one exercise before continuing</string>
     <string name="admin_select_at_least_one">Please select at least one exercise</string>
     <string name="admin_load_exercises_error">Failed to load exercises. Please try again.</string>
     <string name="admin_name_workout">Name Your Workout</string>
@@ -358,11 +362,23 @@
     <string name="admin_workout_created">Workout created successfully!</string>
     <string name="admin_workout_create_error">Failed to create workout. Please try again.</string>
     <string name="admin_exercise_details">%1$d sets × %2$d reps · %3$s</string>
+    <!-- Admin create flow (reworked: per-exercise sets/reps + review) -->
+    <string name="admin_review_create">Continue to Review</string>
+    <string name="admin_sets_reps_prompt">Set the default sets and reps for this exercise.</string>
+    <string name="admin_sets_label">Sets</string>
+    <string name="admin_reps_label">Reps</string>
+    <string name="admin_exercise_added_toast">Exercise added</string>
+    <string name="admin_review_title">Review Workout</string>
+    <string name="admin_workout_name_label">WORKOUT NAME</string>
+    <string name="admin_add_more">Add More Exercises</string>
+    <string name="admin_finish_create">Finish &amp; Save</string>
+    <string name="admin_workout_name_required">Workout name is required</string>
 
     <!-- Admin Manage Workouts -->
     <string name="admin_manage_workouts_title">Manage Workouts</string>
     <string name="admin_search_workouts_hint">Search workouts…</string>
     <string name="admin_no_workouts">No default workouts found</string>
+    <string name="admin_all_default_workouts">All Default Workouts</string>
     <string name="admin_load_workouts_error">Failed to load workouts. Please try again.</string>
     <string name="admin_action_edit">Edit</string>
     <string name="admin_action_delete">Delete</string>

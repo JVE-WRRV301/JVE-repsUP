@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +15,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.repositories.WorkoutRepository;
 
 /**
@@ -151,9 +151,8 @@ public class AdminCreateExerciseActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Long generatedId) {
                 mainHandler.post(() -> {
-                    Toast.makeText(AdminCreateExerciseActivity.this,
-                            R.string.exercise_created_success, Toast.LENGTH_SHORT).show();
-                    finish();
+                    SnackbarUtils.show(AdminCreateExerciseActivity.this, R.string.exercise_created_success);
+                    findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
                 });
             }
 
