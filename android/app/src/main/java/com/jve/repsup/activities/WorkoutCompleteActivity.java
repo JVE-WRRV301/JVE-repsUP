@@ -169,18 +169,30 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     }
 
     /**
-     * Persists workout completion: marks scheduled workout complete,
-     * updates user XP, and inserts an XP log record.
+     * Persists workout completion: marks the scheduled workout complete, and —
+     * only if that update actually changed a row — updates user XP, inserts an
+     * XP log record and updates the streak.
+     *
+     * The {@code completeScheduledWorkout} update carries an {@code is_completed = 0}
+     * guard, so a repeat run (e.g. after this screen is recreated on rotation)
+     * affects 0 rows. Gating the XP/log/streak work on "exactly 1 row changed"
+     * means completion is safe to repeat and XP is never awarded twice.
      */
     private void persistCompletion() {
         int userId = sessionManager.getUserId();
 
-        // 1. Mark scheduled workout as completed
+        // 1. Mark scheduled workout as completed. Everything else is gated on
+        //    this update changing exactly 1 row.
         scheduleRepository.completeScheduledWorkout(scheduledWorkoutId, totalXp, totalSets, totalReps,
                 new ConnectionManager.DatabaseCallback<Integer>() {
                     @Override
-                    public void onSuccess(Integer result) {
-                        // Scheduled workout marked complete
+                    public void onSuccess(Integer rowsChanged) {
+                        if (rowsChanged != null && rowsChanged == 1) {
+                            // First completion of this scheduled workout — award XP,
+                            // log it and update the streak.
+                            awardXpAndStreak(userId);
+                        }
+                        // Otherwise it was already completed: do nothing (no double XP).
                     }
 
                     @Override
@@ -188,7 +200,14 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                         // Log error but don't block user
                     }
                 });
+    }
 
+    /**
+     * Updates the user's XP, inserts the XP log row and updates the streak.
+     * Only called when the scheduled workout was marked complete for the first
+     * time (the completion UPDATE changed exactly 1 row).
+     */
+    private void awardXpAndStreak(int userId) {
         // 2. Update user's total XP
         userRepository.updateXp(userId, totalXp, new ConnectionManager.DatabaseCallback<Integer>() {
             @Override

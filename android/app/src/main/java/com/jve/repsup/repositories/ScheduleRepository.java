@@ -323,13 +323,16 @@ public class ScheduleRepository {
 
     /**
      * Marks a scheduled workout as completed with earned XP, sets, and reps.
-     * Returns the number of affected rows.
+     * The {@code is_completed = 0} guard makes the update idempotent: a repeat
+     * call (e.g. after the complete screen is recreated on rotation) affects 0
+     * rows, so XP is never awarded twice.
+     * Returns the number of affected rows (1 on first completion, 0 thereafter).
      */
     public void completeScheduledWorkout(int schedId, int earnedXp, int sets, int reps,
                                           ConnectionManager.DatabaseCallback<Integer> callback) {
         String sql = "UPDATE scheduled_workout SET is_completed = 1, completed_date = NOW(), " +
                 "earned_xp = ?, completed_sets = ?, completed_reps = ? " +
-                "WHERE scheduled_workout_id = ?";
+                "WHERE scheduled_workout_id = ? AND is_completed = 0";
 
         ConnectionManager.executeUpdate(sql, new Object[]{earnedXp, sets, reps, schedId}, callback);
     }

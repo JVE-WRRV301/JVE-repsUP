@@ -41,6 +41,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    // Per-user once-per-day guard for the launch streak evaluation.
+    private static final String STREAK_PREF_NAME = "RepsUpStreakEval";
+    private static final String KEY_LAST_STREAK_EVAL_PREFIX = "last_streak_eval_";
     private static final String TAG_HOME = "fragment_home";
     private static final String TAG_CALENDAR = "fragment_calendar";
     private static final String TAG_WORKOUT = "fragment_workout";
@@ -251,12 +254,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Evaluates yesterday's workout status and updates the user's streak accordingly.
-     * Called on app launch to ensure missed workouts reset the streak.
+     * Evaluates yesterday's workout status on app launch. This check may ONLY
+     * reset the streak to 0 when yesterday had a scheduled workout that was not
+     * completed; it never increments. The +1 for a completed workout happens
+     * once, in WorkoutCompleteActivity.
+     *
+     * Guarded to run at most once per calendar day per user: the last evaluated
+     * date is stored in SharedPreferences keyed by user id, and the check is
+     * skipped if it has already run today.
      */
     private void evaluateYesterdaysStreak() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
+
+        // Once-per-day guard: skip if we've already evaluated today for this user.
+        android.content.SharedPreferences streakPrefs =
+                getSharedPreferences(STREAK_PREF_NAME, MODE_PRIVATE);
+        String key = KEY_LAST_STREAK_EVAL_PREFIX + userId;
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        String lastEvaluated = streakPrefs.getString(key, null);
+        if (today.equals(lastEvaluated)) {
+            return;
+        }
+        // Record that the check has run today, so repeated launches skip it.
+        streakPrefs.edit().putString(key, today).apply();
 
         ScheduleRepository scheduleRepository = new ScheduleRepository();
 
@@ -276,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Integer streak) {
                         int currentStreak = streak != null ? streak : 0;
-                        int newStreak = StreakManager.evaluateStreak(currentStreak, hadScheduledWorkout, completedYesterday);
+                        // Launch check may only reset the streak, never increment it.
+                        int newStreak = StreakManager.evaluateStreakOnLaunch(currentStreak, hadScheduledWorkout, completedYesterday);
 
                         if (newStreak != currentStreak) {
                             userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {

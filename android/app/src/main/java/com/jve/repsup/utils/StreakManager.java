@@ -41,6 +41,31 @@ public class StreakManager {
     }
 
     /**
+     * Evaluates the streak for the app-launch check, which may only RESET the
+     * streak — never increment it. The +1 for a completed workout belongs solely
+     * to {@link #evaluateStreak} at completion time (WorkoutCompleteActivity), so
+     * running the launch check must not add to the streak again.
+     *
+     * Rules:
+     * - Scheduled yesterday + not completed → streak = 0 (missed day)
+     * - Scheduled yesterday + completed → streak unchanged (already counted on completion)
+     * - No workout scheduled yesterday (rest day) → streak unchanged
+     *
+     * @param currentStreak       the user's current streak count (>= 0)
+     * @param hadScheduledWorkout whether the user had a workout scheduled yesterday
+     * @param completedYesterday  whether the user completed yesterday's workout
+     * @return the updated streak value (either {@code currentStreak} or 0)
+     */
+    public static int evaluateStreakOnLaunch(int currentStreak, boolean hadScheduledWorkout, boolean completedYesterday) {
+        if (hadScheduledWorkout && !completedYesterday) {
+            // Missed a scheduled workout — reset
+            return 0;
+        }
+        // Rest day, or already-counted completion — leave the streak as-is
+        return currentStreak;
+    }
+
+    /**
      * Calculates the XP multiplier based on the current streak count.
      *
      * - Streak < 7 → 1.0 (no bonus)
