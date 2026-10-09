@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
@@ -261,12 +262,11 @@ public class HomeFragment extends Fragment {
         // Show START button or Completed status
         if (scheduledWorkout.isCompleted()) {
             btnStart.setText(R.string.calendar_status_completed);
-            btnStart.setEnabled(false);
-            btnStart.setAlpha(0.7f);
+            // Shared disabled look (grey, muted text) instead of a faded button.
+            SelectableButtonStyler.applyEnabled(btnStart, false);
         } else {
             btnStart.setText(R.string.home_start);
-            btnStart.setEnabled(true);
-            btnStart.setAlpha(1.0f);
+            SelectableButtonStyler.applyEnabled(btnStart, true);
         }
 
         // Populate exercise list

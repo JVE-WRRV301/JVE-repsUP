@@ -35,16 +35,12 @@
 
     <EditText
         android:id="@+id/etSets"
+        style="@style/Widget.RepsUp.CompactField.Popup"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="16dp"
         android:autofillHints="sets"
-        android:background="@drawable/bg_field_surface"
-        android:fontFamily="@font/inter"
-        android:inputType="number"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColor="@color/white" />
+        android:inputType="number" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -57,14 +53,10 @@
 
     <EditText
         android:id="@+id/etReps"
+        style="@style/Widget.RepsUp.CompactField.Popup"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:autofillHints="reps"
-        android:background="@drawable/bg_field_surface"
-        android:fontFamily="@font/inter"
-        android:inputType="number"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColor="@color/white" />
+        android:inputType="number" />
 
 </LinearLayout>

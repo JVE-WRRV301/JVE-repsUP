@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Stroke colour for Widget.RepsUp.TextField: light blue when the field is
-    focused, dark grey otherwise.
+    focused, otherwise the darkest grey (dark_grey_variant) so the outline
+    stays visible on both the page background and the grey panels.
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="@color/light_blue" android:state_focused="true" />
-    <item android:color="@color/dark_grey" />
+    <item android:color="@color/dark_grey_variant" />
 </selector>

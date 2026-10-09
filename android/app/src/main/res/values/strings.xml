@@ -25,6 +25,8 @@
     <string name="login_welcome_back">Welcome back!</string>
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>
+    <string name="login_error_username_empty">Please enter your username</string>
+    <string name="login_error_password_empty">Please enter your password</string>
     <string name="login_button">Login</string>
     <string name="login_error">Invalid username or password. Please try again.</string>
     <string name="login_no_account">Don\'t have an account? </string>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:padding="12dp"
-    android:background="@drawable/bg_card_white"
-    android:layout_marginBottom="4dp">
+    android:background="@drawable/bg_card_dark"
+    android:layout_marginBottom="8dp">
 
     <TextView
         android:id="@+id/tvReorderExerciseOrder"
@@ -25,7 +26,8 @@
         android:layout_weight="1"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:textColor="@color/dark_text"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/white"
         android:textSize="16sp" />
 
     <ImageView
@@ -33,6 +35,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_drag_handle"
-        android:contentDescription="@string/workout_reorder_drag_handle" />
+        android:contentDescription="@string/workout_reorder_drag_handle"
+        app:tint="@color/muted" />
 
 </LinearLayout>

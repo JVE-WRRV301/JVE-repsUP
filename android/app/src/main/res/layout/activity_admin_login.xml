@@ -23,16 +23,10 @@
     <!-- Username Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAdminUsername"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        app:boxStrokeColor="@color/light_blue"
-        app:boxCornerRadiusTopStart="@dimen/radius_control"
-        app:boxCornerRadiusTopEnd="@dimen/radius_control"
-        app:boxCornerRadiusBottomStart="@dimen/radius_control"
-        app:boxCornerRadiusBottomEnd="@dimen/radius_control"
-        app:hintTextColor="@color/light_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvAdminTitle">
@@ -51,18 +45,12 @@
     <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAdminPassword"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:boxStrokeColor="@color/light_blue"
-        app:boxCornerRadiusTopStart="@dimen/radius_control"
-        app:boxCornerRadiusTopEnd="@dimen/radius_control"
-        app:boxCornerRadiusBottomStart="@dimen/radius_control"
-        app:boxCornerRadiusBottomEnd="@dimen/radius_control"
-        app:hintTextColor="@color/light_blue"
         app:passwordToggleEnabled="true"
-        app:passwordToggleTint="@color/light_blue"
+        app:passwordToggleTint="@color/muted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tilAdminUsername">

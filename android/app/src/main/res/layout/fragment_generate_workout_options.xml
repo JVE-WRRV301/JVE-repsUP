@@ -25,10 +25,9 @@
         android:textColor="@color/muted"
         android:textSize="14sp" />
 
-    <!-- Difficulty chips span the full width, evenly split three ways via equal
-         layout_weight. Selection is managed in the fragment (single-select), so a
-         plain LinearLayout is used instead of ChipGroup (which can't weight-size
-         its children). -->
+    <!-- Difficulty options span the full width, evenly split three ways. They use
+         the app's shared selectable-button look (SelectableButtonStyler), and the
+         fragment manages single selection. -->
     <LinearLayout
         android:id="@+id/difficultyRow"
         android:layout_width="match_parent"
@@ -36,61 +35,46 @@
         android:layout_marginBottom="24dp"
         android:orientation="horizontal">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipEasy"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
+        <Button
+            android:id="@+id/btnDifficultyEasy"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:checkable="true"
-            android:clickable="true"
-            android:focusable="true"
+            android:backgroundTint="@color/dark_grey_surface"
             android:fontFamily="@font/inter"
-            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="@string/difficulty_easy"
-            android:textAlignment="center"
-            android:textColor="@color/chip_difficulty_text"
-            app:chipBackgroundColor="@color/chip_difficulty_background"
-            app:chipStrokeColor="@color/light_blue"
-            app:chipStrokeWidth="1dp" />
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipMedium"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
+        <Button
+            android:id="@+id/btnDifficultyMedium"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:checkable="true"
-            android:clickable="true"
-            android:focusable="true"
+            android:backgroundTint="@color/dark_grey_surface"
             android:fontFamily="@font/inter"
-            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="@string/difficulty_medium"
-            android:textAlignment="center"
-            android:textColor="@color/chip_difficulty_text"
-            app:chipBackgroundColor="@color/chip_difficulty_background"
-            app:chipStrokeColor="@color/light_blue"
-            app:chipStrokeWidth="1dp" />
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipHard"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
+        <Button
+            android:id="@+id/btnDifficultyHard"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:layout_weight="1"
-            android:checkable="true"
-            android:clickable="true"
-            android:focusable="true"
+            android:backgroundTint="@color/dark_grey_surface"
             android:fontFamily="@font/inter"
-            android:gravity="center"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="@string/difficulty_hard"
-            android:textAlignment="center"
-            android:textColor="@color/chip_difficulty_text"
-            app:chipBackgroundColor="@color/chip_difficulty_background"
-            app:chipStrokeColor="@color/light_blue"
-            app:chipStrokeWidth="1dp" />
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
     </LinearLayout>
 

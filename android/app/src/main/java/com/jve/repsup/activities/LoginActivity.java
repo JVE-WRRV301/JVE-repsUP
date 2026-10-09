@@ -128,11 +128,11 @@ public class LoginActivity extends AppCompatActivity {
 
         // Basic validation
         if (username.isEmpty()) {
-            tilUsername.setError(getString(R.string.login_username_hint));
+            tilUsername.setError(getString(R.string.login_error_username_empty));
             return;
         }
         if (password.isEmpty()) {
-            tilPassword.setError(getString(R.string.login_password_hint));
+            tilPassword.setError(getString(R.string.login_error_password_empty));
             return;
         }
 

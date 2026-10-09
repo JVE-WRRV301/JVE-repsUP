@@ -13,6 +13,27 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <!--
+        START button (Home, Calendar day list, My Plan). A real button, so it
+        gets a ripple when tapped, with the same light-blue pill everywhere.
+        Each layout sets its own width/height.
+    -->
+    <style name="Widget.RepsUp.Button.Start" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@color/light_blue</item>
+        <item name="android:textColor">@color/dark_text</item>
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
     <!-- Base button: rounded light-blue, dark text -->
     <style name="Widget.RepsUp.Button" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@color/light_blue</item>
@@ -175,6 +196,46 @@
         <item name="boxCornerRadiusBottomEnd">@dimen/radius_control</item>
         <item name="hintTextColor">@color/light_blue</item>
         <item name="android:textColorHint">@color/muted</item>
+    </style>
+
+    <!--
+        Same field look for exposed dropdown menus (admin muscle group /
+        difficulty pickers), so dropdowns match every other text field.
+    -->
+    <style name="Widget.RepsUp.TextField.Dropdown" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="boxStrokeColor">@color/text_field_stroke</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_control</item>
+        <item name="hintTextColor">@color/light_blue</item>
+        <item name="android:textColorHint">@color/muted</item>
+        <item name="endIconTint">@color/muted</item>
+    </style>
+
+    <!--
+        Compact number box for set rows and sets/reps inputs (reps, weight,
+        sets). Same outline look as Widget.RepsUp.TextField, no floating label:
+        the column heading or label sits above it as plain text.
+    -->
+    <style name="Widget.RepsUp.CompactField" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/bg_field_compact</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/muted</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- Compact number box inside a popup (darkest-grey background). -->
+    <style name="Widget.RepsUp.CompactField.Popup">
+        <item name="android:background">@drawable/bg_field_compact_popup</item>
     </style>
 
     <!-- ==================== TEXT STYLES ==================== -->

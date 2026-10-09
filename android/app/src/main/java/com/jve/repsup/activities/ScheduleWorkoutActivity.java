@@ -1,7 +1,6 @@
 package com.jve.repsup.activities;
 
 import android.app.DatePickerDialog;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,10 +10,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.Workout;
@@ -227,30 +226,10 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
     }
 
     private void updateRepeatButtons() {
-        int activeColor = ContextCompat.getColor(this, R.color.light_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.dark_grey_surface);
-        int activeTextColor = ContextCompat.getColor(this, R.color.dark_text);
-        int inactiveTextColor = ContextCompat.getColor(this, R.color.white);
-
-        btnRepeatNever.setBackgroundTintList(ColorStateList.valueOf(
-                "Never".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatNever.setTextColor(
-                "Never".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatWeekly.setBackgroundTintList(ColorStateList.valueOf(
-                "Weekly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatWeekly.setTextColor(
-                "Weekly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatBiweekly.setBackgroundTintList(ColorStateList.valueOf(
-                "Biweekly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatBiweekly.setTextColor(
-                "Biweekly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatMonthly.setBackgroundTintList(ColorStateList.valueOf(
-                "Monthly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatMonthly.setTextColor(
-                "Monthly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
+        SelectableButtonStyler.applySelected(btnRepeatNever, "Never".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatWeekly, "Weekly".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatBiweekly, "Biweekly".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatMonthly, "Monthly".equals(selectedRepeat));
     }
 
     /**

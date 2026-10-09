@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.adapters.AssessmentPagerAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
@@ -187,15 +188,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
      * Enables or disables the Next button with appropriate styling.
      */
     public void setNextEnabled(boolean enabled) {
-        if (enabled) {
-            btnNext.setEnabled(true);
-            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_blue));
-            btnNext.setTextColor(ContextCompat.getColor(this, R.color.dark_text));
-        } else {
-            btnNext.setEnabled(false);
-            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.dark_grey_surface));
-            btnNext.setTextColor(ContextCompat.getColor(this, R.color.muted));
-        }
+        SelectableButtonStyler.applyEnabled(btnNext, enabled);
     }
 
     /**

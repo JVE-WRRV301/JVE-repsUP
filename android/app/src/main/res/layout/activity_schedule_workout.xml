@@ -47,18 +47,12 @@
             <!-- Date Picker Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDate"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/light_blue"
-                app:boxCornerRadiusTopStart="@dimen/radius_control"
-                app:boxCornerRadiusTopEnd="@dimen/radius_control"
-                app:boxCornerRadiusBottomStart="@dimen/radius_control"
-                app:boxCornerRadiusBottomEnd="@dimen/radius_control"
-                app:hintTextColor="@color/light_blue">
+                android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDate"

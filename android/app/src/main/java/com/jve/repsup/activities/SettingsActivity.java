@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.models.User;
 import com.jve.repsup.utils.DialogUtils;
@@ -141,17 +142,10 @@ public class SettingsActivity extends AppCompatActivity {
     private void updateMeasurementToggleUI() {
         // Tint the rounded toggle backgrounds instead of calling setBackgroundColor,
         // which would replace the drawable with a flat (square) colour.
-        if (METRIC.equals(currentMeasurementSystem)) {
-            btnMetric.setBackgroundTintList(getColorStateList(R.color.light_blue));
-            btnMetric.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnImperial.setBackgroundTintList(getColorStateList(R.color.dark_grey_variant));
-            btnImperial.setTextColor(getResources().getColor(R.color.white, null));
-        } else {
-            btnImperial.setBackgroundTintList(getColorStateList(R.color.light_blue));
-            btnImperial.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnMetric.setBackgroundTintList(getColorStateList(R.color.dark_grey_variant));
-            btnMetric.setTextColor(getResources().getColor(R.color.white, null));
-        }
+        // The toggle sits on a grey card, so the "on card" variant is used.
+        boolean metric = METRIC.equals(currentMeasurementSystem);
+        SelectableButtonStyler.applySelectedOnCard(btnMetric, metric);
+        SelectableButtonStyler.applySelectedOnCard(btnImperial, !metric);
     }
 
     /**

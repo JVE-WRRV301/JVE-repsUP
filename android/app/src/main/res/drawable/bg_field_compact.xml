@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Compact number box (reps / weight / sets rows). Same look as
+    Widget.RepsUp.TextField but without a floating label: transparent fill,
+    dark outline, light-blue outline while focused, pill corners.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/light_blue" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/dark_grey_variant" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
+</selector>

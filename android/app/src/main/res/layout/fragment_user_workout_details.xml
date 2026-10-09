@@ -16,12 +16,10 @@
         style="@style/Widget.RepsUp.PageTitle" />
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:boxBackgroundColor="@color/dark_grey_surface"
-        app:boxStrokeColor="@color/light_blue"
-        app:hintTextColor="@color/muted">
+        android:layout_marginBottom="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etWorkoutName"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollPersonalDetails"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,79 +43,76 @@
         </LinearLayout>
 
         <!-- Name -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:fontFamily="@font/inter_bold"
-            android:text="@string/personal_details_name_label"
-            android:textColor="@color/light_blue"
-            android:textSize="12sp" />
-
-        <EditText
-            android:id="@+id/etName"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilName"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:autofillHints="name"
-            android:background="@drawable/bg_field_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/personal_details_name_label"
-            android:inputType="textPersonName"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:startIconDrawable="@drawable/ic_person"
+            app:startIconTint="@color/muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="name"
+                android:fontFamily="@font/inter"
+                android:inputType="textPersonName"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:fontFamily="@font/inter_bold"
-            android:text="@string/personal_details_email_label"
-            android:textColor="@color/light_blue"
-            android:textSize="12sp" />
-
-        <EditText
-            android:id="@+id/etEmail"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:autofillHints="emailAddress"
-            android:background="@drawable/bg_field_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/personal_details_email_label"
-            android:inputType="textEmailAddress"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:startIconDrawable="@drawable/ic_email"
+            app:startIconTint="@color/muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="emailAddress"
+                android:fontFamily="@font/inter"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Username -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:fontFamily="@font/inter_bold"
-            android:text="@string/personal_details_username_label"
-            android:textColor="@color/light_blue"
-            android:textSize="12sp" />
-
-        <EditText
-            android:id="@+id/etUsername"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilUsername"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:autofillHints="username"
-            android:background="@drawable/bg_field_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/personal_details_username_label"
-            android:inputType="text"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:startIconDrawable="@drawable/ic_person"
+            app:startIconTint="@color/muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="username"
+                android:fontFamily="@font/inter"
+                android:inputType="text"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Save Button -->
         <Button

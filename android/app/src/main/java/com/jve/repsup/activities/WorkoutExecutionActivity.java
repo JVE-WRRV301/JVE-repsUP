@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.Workout;
@@ -353,8 +354,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             }
         }
 
-        btnNext.setEnabled(allChecked);
-        btnNext.setAlpha(allChecked ? 1.0f : 0.5f);
+        // Same disabled look as the assessment Next button (grey, muted text).
+        SelectableButtonStyler.applyEnabled(btnNext, allChecked);
     }
 
     /**
