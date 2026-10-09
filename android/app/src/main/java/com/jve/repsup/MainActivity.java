@@ -260,7 +260,13 @@ public class MainActivity extends AppCompatActivity {
 
         ScheduleRepository scheduleRepository = new ScheduleRepository();
 
-        scheduleRepository.getYesterdaysWorkoutStatus(userId, new ConnectionManager.DatabaseCallback<boolean[]>() {
+        // Compute "yesterday" from the phone's date so the streak check doesn't
+        // depend on the MySQL server's timezone.
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -1);
+        java.sql.Date yesterday = new java.sql.Date(cal.getTimeInMillis());
+
+        scheduleRepository.getYesterdaysWorkoutStatus(userId, yesterday, new ConnectionManager.DatabaseCallback<boolean[]>() {
             @Override
             public void onSuccess(boolean[] status) {
                 boolean hadScheduledWorkout = status[0];

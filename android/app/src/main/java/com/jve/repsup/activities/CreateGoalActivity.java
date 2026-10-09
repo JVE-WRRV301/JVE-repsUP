@@ -143,8 +143,12 @@ public class CreateGoalActivity extends AppCompatActivity {
                 this,
                 R.style.DatePickerTheme,
                 (view, year, month, dayOfMonth) -> {
+                    // Zero the time fields so the saved java.sql.Date is a pure
+                    // date; a leftover time-of-day could shift the day across a
+                    // server timezone boundary.
                     Calendar selected = Calendar.getInstance();
-                    selected.set(year, month, dayOfMonth);
+                    selected.set(year, month, dayOfMonth, 0, 0, 0);
+                    selected.set(Calendar.MILLISECOND, 0);
                     selectedDate = new Date(selected.getTimeInMillis());
                     etGoalDate.setText(dateFormat.format(selectedDate));
                 },

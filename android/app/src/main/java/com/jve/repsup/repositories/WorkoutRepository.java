@@ -89,45 +89,58 @@ public class WorkoutRepository {
      */
     public void createWorkout(Workout workout, List<WorkoutExercise> exercises, ConnectionManager.DatabaseCallback<Long> callback) {
         ConnectionManager.executeAsync(connection -> {
-            String insertWorkout = "INSERT INTO workout (user_id, workout_name, is_default, workout_order_index) " +
-                    "VALUES (?, ?, ?, ?)";
-            long workoutId;
-            try (PreparedStatement stmt = connection.prepareStatement(insertWorkout, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                if (workout.getUserId() != null) {
-                    stmt.setInt(1, workout.getUserId());
-                } else {
-                    stmt.setNull(1, java.sql.Types.INTEGER);
-                }
-                stmt.setString(2, workout.getName());
-                stmt.setBoolean(3, workout.isDefault());
-                stmt.setInt(4, workout.getOrderIndex());
-                stmt.executeUpdate();
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        workoutId = keys.getLong(1);
+            // Insert the workout and its exercises in one transaction so a failed
+            // exercise insert can't leave a workout with no exercises behind.
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                String insertWorkout = "INSERT INTO workout (user_id, workout_name, is_default, workout_order_index) " +
+                        "VALUES (?, ?, ?, ?)";
+                long workoutId;
+                try (PreparedStatement stmt = connection.prepareStatement(insertWorkout, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    if (workout.getUserId() != null) {
+                        stmt.setInt(1, workout.getUserId());
                     } else {
-                        return -1L;
+                        stmt.setNull(1, java.sql.Types.INTEGER);
+                    }
+                    stmt.setString(2, workout.getName());
+                    stmt.setBoolean(3, workout.isDefault());
+                    stmt.setInt(4, workout.getOrderIndex());
+                    stmt.executeUpdate();
+                    try (ResultSet keys = stmt.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            workoutId = keys.getLong(1);
+                        } else {
+                            connection.rollback();
+                            return -1L;
+                        }
                     }
                 }
-            }
 
-            // Insert exercises
-            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
-                for (WorkoutExercise we : exercises) {
-                    stmt.setLong(1, workoutId);
-                    stmt.setInt(2, we.getExerciseId());
-                    stmt.setInt(3, we.getSets());
-                    stmt.setInt(4, we.getReps());
-                    stmt.setInt(5, we.getOrderIndex());
-                    stmt.setDouble(6, we.getTargetWeight());
-                    stmt.addBatch();
+                // Insert exercises
+                String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
+                    for (WorkoutExercise we : exercises) {
+                        stmt.setLong(1, workoutId);
+                        stmt.setInt(2, we.getExerciseId());
+                        stmt.setInt(3, we.getSets());
+                        stmt.setInt(4, we.getReps());
+                        stmt.setInt(5, we.getOrderIndex());
+                        stmt.setDouble(6, we.getTargetWeight());
+                        stmt.addBatch();
+                    }
+                    stmt.executeBatch();
                 }
-                stmt.executeBatch();
-            }
 
-            return workoutId;
+                connection.commit();
+                return workoutId;
+            } catch (java.sql.SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
         }, callback);
     }
 
@@ -137,42 +150,54 @@ public class WorkoutRepository {
      */
     public void updateWorkout(Workout workout, List<WorkoutExercise> exercises, ConnectionManager.DatabaseCallback<Integer> callback) {
         ConnectionManager.executeAsync(connection -> {
-            // Update workout
-            String updateSql = "UPDATE workout SET workout_name = ?, is_default = ?, workout_order_index = ? " +
-                    "WHERE workout_id = ?";
-            int rows;
-            try (PreparedStatement stmt = connection.prepareStatement(updateSql)) {
-                stmt.setString(1, workout.getName());
-                stmt.setBoolean(2, workout.isDefault());
-                stmt.setInt(3, workout.getOrderIndex());
-                stmt.setInt(4, workout.getWorkoutId());
-                rows = stmt.executeUpdate();
-            }
-
-            // Delete existing exercises
-            String deleteSql = "DELETE FROM workout_exercise WHERE workout_id = ?";
-            try (PreparedStatement stmt = connection.prepareStatement(deleteSql)) {
-                stmt.setInt(1, workout.getWorkoutId());
-                stmt.executeUpdate();
-            }
-
-            // Re-insert exercises
-            String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
-                for (WorkoutExercise we : exercises) {
-                    stmt.setInt(1, workout.getWorkoutId());
-                    stmt.setInt(2, we.getExerciseId());
-                    stmt.setInt(3, we.getSets());
-                    stmt.setInt(4, we.getReps());
-                    stmt.setInt(5, we.getOrderIndex());
-                    stmt.setDouble(6, we.getTargetWeight());
-                    stmt.addBatch();
+            // Update, delete-exercises and re-insert run in one transaction so a
+            // failed re-insert can't leave the workout with its exercises deleted.
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                // Update workout
+                String updateSql = "UPDATE workout SET workout_name = ?, is_default = ?, workout_order_index = ? " +
+                        "WHERE workout_id = ?";
+                int rows;
+                try (PreparedStatement stmt = connection.prepareStatement(updateSql)) {
+                    stmt.setString(1, workout.getName());
+                    stmt.setBoolean(2, workout.isDefault());
+                    stmt.setInt(3, workout.getOrderIndex());
+                    stmt.setInt(4, workout.getWorkoutId());
+                    rows = stmt.executeUpdate();
                 }
-                stmt.executeBatch();
-            }
 
-            return rows;
+                // Delete existing exercises
+                String deleteSql = "DELETE FROM workout_exercise WHERE workout_id = ?";
+                try (PreparedStatement stmt = connection.prepareStatement(deleteSql)) {
+                    stmt.setInt(1, workout.getWorkoutId());
+                    stmt.executeUpdate();
+                }
+
+                // Re-insert exercises
+                String insertExercise = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement stmt = connection.prepareStatement(insertExercise)) {
+                    for (WorkoutExercise we : exercises) {
+                        stmt.setInt(1, workout.getWorkoutId());
+                        stmt.setInt(2, we.getExerciseId());
+                        stmt.setInt(3, we.getSets());
+                        stmt.setInt(4, we.getReps());
+                        stmt.setInt(5, we.getOrderIndex());
+                        stmt.setDouble(6, we.getTargetWeight());
+                        stmt.addBatch();
+                    }
+                    stmt.executeBatch();
+                }
+
+                connection.commit();
+                return rows;
+            } catch (java.sql.SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
         }, callback);
     }
 
@@ -182,56 +207,72 @@ public class WorkoutRepository {
      */
     public void duplicateWorkout(int workoutId, ConnectionManager.DatabaseCallback<Long> callback) {
         ConnectionManager.executeAsync(connection -> {
-            // Get original workout
-            String selectSql = "SELECT user_id, workout_name, is_default, workout_order_index FROM workout WHERE workout_id = ?";
-            String workoutName;
-            Integer userId = null;
-            boolean isDefault;
-            int orderIndex;
+            // Insert the copy and its exercises in one transaction so a failed
+            // exercise copy can't leave an empty duplicate behind.
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                // Get original workout
+                String selectSql = "SELECT user_id, workout_name, is_default, workout_order_index FROM workout WHERE workout_id = ?";
+                String workoutName;
+                Integer userId = null;
+                boolean isDefault;
+                int orderIndex;
 
-            try (PreparedStatement stmt = connection.prepareStatement(selectSql)) {
-                stmt.setInt(1, workoutId);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (!rs.next()) return -1L;
-                    userId = rs.getObject("user_id") != null ? rs.getInt("user_id") : null;
-                    workoutName = rs.getString("workout_name") + " Copy";
-                    isDefault = rs.getBoolean("is_default");
-                    orderIndex = rs.getInt("workout_order_index");
-                }
-            }
-
-            // Insert copy
-            String insertSql = "INSERT INTO workout (user_id, workout_name, is_default, workout_order_index) VALUES (?, ?, ?, ?)";
-            long newId;
-            try (PreparedStatement stmt = connection.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                if (userId != null) {
-                    stmt.setInt(1, userId);
-                } else {
-                    stmt.setNull(1, java.sql.Types.INTEGER);
-                }
-                stmt.setString(2, workoutName);
-                stmt.setBoolean(3, isDefault);
-                stmt.setInt(4, orderIndex);
-                stmt.executeUpdate();
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        newId = keys.getLong(1);
-                    } else {
-                        return -1L;
+                try (PreparedStatement stmt = connection.prepareStatement(selectSql)) {
+                    stmt.setInt(1, workoutId);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (!rs.next()) {
+                            connection.rollback();
+                            return -1L;
+                        }
+                        userId = rs.getObject("user_id") != null ? rs.getInt("user_id") : null;
+                        workoutName = rs.getString("workout_name") + " Copy";
+                        isDefault = rs.getBoolean("is_default");
+                        orderIndex = rs.getInt("workout_order_index");
                     }
                 }
-            }
 
-            // Copy exercises
-            String copyExercises = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
-                    "SELECT ?, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight FROM workout_exercise WHERE workout_id = ?";
-            try (PreparedStatement stmt = connection.prepareStatement(copyExercises)) {
-                stmt.setLong(1, newId);
-                stmt.setInt(2, workoutId);
-                stmt.executeUpdate();
-            }
+                // Insert copy
+                String insertSql = "INSERT INTO workout (user_id, workout_name, is_default, workout_order_index) VALUES (?, ?, ?, ?)";
+                long newId;
+                try (PreparedStatement stmt = connection.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    if (userId != null) {
+                        stmt.setInt(1, userId);
+                    } else {
+                        stmt.setNull(1, java.sql.Types.INTEGER);
+                    }
+                    stmt.setString(2, workoutName);
+                    stmt.setBoolean(3, isDefault);
+                    stmt.setInt(4, orderIndex);
+                    stmt.executeUpdate();
+                    try (ResultSet keys = stmt.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            newId = keys.getLong(1);
+                        } else {
+                            connection.rollback();
+                            return -1L;
+                        }
+                    }
+                }
 
-            return newId;
+                // Copy exercises
+                String copyExercises = "INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight) " +
+                        "SELECT ?, exercise_id, num_sets, num_reps, workout_exercise_order_index, target_weight FROM workout_exercise WHERE workout_id = ?";
+                try (PreparedStatement stmt = connection.prepareStatement(copyExercises)) {
+                    stmt.setLong(1, newId);
+                    stmt.setInt(2, workoutId);
+                    stmt.executeUpdate();
+                }
+
+                connection.commit();
+                return newId;
+            } catch (java.sql.SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
         }, callback);
     }
 

@@ -120,43 +120,57 @@ public class CosmeticRepository {
      */
     public void purchaseCosmetic(int userId, int cosmeticId, int coinCost,
                                  DatabaseCallback<Integer> callback) {
-        // Step 1: Deduct coins (only if sufficient balance)
-        String deductSql = "UPDATE user SET coins = coins - ? WHERE user_id = ? AND coins >= ?";
-        ConnectionManager.executeUpdate(deductSql, new Object[]{coinCost, userId, coinCost},
-                new DatabaseCallback<Integer>() {
-                    @Override
-                    public void onSuccess(Integer rowsAffected) {
-                        if (rowsAffected == null || rowsAffected == 0) {
-                            callback.onError(new Exception("Insufficient coins"));
-                            return;
-                        }
-                        // Step 2: Insert Coin_Transaction record
-                        insertCoinTransaction(userId, cosmeticId, coinCost, callback);
+        // All three steps run on the same connection inside one transaction, so
+        // the coins, the Coin_Transaction row and the unlock either all commit
+        // or all roll back — the user can never lose coins without the item.
+        ConnectionManager.executeAsync(connection -> {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                // Step 1: Deduct coins (only if sufficient balance)
+                String deductSql = "UPDATE user SET coins = coins - ? WHERE user_id = ? AND coins >= ?";
+                try (java.sql.PreparedStatement stmt = connection.prepareStatement(deductSql)) {
+                    stmt.setInt(1, coinCost);
+                    stmt.setInt(2, userId);
+                    stmt.setInt(3, coinCost);
+                    int rowsAffected = stmt.executeUpdate();
+                    if (rowsAffected == 0) {
+                        // Not enough coins — nothing was changed, but roll back
+                        // to be safe and surface the error to the caller.
+                        connection.rollback();
+                        throw new java.sql.SQLException("Insufficient coins");
                     }
+                }
 
-                    @Override
-                    public void onError(Exception e) {
-                        callback.onError(e);
-                    }
-                });
-    }
+                // Step 2: Insert Coin_Transaction record
+                String insertSql = "INSERT INTO coin_transaction (user_id, amount, cosmetic_id) VALUES (?, ?, ?)";
+                try (java.sql.PreparedStatement stmt = connection.prepareStatement(insertSql)) {
+                    stmt.setInt(1, userId);
+                    stmt.setInt(2, -coinCost);
+                    stmt.setInt(3, cosmeticId);
+                    stmt.executeUpdate();
+                }
 
-    private void insertCoinTransaction(int userId, int cosmeticId, int coinCost,
-                                       DatabaseCallback<Integer> callback) {
-        String insertSql = "INSERT INTO coin_transaction (user_id, amount, cosmetic_id) VALUES (?, ?, ?)";
-        ConnectionManager.executeInsert(insertSql, new Object[]{userId, -coinCost, cosmeticId},
-                new DatabaseCallback<Long>() {
-                    @Override
-                    public void onSuccess(Long generatedId) {
-                        // Step 3: Mark cosmetic as unlocked
-                        unlockCosmetic(userId, cosmeticId, callback);
-                    }
+                // Step 3: Mark cosmetic as unlocked
+                String unlockSql = "INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
+                        "VALUES (?, ?, 1, 0) " +
+                        "ON DUPLICATE KEY UPDATE is_unlocked = 1";
+                int unlockRows;
+                try (java.sql.PreparedStatement stmt = connection.prepareStatement(unlockSql)) {
+                    stmt.setInt(1, userId);
+                    stmt.setInt(2, cosmeticId);
+                    unlockRows = stmt.executeUpdate();
+                }
 
-                    @Override
-                    public void onError(Exception e) {
-                        callback.onError(e);
-                    }
-                });
+                connection.commit();
+                return unlockRows;
+            } catch (java.sql.SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        }, callback);
     }
 
     /**

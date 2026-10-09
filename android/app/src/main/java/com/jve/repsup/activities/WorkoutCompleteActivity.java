@@ -217,8 +217,10 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
                     }
                 });
 
-        // 4. Update streak — only increment if this is the first completed workout today
-        scheduleRepository.countOtherCompletedToday(userId, scheduledWorkoutId,
+        // 4. Update streak — only increment if this is the first completed workout today.
+        //    "Today" comes from the phone's date, not MySQL CURDATE().
+        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+        scheduleRepository.countOtherCompletedToday(userId, scheduledWorkoutId, today,
                 new ConnectionManager.DatabaseCallback<Integer>() {
                     @Override
                     public void onSuccess(Integer otherCompletedCount) {

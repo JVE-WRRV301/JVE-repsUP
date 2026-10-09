@@ -121,14 +121,17 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             return;
         }
 
-        // Verify this scheduled workout belongs to the user and is for today
+        // Verify this scheduled workout belongs to the user and is for today.
+        // "Today" is the phone's date, not MySQL CURDATE(), so it can't disagree
+        // with the server's timezone.
         String sql = "SELECT scheduled_workout_id FROM scheduled_workout " +
                 "WHERE scheduled_workout_id = ? AND user_id = ? " +
-                "AND scheduled_date = CURDATE() AND is_completed = 0";
+                "AND scheduled_date = ? AND is_completed = 0";
 
         int userId = sessionManager.getUserId();
+        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
 
-        ConnectionManager.querySingle(sql, new Object[]{scheduledWorkoutId, userId}, rs -> {
+        ConnectionManager.querySingle(sql, new Object[]{scheduledWorkoutId, userId, today}, rs -> {
             return rs.getInt("scheduled_workout_id");
         }, new ConnectionManager.DatabaseCallback<Integer>() {
             @Override
