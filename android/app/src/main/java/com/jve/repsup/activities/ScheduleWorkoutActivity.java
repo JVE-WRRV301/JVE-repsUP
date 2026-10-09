@@ -146,17 +146,13 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
         workoutRepository.getUserWorkouts(userId, new ConnectionManager.DatabaseCallback<List<Workout>>() {
             @Override
             public void onSuccess(List<Workout> userWorkouts) {
-                if (userWorkouts != null) {
-                    workoutList.addAll(userWorkouts);
-                }
+                addWorkoutsWithExercises(userWorkouts);
 
                 // Then load default workouts
                 workoutRepository.getDefaultWorkouts(new ConnectionManager.DatabaseCallback<List<Workout>>() {
                     @Override
                     public void onSuccess(List<Workout> defaultWorkouts) {
-                        if (defaultWorkouts != null) {
-                            workoutList.addAll(defaultWorkouts);
-                        }
+                        addWorkoutsWithExercises(defaultWorkouts);
                         runOnUiThread(() -> populateSpinner());
                     }
 
@@ -173,9 +169,7 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                 workoutRepository.getDefaultWorkouts(new ConnectionManager.DatabaseCallback<List<Workout>>() {
                     @Override
                     public void onSuccess(List<Workout> defaultWorkouts) {
-                        if (defaultWorkouts != null) {
-                            workoutList.addAll(defaultWorkouts);
-                        }
+                        addWorkoutsWithExercises(defaultWorkouts);
                         runOnUiThread(() -> populateSpinner());
                     }
 
@@ -186,6 +180,22 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    /**
+     * Adds workouts to the spinner list, skipping any that have no exercises.
+     * A workout with 0 exercises can't be started (START shows "Failed to load
+     * workout"), so it must not appear in the schedule dropdown.
+     */
+    private void addWorkoutsWithExercises(List<Workout> workouts) {
+        if (workouts == null) {
+            return;
+        }
+        for (Workout w : workouts) {
+            if (w.getExercises() != null && !w.getExercises().isEmpty()) {
+                workoutList.add(w);
+            }
+        }
     }
 
     /**

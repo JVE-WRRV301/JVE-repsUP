@@ -47,14 +47,18 @@ public class WorkoutRepository {
         String sql = "SELECT workout_id, user_id, workout_name, is_default, " +
                 "workout_order_index FROM workout WHERE is_default = 1 ORDER BY workout_order_index ASC";
 
-        ConnectionManager.queryList(sql, new Object[]{}, rs -> {
-            Workout workout = new Workout();
-            workout.setWorkoutId(rs.getInt("workout_id"));
-            workout.setUserId(rs.getObject("user_id") != null ? rs.getInt("user_id") : null);
-            workout.setName(rs.getString("workout_name"));
-            workout.setDefault(rs.getBoolean("is_default"));
-            workout.setOrderIndex(rs.getInt("workout_order_index"));
-            return workout;
+        ConnectionManager.executeAsync(connection -> {
+            List<Workout> workouts = new ArrayList<>();
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        Workout workout = mapWorkout(rs);
+                        workout.setExercises(getExercisesForWorkout(connection, workout.getWorkoutId()));
+                        workouts.add(workout);
+                    }
+                }
+            }
+            return workouts;
         }, callback);
     }
 

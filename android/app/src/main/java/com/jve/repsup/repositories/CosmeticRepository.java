@@ -39,7 +39,7 @@ public class CosmeticRepository {
     public void getUserCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
-                "FROM Cosmetic_Item ci";
+                "FROM cosmetic_item ci";
         ConnectionManager.queryList(sql, null, CosmeticRepository::mapCosmetic, callback);
     }
 
@@ -49,8 +49,8 @@ public class CosmeticRepository {
     public void getOwnedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
-                "FROM Cosmetic_Item ci " +
-                "INNER JOIN User_Cosmetic uc ON ci.cosmetic_id = uc.cosmetic_id " +
+                "FROM cosmetic_item ci " +
+                "INNER JOIN user_cosmetic uc ON ci.cosmetic_id = uc.cosmetic_id " +
                 "WHERE uc.user_id = ? AND uc.is_unlocked = 1";
         ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
     }
@@ -61,9 +61,9 @@ public class CosmeticRepository {
     public void getLockedCosmetics(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
-                "FROM Cosmetic_Item ci " +
+                "FROM cosmetic_item ci " +
                 "WHERE ci.cosmetic_id NOT IN " +
-                "(SELECT uc.cosmetic_id FROM User_Cosmetic uc WHERE uc.user_id = ? AND uc.is_unlocked = 1)";
+                "(SELECT uc.cosmetic_id FROM user_cosmetic uc WHERE uc.user_id = ? AND uc.is_unlocked = 1)";
         ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);
     }
 
@@ -83,7 +83,7 @@ public class CosmeticRepository {
                                    DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
-                "FROM Cosmetic_Item ci " +
+                "FROM cosmetic_item ci " +
                 "WHERE ci.cosmetic_type = ? AND (ci.gender = ? OR ci.gender = 'unisex') " +
                 "ORDER BY ci.cosmetic_id";
         String g = gender != null ? gender.toLowerCase() : "male";
@@ -121,7 +121,7 @@ public class CosmeticRepository {
     public void purchaseCosmetic(int userId, int cosmeticId, int coinCost,
                                  DatabaseCallback<Integer> callback) {
         // Step 1: Deduct coins (only if sufficient balance)
-        String deductSql = "UPDATE User SET coins = coins - ? WHERE user_id = ? AND coins >= ?";
+        String deductSql = "UPDATE user SET coins = coins - ? WHERE user_id = ? AND coins >= ?";
         ConnectionManager.executeUpdate(deductSql, new Object[]{coinCost, userId, coinCost},
                 new DatabaseCallback<Integer>() {
                     @Override
@@ -143,7 +143,7 @@ public class CosmeticRepository {
 
     private void insertCoinTransaction(int userId, int cosmeticId, int coinCost,
                                        DatabaseCallback<Integer> callback) {
-        String insertSql = "INSERT INTO Coin_Transaction (user_id, amount, cosmetic_id) VALUES (?, ?, ?)";
+        String insertSql = "INSERT INTO coin_transaction (user_id, amount, cosmetic_id) VALUES (?, ?, ?)";
         ConnectionManager.executeInsert(insertSql, new Object[]{userId, -coinCost, cosmeticId},
                 new DatabaseCallback<Long>() {
                     @Override
@@ -163,7 +163,7 @@ public class CosmeticRepository {
      * Unlocks a cosmetic for the user by inserting/updating User_Cosmetic row.
      */
     public void unlockCosmetic(int userId, int cosmeticId, DatabaseCallback<Integer> callback) {
-        String sql = "INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
+        String sql = "INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
                 "VALUES (?, ?, 1, 0) " +
                 "ON DUPLICATE KEY UPDATE is_unlocked = 1";
         ConnectionManager.executeUpdate(sql, new Object[]{userId, cosmeticId}, callback);
@@ -178,7 +178,7 @@ public class CosmeticRepository {
      * as unlocked+equipped, or flips is_equipped on for an existing row.
      */
     public void equipCosmetic(int userId, int cosmeticId, DatabaseCallback<Integer> callback) {
-        String sql = "INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
+        String sql = "INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) " +
                 "VALUES (?, ?, 1, 1) " +
                 "ON DUPLICATE KEY UPDATE is_unlocked = 1, is_equipped = 1";
         ConnectionManager.executeUpdate(sql, new Object[]{userId, cosmeticId}, callback);
@@ -188,8 +188,8 @@ public class CosmeticRepository {
      * Unequips all cosmetics of a given type for the user.
      */
     public void unequipByType(int userId, String cosmeticType, DatabaseCallback<Integer> callback) {
-        String sql = "UPDATE User_Cosmetic uc " +
-                "INNER JOIN Cosmetic_Item ci ON uc.cosmetic_id = ci.cosmetic_id " +
+        String sql = "UPDATE user_cosmetic uc " +
+                "INNER JOIN cosmetic_item ci ON uc.cosmetic_id = ci.cosmetic_id " +
                 "SET uc.is_equipped = 0 " +
                 "WHERE uc.user_id = ? AND ci.cosmetic_type = ?";
         ConnectionManager.executeUpdate(sql, new Object[]{userId, cosmeticType}, callback);
@@ -200,7 +200,7 @@ public class CosmeticRepository {
      */
     public void getOutfitSlot(int userId, DatabaseCallback<OutfitSlot> callback) {
         String sql = "SELECT outfit_slot_id, user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id " +
-                "FROM Outfit_Slot WHERE user_id = ?";
+                "FROM outfit_slot WHERE user_id = ?";
         ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
             OutfitSlot slot = new OutfitSlot();
             slot.setOutfitSlotId(rs.getInt("outfit_slot_id"));
@@ -219,7 +219,7 @@ public class CosmeticRepository {
      * Saves (inserts or updates) the outfit slot for the user.
      */
     public void saveOutfitSlot(OutfitSlot slot, DatabaseCallback<Integer> callback) {
-        String sql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) " +
+        String sql = "INSERT INTO outfit_slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE top_id = VALUES(top_id), bottom_id = VALUES(bottom_id), " +
                 "shoes_id = VALUES(shoes_id), socks_id = VALUES(socks_id), hair_id = VALUES(hair_id), " +
@@ -235,7 +235,7 @@ public class CosmeticRepository {
      */
     public void getEquippedCosmetics(int userId, DatabaseCallback<List<UserCosmetic>> callback) {
         String sql = "SELECT user_cosmetic_id, user_id, cosmetic_id, is_unlocked, is_equipped " +
-                "FROM User_Cosmetic WHERE user_id = ? AND is_equipped = 1";
+                "FROM user_cosmetic WHERE user_id = ? AND is_equipped = 1";
         ConnectionManager.queryList(sql, new Object[]{userId}, rs -> {
             UserCosmetic uc = new UserCosmetic();
             uc.setUserCosmeticId(rs.getInt("user_cosmetic_id"));
@@ -253,7 +253,7 @@ public class CosmeticRepository {
     public void saveAllEquipped(int userId, List<CosmeticItem> equippedItems,
                                 DatabaseCallback<Integer> callback) {
         // First unequip all items for this user
-        String unequipSql = "UPDATE User_Cosmetic SET is_equipped = 0 WHERE user_id = ?";
+        String unequipSql = "UPDATE user_cosmetic SET is_equipped = 0 WHERE user_id = ?";
         ConnectionManager.executeUpdate(unequipSql, new Object[]{userId},
                 new DatabaseCallback<Integer>() {
                     @Override
@@ -349,8 +349,8 @@ public class CosmeticRepository {
     public void getEquippedItemsForOutfit(int userId, DatabaseCallback<List<CosmeticItem>> callback) {
         String sql = "SELECT ci.cosmetic_id, ci.cosmetic_name, ci.cosmetic_type, ci.gender, " +
                 "ci.is_colourable, ci.unlock_type, ci.lvl_required, ci.coin_cost, ci.cosmetic_img_data " +
-                "FROM Outfit_Slot os " +
-                "INNER JOIN Cosmetic_Item ci ON ci.cosmetic_id IN " +
+                "FROM outfit_slot os " +
+                "INNER JOIN cosmetic_item ci ON ci.cosmetic_id IN " +
                 "(os.top_id, os.bottom_id, os.shoes_id, os.socks_id, os.hair_id, os.accessories_id) " +
                 "WHERE os.user_id = ?";
         ConnectionManager.queryList(sql, new Object[]{userId}, CosmeticRepository::mapCosmetic, callback);

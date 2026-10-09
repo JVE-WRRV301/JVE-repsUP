@@ -227,7 +227,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
         SessionManager sessionManager = new SessionManager(this);
         int userId = sessionManager.getUserId();
 
-        String sql = "INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, "
+        String sql = "INSERT INTO user_profile (user_id, user_gender, user_age, user_weight, "
                 + "user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
