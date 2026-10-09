@@ -53,6 +53,28 @@ public class AssessmentBodyTypeFragment extends Fragment {
                 view.findViewById(R.id.ivBodyType2)
         };
 
+        bindForCurrentGender();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // ViewPager2 keeps adjacent pages alive, so this fragment's view may have
+        // been built for a gender the user has since changed. Rebuild the images
+        // and selection every time the page becomes visible so they always match
+        // the gender currently stored in the assessment data.
+        bindForCurrentGender();
+    }
+
+    /**
+     * Rebuilds the body-type options, images and selection highlight for the
+     * gender currently chosen in the assessment data. Safe to call repeatedly.
+     */
+    private void bindForCurrentGender() {
+        if (bodyTypeViews == null) {
+            return;
+        }
+
         // Gender drives both which body types are offered and which art is shown.
         String gender = getAssessmentActivity().getAssessmentData().getGender();
         boolean isFemale = "Female".equalsIgnoreCase(gender);
@@ -70,16 +92,20 @@ public class AssessmentBodyTypeFragment extends Fragment {
             bodyTypeViews[i].setOnClickListener(v -> selectBodyType(index));
         }
 
-        // Restore a previously chosen body type (stored as the lowercase key).
+        // Restore a previously chosen body type (stored as the lowercase key),
+        // but only when it is valid for the current gender. If the gender changed
+        // the stored body type was cleared, so nothing is highlighted here.
         String savedBodyType = getAssessmentActivity().getAssessmentData().getBodyType();
+        int selectedIndex = -1;
         if (savedBodyType != null) {
             for (int i = 0; i < bodyTypeKeys.length; i++) {
                 if (bodyTypeKeys[i].equalsIgnoreCase(savedBodyType)) {
-                    highlightSelected(i);
+                    selectedIndex = i;
                     break;
                 }
             }
         }
+        highlightSelected(selectedIndex);
     }
 
     private void selectBodyType(int index) {

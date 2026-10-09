@@ -101,6 +101,12 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                 if (getContext() == null) return;
                 Intent intent = new Intent(getContext(), CreateWorkoutActivity.class);
                 intent.putExtra(CreateWorkoutActivity.EXTRA_EDIT_WORKOUT_ID, scheduledWorkout.getWorkoutId());
+                // Pass the scheduled row so that, if the workout turns out to be a
+                // default or another user's workout, Create Workout can save a
+                // personal copy and repoint this scheduled workout at it instead
+                // of changing the shared workout.
+                intent.putExtra(CreateWorkoutActivity.EXTRA_SCHEDULED_WORKOUT_ID,
+                        scheduledWorkout.getScheduledWorkoutId());
                 startActivity(intent);
             }
 

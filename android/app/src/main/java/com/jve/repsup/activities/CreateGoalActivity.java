@@ -201,9 +201,8 @@ public class CreateGoalActivity extends AppCompatActivity {
             return;
         }
 
-        // Store title and notes separated by a delimiter so they can be split later
-        String description = notes.isEmpty() ? title : title + "\n---\n" + notes;
-
+        // Title and notes are stored in separate columns. Notes may be empty, in
+        // which case goal_description is stored as NULL.
         // Disable save button while processing
         btnSave.setEnabled(false);
 
@@ -211,7 +210,8 @@ public class CreateGoalActivity extends AppCompatActivity {
 
         Goal goal = new Goal();
         goal.setUserId(userId);
-        goal.setDescription(description);
+        goal.setTitle(title);
+        goal.setDescription(notes.isEmpty() ? null : notes);
         goal.setDeadline(selectedDate);
         goal.setPriority(selectedPriority);
 

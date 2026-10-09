@@ -14,20 +14,20 @@ public class XPCalculator {
     /**
      * Returns XP for completing a goal based on priority.
      * Top=1000, Medium=500, Low=250, any other value=0.
+     * Matching ignores case and a null priority is treated as Medium, so values
+     * saved as "top"/"medium"/"low" (or null) still award the right XP.
      *
      * @param priority the goal priority string
      * @return XP value for the given priority
      */
     public static int calculateGoalXP(String priority) {
-        if (priority == null) {
-            return 0;
-        }
-        switch (priority) {
-            case "Top":
+        String normalised = priority == null ? "medium" : priority.trim().toLowerCase();
+        switch (normalised) {
+            case "top":
                 return 1000;
-            case "Medium":
+            case "medium":
                 return 500;
-            case "Low":
+            case "low":
                 return 250;
             default:
                 return 0;

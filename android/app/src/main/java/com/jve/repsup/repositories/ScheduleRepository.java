@@ -464,4 +464,19 @@ public class ScheduleRepository {
         String sql = "DELETE FROM scheduled_workout WHERE scheduled_workout_id = ?";
         ConnectionManager.executeUpdate(sql, new Object[]{scheduledWorkoutId}, callback);
     }
+
+    /**
+     * Repoints a scheduled workout at a different workout. Used when a user edits
+     * a scheduled default (or another user's) workout from My Plan: instead of
+     * mutating the shared workout, a personal copy is saved and this scheduled
+     * workout is pointed at that copy. Only the user's own scheduled row is
+     * changed (WHERE scheduled_workout_id = ? AND user_id = ?).
+     * Returns the number of affected rows.
+     */
+    public void updateScheduledWorkoutWorkoutId(int scheduledWorkoutId, int userId, int newWorkoutId,
+                                                 ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE scheduled_workout SET workout_id = ? " +
+                "WHERE scheduled_workout_id = ? AND user_id = ?";
+        ConnectionManager.executeUpdate(sql, new Object[]{newWorkoutId, scheduledWorkoutId, userId}, callback);
+    }
 }

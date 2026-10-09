@@ -104,29 +104,26 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
                 tvGoalDeadline.setText("");
             }
 
-            // Split description into title and notes
-            String description = goal.getDescription();
-            String title = description;
-            String notes = "";
-            if (description != null && description.contains("\n---\n")) {
-                int separatorIndex = description.indexOf("\n---\n");
-                title = description.substring(0, separatorIndex);
-                notes = description.substring(separatorIndex + 5);
-            }
+            // Title and notes come from separate columns now.
+            String title = goal.getTitle();
+            String notes = goal.getDescription() != null ? goal.getDescription() : "";
 
             // Title at the top
             tvGoalTitle.setText(title);
 
-            // Priority badge with full label (e.g., "Top Priority")
+            // Priority badge with full label (e.g., "Top Priority").
+            // Matching ignores case and a null priority is treated as Medium, so
+            // values saved as "top"/"medium"/"low" (or null) still map correctly.
             String priority = goal.getPriority();
+            String normalisedPriority = priority == null ? "medium" : priority.trim().toLowerCase();
             int priorityColor;
             String priorityLabel;
-            switch (priority != null ? priority : "Medium") {
-                case "Top":
+            switch (normalisedPriority) {
+                case "top":
                     priorityLabel = itemView.getContext().getString(R.string.importance_top_priority);
                     priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.red);
                     break;
-                case "Low":
+                case "low":
                     priorityLabel = itemView.getContext().getString(R.string.importance_low_priority);
                     priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.green);
                     break;

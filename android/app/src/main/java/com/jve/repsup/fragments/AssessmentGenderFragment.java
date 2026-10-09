@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.activities.AssessmentData;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
@@ -54,14 +55,29 @@ public class AssessmentGenderFragment extends Fragment {
         }
 
         llMale.setOnClickListener(v -> {
-            getAssessmentActivity().getAssessmentData().setGender("Male");
+            selectGender("Male");
             updateSelection(true);
         });
 
         llFemale.setOnClickListener(v -> {
-            getAssessmentActivity().getAssessmentData().setGender("Female");
+            selectGender("Female");
             updateSelection(false);
         });
+    }
+
+    /**
+     * Stores the chosen gender. When the gender actually changes, the previously
+     * chosen body type is cleared: the body types differ by gender (male has
+     * "built", female has "toned"), so a stale selection would no longer be valid.
+     * The body-type page rebuilds itself for the current gender in onResume.
+     */
+    private void selectGender(String gender) {
+        AssessmentData data = getAssessmentActivity().getAssessmentData();
+        String previous = data.getGender();
+        if (previous == null || !previous.equals(gender)) {
+            data.setBodyType(null);
+        }
+        data.setGender(gender);
     }
 
     private void updateSelection(boolean isMale) {

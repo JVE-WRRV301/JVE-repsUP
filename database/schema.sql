@@ -199,7 +199,8 @@ CREATE TABLE scheduled_workout (
 CREATE TABLE goal (
     goal_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    goal_description TEXT NOT NULL,
+    goal_title VARCHAR(255) NOT NULL,
+    goal_description TEXT,
     deadline DATE,
     goal_priority VARCHAR(20) NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,

@@ -145,8 +145,16 @@ public class WorkoutRepository {
     }
 
     /**
-     * Updates a workout and its exercises.
-     * Returns the number of affected rows for the workout update.
+     * Updates a workout and its exercises, but only when the workout is owned by
+     * the given user. The ownership check (WHERE workout_id = ? AND user_id = ?)
+     * means an admin default (user_id NULL) or another user's workout can never
+     * be edited through here, so the exercises are only deleted/re-inserted when
+     * the workout row itself was updated. The existing is_default value is left
+     * untouched (it is not in the UPDATE), so editing never flips a workout's
+     * default flag.
+     *
+     * Returns the number of affected rows for the workout update (0 when the user
+     * does not own the workout, in which case nothing is changed).
      */
     public void updateWorkout(Workout workout, List<WorkoutExercise> exercises, ConnectionManager.DatabaseCallback<Integer> callback) {
         ConnectionManager.executeAsync(connection -> {
@@ -155,16 +163,28 @@ public class WorkoutRepository {
             boolean originalAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             try {
-                // Update workout
-                String updateSql = "UPDATE workout SET workout_name = ?, is_default = ?, workout_order_index = ? " +
-                        "WHERE workout_id = ?";
+                // Update workout only if it is owned by this user. is_default is
+                // deliberately left out so an edit never changes it.
+                String updateSql = "UPDATE workout SET workout_name = ?, workout_order_index = ? " +
+                        "WHERE workout_id = ? AND user_id = ?";
                 int rows;
                 try (PreparedStatement stmt = connection.prepareStatement(updateSql)) {
                     stmt.setString(1, workout.getName());
-                    stmt.setBoolean(2, workout.isDefault());
-                    stmt.setInt(3, workout.getOrderIndex());
-                    stmt.setInt(4, workout.getWorkoutId());
+                    stmt.setInt(2, workout.getOrderIndex());
+                    stmt.setInt(3, workout.getWorkoutId());
+                    if (workout.getUserId() != null) {
+                        stmt.setInt(4, workout.getUserId());
+                    } else {
+                        stmt.setNull(4, java.sql.Types.INTEGER);
+                    }
                     rows = stmt.executeUpdate();
+                }
+
+                // If the ownership check matched nothing, don't touch the
+                // exercises of a workout this user doesn't own.
+                if (rows == 0) {
+                    connection.rollback();
+                    return 0;
                 }
 
                 // Delete existing exercises

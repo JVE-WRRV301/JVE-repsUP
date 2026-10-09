@@ -26,8 +26,9 @@ import com.jve.repsup.utils.SnackbarUtils;
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    private static final String METRIC = "Metric";
-    private static final String IMPERIAL = "Imperial";
+    // Stored lowercase to match the database default ('metric'/'imperial').
+    private static final String METRIC = "metric";
+    private static final String IMPERIAL = "imperial";
 
     private SessionManager sessionManager;
     private UserRepository userRepository;
@@ -86,8 +87,10 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(User user) {
                 runOnUiThread(() -> {
-                    if (user != null && user.getMeasurementSystem() != null) {
-                        currentMeasurementSystem = user.getMeasurementSystem();
+                    // Compare ignoring case: the stored value may be any casing,
+                    // but IMPERIAL is only selected on an explicit imperial match.
+                    if (user != null && IMPERIAL.equalsIgnoreCase(user.getMeasurementSystem())) {
+                        currentMeasurementSystem = IMPERIAL;
                     } else {
                         currentMeasurementSystem = METRIC;
                     }

@@ -204,9 +204,9 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                     adapter.notifyItemChanged(position);
                     refreshTopBar();
 
-                    // Show Goal Complete dialog FIRST
+                    // Show Goal Complete dialog FIRST (title only, never the notes)
                     if (getContext() == null) return;
-                    GoalCompleteDialog goalDialog = new GoalCompleteDialog(getContext(), goal.getDescription(), xpEarned);
+                    GoalCompleteDialog goalDialog = new GoalCompleteDialog(getContext(), goal.getTitle(), xpEarned);
                     goalDialog.setOnDismissListener(d -> {
                         // After goal dialog dismissed, check level-up
                         if (user == null) return;
@@ -251,7 +251,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                 getActivity().runOnUiThread(() -> {
                     goal.setCompleted(true);
                     adapter.notifyItemChanged(position);
-                    showGoalCompleteDialog(goal.getDescription(), xpEarned);
+                    showGoalCompleteDialog(goal.getTitle(), xpEarned);
                 });
             }
         });
@@ -336,18 +336,9 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
         Intent intent = new Intent(getContext(), CreateGoalActivity.class);
         intent.putExtra("goal_id", goal.getGoalId());
 
-        // Split description into title and notes
-        String description = goal.getDescription();
-        String title = description;
-        String notes = "";
-        if (description != null && description.contains("\n---\n")) {
-            int separatorIndex = description.indexOf("\n---\n");
-            title = description.substring(0, separatorIndex);
-            notes = description.substring(separatorIndex + 5);
-        }
-
-        intent.putExtra("goal_title", title);
-        intent.putExtra("goal_notes", notes);
+        // Title and notes are stored in separate columns now.
+        intent.putExtra("goal_title", goal.getTitle());
+        intent.putExtra("goal_notes", goal.getDescription() != null ? goal.getDescription() : "");
         intent.putExtra("goal_priority", goal.getPriority());
         if (goal.getDeadline() != null) {
             intent.putExtra("goal_deadline", goal.getDeadline().getTime());
