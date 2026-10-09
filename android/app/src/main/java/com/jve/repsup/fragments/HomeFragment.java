@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
@@ -26,10 +27,8 @@ import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * HomeFragment displaying today's scheduled workout and the next upcoming goal.
@@ -176,13 +175,13 @@ public class HomeFragment extends Fragment {
      */
     private void highlightToday() {
         Calendar calendar = Calendar.getInstance();
-        int todayDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        // Calendar.SUNDAY = 1, so index in our strip is dayOfWeek - 1
-        int todayIndex = todayDayOfWeek - Calendar.SUNDAY;
+        // The strip runs Monday to Sunday, so today's column is how many
+        // days today is after Monday (Monday = 0 … Sunday = 6).
+        int todayIndex = DateFormats.daysSinceMonday(calendar.get(Calendar.DAY_OF_WEEK));
 
-        // Calculate the start of the week (Sunday)
+        // Start of the week (Monday)
         Calendar weekStart = (Calendar) calendar.clone();
-        weekStart.add(Calendar.DAY_OF_YEAR, -(todayDayOfWeek - Calendar.SUNDAY));
+        weekStart.add(Calendar.DAY_OF_YEAR, -todayIndex);
 
         int highlightColor = getResources().getColor(R.color.light_blue, null);
         int mutedColor = getResources().getColor(R.color.muted, null);
@@ -256,8 +255,7 @@ public class HomeFragment extends Fragment {
 
         tvWorkoutName.setText(scheduledWorkout.getWorkout().getName());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
-        tvWorkoutDate.setText(dateFormat.format(scheduledWorkout.getScheduledDate()));
+        tvWorkoutDate.setText(DateFormats.formatShort(scheduledWorkout.getScheduledDate()));
 
         // Show START button or Completed status
         if (scheduledWorkout.isCompleted()) {
@@ -338,9 +336,8 @@ public class HomeFragment extends Fragment {
         llGoalContent.setVisibility(View.VISIBLE);
         tvGoalEmpty.setVisibility(View.GONE);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
         tvGoalDeadline.setText(getString(R.string.home_deadline_format,
-                dateFormat.format(goal.getDeadline())));
+                DateFormats.formatLong(goal.getDeadline())));
 
         // Title and notes come from separate columns now: the heading shows the
         // title and the subheading shows the optional notes.

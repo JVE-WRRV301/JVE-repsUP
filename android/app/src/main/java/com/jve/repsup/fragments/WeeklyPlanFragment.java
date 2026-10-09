@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.WeeklyPlanAdapter;
@@ -25,10 +26,8 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment displaying the weekly plan with collapsible day sections.
@@ -200,17 +199,15 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
     }
 
     /**
-     * Updates the week range text header (e.g., "Jun 2 - Jun 8").
+     * Updates the week range text header (e.g., "6 Oct – 12 Oct").
      */
     private void updateWeekRangeHeader() {
-        SimpleDateFormat format = new SimpleDateFormat("MMM d", Locale.getDefault());
-
         Calendar weekEnd = (Calendar) currentWeekStart.clone();
         weekEnd.add(Calendar.DAY_OF_YEAR, 6);
 
-        String startStr = format.format(currentWeekStart.getTime());
-        String endStr = format.format(weekEnd.getTime());
-        tvWeekRange.setText(startStr + " - " + endStr);
+        String startStr = DateFormats.formatDayMonth(currentWeekStart.getTime());
+        String endStr = DateFormats.formatDayMonth(weekEnd.getTime());
+        tvWeekRange.setText(getString(R.string.weekly_plan_week_range, startStr, endStr));
     }
 
     /**

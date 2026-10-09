@@ -97,15 +97,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="@string/day_sun"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
                     android:text="@string/day_mon"
                     android:textColor="@color/muted"
                     android:textSize="12sp" />
@@ -152,6 +143,15 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/day_sat"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_sun"
                     android:textColor="@color/muted"
                     android:textSize="12sp" />
             </LinearLayout>

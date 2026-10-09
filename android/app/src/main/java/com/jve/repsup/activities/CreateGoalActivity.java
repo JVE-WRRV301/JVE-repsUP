@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Goal;
@@ -19,9 +20,7 @@ import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * Activity for creating a new goal.
@@ -47,7 +46,6 @@ public class CreateGoalActivity extends AppCompatActivity {
     private int editGoalId = -1;
     private boolean isEditMode = false;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +93,7 @@ public class CreateGoalActivity extends AppCompatActivity {
                 }
                 if (deadlineMillis != -1) {
                     selectedDate = new Date(deadlineMillis);
-                    etGoalDate.setText(dateFormat.format(selectedDate));
+                    etGoalDate.setText(DateFormats.formatLong(selectedDate));
                 }
             }
         }
@@ -153,7 +151,7 @@ public class CreateGoalActivity extends AppCompatActivity {
                     selected.set(year, month, dayOfMonth, 0, 0, 0);
                     selected.set(Calendar.MILLISECOND, 0);
                     selectedDate = new Date(selected.getTimeInMillis());
-                    etGoalDate.setText(dateFormat.format(selectedDate));
+                    etGoalDate.setText(DateFormats.formatLong(selectedDate));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),

@@ -13,12 +13,11 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.models.Goal;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * RecyclerView adapter for goal cards (red border) in the Goals tab.
@@ -83,9 +82,6 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         private final CheckBox cbGoalComplete;
         private final ImageView btnGoalMenu;
 
-        private final SimpleDateFormat dateFormat =
-                new SimpleDateFormat("d EEEE", Locale.getDefault());
-
         GoalViewHolder(@NonNull View itemView) {
             super(itemView);
             tvGoalDeadline = itemView.findViewById(R.id.tvGoalDeadline);
@@ -97,9 +93,9 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         }
 
         void bind(Goal goal, int position) {
-            // Deadline formatted as "15 Sunday"
+            // Deadline formatted as "15 October 2026"
             if (goal.getDeadline() != null) {
-                tvGoalDeadline.setText(dateFormat.format(goal.getDeadline()));
+                tvGoalDeadline.setText(DateFormats.formatLong(goal.getDeadline()));
             } else {
                 tvGoalDeadline.setText("");
             }

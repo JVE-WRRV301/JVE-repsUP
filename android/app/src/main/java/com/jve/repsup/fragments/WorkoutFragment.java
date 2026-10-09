@@ -253,17 +253,18 @@ public class WorkoutFragment extends Fragment implements
     @Override
     public void onWorkoutShare(Workout workout, int position) {
         StringBuilder shareText = new StringBuilder();
-        shareText.append("Check out my workout: ").append(workout.getName()).append(" on Reps Up! \uD83D\uDCAA\n\n");
+        shareText.append(getString(R.string.workout_share_intro, workout.getName())).append("\n\n");
 
         List<WorkoutExercise> exercises = workout.getExercises();
         if (exercises != null && !exercises.isEmpty()) {
-            shareText.append("Exercises:\n");
+            shareText.append(getString(R.string.workout_share_exercises_heading)).append("\n");
             for (int i = 0; i < exercises.size(); i++) {
                 WorkoutExercise we = exercises.get(i);
-                String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
-                shareText.append("\u2022 ").append(exerciseName)
-                        .append(" \u2014 ").append(we.getSets()).append(" sets \u00d7 ")
-                        .append(we.getReps()).append(" reps\n");
+                String exerciseName = we.getExercise() != null
+                        ? we.getExercise().getName()
+                        : getString(R.string.workout_share_exercise_fallback);
+                shareText.append(getString(R.string.workout_share_exercise_line,
+                        exerciseName, we.getSets(), we.getReps())).append("\n");
             }
         }
 

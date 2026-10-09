@@ -32,33 +32,6 @@
             android:paddingVertical="12dp"
             android:paddingHorizontal="4dp">
 
-            <!-- Sunday -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <TextView
-                    android:id="@+id/tvDayLabelSun"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/day_sun"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp" />
-                <TextView
-                    android:id="@+id/tvDayDateSun"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/orbitron_bold"
-                    android:textColor="@color/muted"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="2dp" />
-            </LinearLayout>
-
             <!-- Monday -->
             <LinearLayout
                 android:layout_width="0dp"
@@ -212,6 +185,33 @@
                     android:textSize="12sp" />
                 <TextView
                     android:id="@+id/tvDayDateSat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/orbitron_bold"
+                    android:textColor="@color/muted"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Sunday -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="4dp">
+                <TextView
+                    android:id="@+id/tvDayLabelSun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/day_sun"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvDayDateSun"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/orbitron_bold"

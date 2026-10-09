@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ScheduledWorkout;
@@ -23,11 +24,9 @@ import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SnackbarUtils;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Activity for scheduling a workout on a specific date with an optional repeat interval.
@@ -53,7 +52,6 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
     private String selectedRepeat = "Never";
     private List<Workout> workoutList = new ArrayList<>();
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +125,7 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                     selected.set(year, month, dayOfMonth, 0, 0, 0);
                     selected.set(Calendar.MILLISECOND, 0);
                     selectedDate = new Date(selected.getTimeInMillis());
-                    etDate.setText(dateFormat.format(selectedDate));
+                    etDate.setText(DateFormats.formatLong(selectedDate));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),

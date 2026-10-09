@@ -10,6 +10,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DisplayText;
 import com.jve.repsup.models.Exercise;
 
 import java.util.ArrayList;
@@ -55,7 +56,8 @@ public class AdminExercisePickAdapter
         holder.tvExerciseName.setText(exercise.getName());
         holder.tvExerciseDetails.setText(
                 holder.itemView.getContext().getString(R.string.admin_exercise_details,
-                        exercise.getDefaultSets(), exercise.getDefaultReps(), exercise.getDifficulty())
+                        exercise.getDefaultSets(), exercise.getDefaultReps(),
+                        DisplayText.capitalise(exercise.getDifficulty()))
         );
 
         holder.cardView.setCardBackgroundColor(

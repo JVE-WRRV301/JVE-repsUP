@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RepsUp</string>
+    <string name="app_name">Reps Up</string>
 
     <!-- Navigation tabs -->
     <string name="nav_home">Home</string>
@@ -35,7 +35,7 @@
     <string name="login_placeholder">Login — Coming Soon</string>
 
     <!-- Welcome Screen -->
-    <string name="welcome_title">Welcome to REPS UP</string>
+    <string name="welcome_title">Welcome to Reps Up</string>
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_reps_up">REPS UP.</string>
     <string name="welcome_have_account">Have an account already? Login</string>
@@ -112,6 +112,7 @@
     <string name="assessment_next">Next</string>
     <string name="assessment_finish">Finish</string>
     <string name="assessment_get_started">Get Started</string>
+    <string name="assessment_save_error">Failed to save profile. Please try again.</string>
 
     <!-- Assessment Welcome -->
     <string name="assessment_welcome_title">Fitness Assessment</string>
@@ -120,7 +121,7 @@
     <string name="assessment_welcome_personalized">WELCOME %s!</string>
     <string name="assessment_complete_title">Complete your fitness assessment</string>
     <string name="assessment_welcome_detail">Answer a few questions so we can personalise your experience and build your avatar.</string>
-    <string name="btn_lets_go">Lets Go</string>
+    <string name="btn_lets_go">Let\'s go</string>
 
     <!-- Assessment Sections -->
     <string name="assessment_section_body">About your body.</string>
@@ -142,13 +143,13 @@
 
     <!-- Weight -->
     <string name="assessment_weight_question">What\'s your weight?</string>
-    <string name="assessment_unit_kg">KG</string>
-    <string name="assessment_unit_lbs">LBS</string>
+    <string name="assessment_unit_kg">kg</string>
+    <string name="assessment_unit_lbs">lbs</string>
 
     <!-- Height -->
     <string name="assessment_height_question">How tall are you?</string>
-    <string name="assessment_unit_cm">CM</string>
-    <string name="assessment_unit_ft">FT</string>
+    <string name="assessment_unit_cm">cm</string>
+    <string name="assessment_unit_ft">ft</string>
 
     <!-- Body Type -->
     <string name="assessment_body_type_question">What\'s your body type?</string>
@@ -174,7 +175,7 @@
     <string name="assessment_goals_question">What are your fitness goals?</string>
     <string name="assessment_goals_hint">Select all that apply</string>
     <string name="assessment_goal_lose_weight">Lose weight</string>
-    <string name="assessment_goal_stay_consistent">Stay Consistent</string>
+    <string name="assessment_goal_stay_consistent">Stay consistent</string>
     <string name="assessment_goal_build_muscle">Build muscle</string>
     <string name="assessment_goal_get_fitter">Get fitter</string>
     <string name="assessment_goal_improve_endurance">Improve endurance</string>
@@ -199,8 +200,8 @@
 
     <!-- Avatar Generation -->
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
-    <string name="avatar_subtitle_male">We\'ll customize him later</string>
-    <string name="avatar_subtitle_female">We\'ll customize her later</string>
+    <string name="avatar_subtitle_male">We\'ll customise him later</string>
+    <string name="avatar_subtitle_female">We\'ll customise her later</string>
     <string name="avatar_continue">Continue</string>
     <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
 
@@ -219,6 +220,7 @@
     <!-- Goal Complete Dialog -->
     <string name="goal_congratulations">CONGRATULATIONS!</string>
     <string name="goal_xp_earned_label">XP EARNED</string>
+    <string name="goal_xp_earned_format">+%d XP</string>
     <string name="goal_share">Share</string>
     <string name="goal_close">Close</string>
     <string name="goal_share_text">I just completed my goal \"%1$s\" and earned %2$d XP on Reps Up! 💪🔥</string>
@@ -250,6 +252,8 @@
     <string name="weekly_plan_status_missed">Missed</string>
     <string name="weekly_plan_status_scheduled">Scheduled</string>
     <string name="weekly_plan_exercises_format">%d exercises</string>
+    <string name="weekly_plan_week_range">%1$s – %2$s</string>
+    <string name="weekly_plan_day_today">%1$s (Today)</string>
     <string name="weekly_plan_delete_title">Delete Scheduled Workout</string>
     <string name="weekly_plan_delete_message">Are you sure you want to remove this scheduled workout?</string>
     <string name="workout_action_edit">Edit</string>
@@ -299,6 +303,12 @@
     <string name="edit_workout_error">Failed to update workout</string>
     <string name="edit_workout_save_button">Update Workout</string>
 
+    <!-- Workout share text -->
+    <string name="workout_share_intro">Check out my workout: %1$s on Reps Up! 💪</string>
+    <string name="workout_share_exercises_heading">Exercises:</string>
+    <string name="workout_share_exercise_line">• %1$s — %2$d sets × %3$d reps</string>
+    <string name="workout_share_exercise_fallback">Exercise</string>
+
     <!-- Reorder Workout -->
     <string name="workout_reorder_title">Reorder Exercises</string>
     <string name="workout_reorder_hint">Drag exercises to reorder them</string>
@@ -321,7 +331,7 @@
     <string name="admin_create_workout">Create Default Workout</string>
     <string name="admin_create_exercise">Create Default Exercise</string>
     <string name="admin_manage_workouts">Manage Default Workouts</string>
-    <string name="admin_logout">Logout</string>
+    <string name="admin_logout">Log out</string>
 
     <!-- Admin Create Exercise -->
     <string name="admin_create_exercise_title">Create Exercise</string>
@@ -443,7 +453,7 @@
     <string name="workout_execution_finish">Finish</string>
     <string name="workout_execution_set_header">Set</string>
     <string name="workout_execution_reps_header">Reps</string>
-    <string name="workout_execution_weight_header">Weight (KG)</string>
+    <string name="workout_execution_weight_header">Weight (kg)</string>
     <string name="workout_execution_done_header">Done</string>
     <string name="workout_execution_not_scheduled">This workout is not scheduled for today.</string>
     <string name="workout_execution_load_error">Failed to load workout. Please try again.</string>
@@ -471,6 +481,7 @@
     <string name="level_up_new_level">LEVEL %d</string>
     <string name="level_up_coins">+50 COINS</string>
     <string name="level_up_close">Close</string>
+    <string name="top_bar_level_format">Lv. %d</string>
 
     <!-- Rank Up Dialog -->
     <string name="rank_up_congratulations">CONGRATULATIONS!</string>
@@ -487,6 +498,9 @@
     <string name="locker_item_selected">Item selected</string>
     <string name="locker_purchase_prompt">Purchase for %d coins?</string>
     <string name="locker_not_enough_coins">Not enough coins</string>
+    <string name="purchase_cancel">Cancel</string>
+    <string name="purchase_buy">Buy</string>
+    <string name="purchase_item_description">Cosmetic item</string>
     <string name="locker_item_purchased">Purchased %s!</string>
     <string name="locker_item_coming_soon">Coming soon!</string>
     <string name="locker_top_bottom_required">Your avatar needs to be wearing a top and a bottom before you can save.</string>

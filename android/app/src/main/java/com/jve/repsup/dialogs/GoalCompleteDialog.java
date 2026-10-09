@@ -43,7 +43,7 @@ public class GoalCompleteDialog extends Dialog {
         ImageView btnClose = findViewById(R.id.btnClose);
 
         tvGoalTitle.setText(goalTitle);
-        tvXpEarned.setText("+" + xpEarned + "XP");
+        tvXpEarned.setText(getContext().getString(R.string.goal_xp_earned_format, xpEarned));
 
         btnShare.setOnClickListener(v -> shareGoalCompletion());
         btnClose.setOnClickListener(v -> dismiss());

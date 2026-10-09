@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:fontFamily="@font/orbitron_bold"
-        android:textColor="@color/yellow"
+        android:textColor="@color/light_blue"
         android:textSize="42sp" />
 
     <!-- Muscles Worked Card -->

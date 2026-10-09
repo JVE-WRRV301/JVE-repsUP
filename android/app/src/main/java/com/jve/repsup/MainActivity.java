@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 // the level here.
                 int displayLevel = user.getCurrentLevel();
                 runOnUiThread(() -> {
-                    tvLevel.setText("Lv. " + displayLevel);
+                    tvLevel.setText(getString(R.string.top_bar_level_format, displayLevel));
                     tvStreak.setText(String.valueOf(user.getCurrentStreak()));
                     tvCoins.setText(String.valueOf(user.getCoins()));
                 });

@@ -146,7 +146,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
 
     /**
      * Updates button text, visibility, and top bar based on the current step.
-     * Step 0: show assessment back arrow, hide progress, hide bottom Back, show "Lets Go" button.
+     * Step 0: show assessment back arrow, hide progress, hide bottom Back, show "Let's go" button.
      * Other steps: hide assessment back, show progress, show normal Back/Next.
      */
     private void updateButtons(int currentStep) {
@@ -284,7 +284,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
                     // Re-enable Finish so the user can retry after a failed save.
                     setNextEnabled(true);
                     DialogUtils.showError(FitnessAssessmentActivity.this,
-                            "Failed to save profile. Please try again.");
+                            R.string.assessment_save_error);
                 });
             }
         });

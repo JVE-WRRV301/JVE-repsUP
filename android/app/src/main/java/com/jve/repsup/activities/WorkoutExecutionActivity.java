@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DisplayText;
 import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ExerciseResult;
@@ -199,7 +200,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
         // Update exercise info
         tvExerciseName.setText(workoutExercise.getExercise().getName());
-        tvDifficulty.setText(workoutExercise.getExercise().getDifficulty());
+        tvDifficulty.setText(DisplayText.capitalise(workoutExercise.getExercise().getDifficulty()));
 
         // Show a demo image for the exercise. Named exercises resolve to a
         // bundled drawable; anything else falls back to the placeholder.

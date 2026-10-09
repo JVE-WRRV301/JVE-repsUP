@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.activities.CreateGoalActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.CalendarDayAdapter;
@@ -31,12 +32,10 @@ import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -177,8 +176,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     }
 
     private void updateCalendar() {
-        SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
-        tvMonthYear.setText(monthFormat.format(currentMonth.getTime()));
+        tvMonthYear.setText(DateFormats.formatMonthYear(currentMonth.getTime()));
 
         List<Integer> days = buildDaysList();
 
@@ -199,10 +197,12 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         Calendar cal = (Calendar) currentMonth.clone();
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
-        int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
         int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        for (int i = 1; i < firstDayOfWeek; i++) {
+        // Weeks start on Monday: pad with blanks for the days before the 1st
+        // (0 blanks if the 1st is a Monday, 6 if it's a Sunday).
+        int leadingBlanks = DateFormats.daysSinceMonday(cal.get(Calendar.DAY_OF_WEEK));
+        for (int i = 0; i < leadingBlanks; i++) {
             days.add(0);
         }
 
@@ -279,8 +279,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         cal.set(Calendar.DAY_OF_MONTH, day);
         java.sql.Date selectedDate = new java.sql.Date(cal.getTimeInMillis());
 
-        SimpleDateFormat titleFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
-        tvSelectedDayTitle.setText(titleFormat.format(cal.getTime()));
+        tvSelectedDayTitle.setText(DateFormats.formatShort(cal.getTime()));
 
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
