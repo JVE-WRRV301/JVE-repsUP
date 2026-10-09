@@ -1,7 +1,6 @@
 package com.jve.repsup.activities;
 
 import android.app.DatePickerDialog;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,10 +10,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.Workout;
@@ -24,11 +24,9 @@ import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SnackbarUtils;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Activity for scheduling a workout on a specific date with an optional repeat interval.
@@ -54,7 +52,6 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
     private String selectedRepeat = "Never";
     private List<Workout> workoutList = new ArrayList<>();
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,10 +118,14 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                 this,
                 R.style.DatePickerTheme,
                 (view, year, month, dayOfMonth) -> {
+                    // Zero the time fields so the saved java.sql.Date is a pure
+                    // date; a leftover time-of-day could shift the day across a
+                    // server timezone boundary.
                     Calendar selected = Calendar.getInstance();
-                    selected.set(year, month, dayOfMonth);
+                    selected.set(year, month, dayOfMonth, 0, 0, 0);
+                    selected.set(Calendar.MILLISECOND, 0);
                     selectedDate = new Date(selected.getTimeInMillis());
-                    etDate.setText(dateFormat.format(selectedDate));
+                    etDate.setText(DateFormats.formatLong(selectedDate));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -146,17 +147,13 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
         workoutRepository.getUserWorkouts(userId, new ConnectionManager.DatabaseCallback<List<Workout>>() {
             @Override
             public void onSuccess(List<Workout> userWorkouts) {
-                if (userWorkouts != null) {
-                    workoutList.addAll(userWorkouts);
-                }
+                addWorkoutsWithExercises(userWorkouts);
 
                 // Then load default workouts
                 workoutRepository.getDefaultWorkouts(new ConnectionManager.DatabaseCallback<List<Workout>>() {
                     @Override
                     public void onSuccess(List<Workout> defaultWorkouts) {
-                        if (defaultWorkouts != null) {
-                            workoutList.addAll(defaultWorkouts);
-                        }
+                        addWorkoutsWithExercises(defaultWorkouts);
                         runOnUiThread(() -> populateSpinner());
                     }
 
@@ -173,9 +170,7 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                 workoutRepository.getDefaultWorkouts(new ConnectionManager.DatabaseCallback<List<Workout>>() {
                     @Override
                     public void onSuccess(List<Workout> defaultWorkouts) {
-                        if (defaultWorkouts != null) {
-                            workoutList.addAll(defaultWorkouts);
-                        }
+                        addWorkoutsWithExercises(defaultWorkouts);
                         runOnUiThread(() -> populateSpinner());
                     }
 
@@ -186,6 +181,22 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    /**
+     * Adds workouts to the spinner list, skipping any that have no exercises.
+     * A workout with 0 exercises can't be started (START shows "Failed to load
+     * workout"), so it must not appear in the schedule dropdown.
+     */
+    private void addWorkoutsWithExercises(List<Workout> workouts) {
+        if (workouts == null) {
+            return;
+        }
+        for (Workout w : workouts) {
+            if (w.getExercises() != null && !w.getExercises().isEmpty()) {
+                workoutList.add(w);
+            }
+        }
     }
 
     /**
@@ -213,30 +224,10 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
     }
 
     private void updateRepeatButtons() {
-        int activeColor = ContextCompat.getColor(this, R.color.light_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.dark_grey_surface);
-        int activeTextColor = ContextCompat.getColor(this, R.color.dark_text);
-        int inactiveTextColor = ContextCompat.getColor(this, R.color.white);
-
-        btnRepeatNever.setBackgroundTintList(ColorStateList.valueOf(
-                "Never".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatNever.setTextColor(
-                "Never".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatWeekly.setBackgroundTintList(ColorStateList.valueOf(
-                "Weekly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatWeekly.setTextColor(
-                "Weekly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatBiweekly.setBackgroundTintList(ColorStateList.valueOf(
-                "Biweekly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatBiweekly.setTextColor(
-                "Biweekly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
-
-        btnRepeatMonthly.setBackgroundTintList(ColorStateList.valueOf(
-                "Monthly".equals(selectedRepeat) ? activeColor : inactiveColor));
-        btnRepeatMonthly.setTextColor(
-                "Monthly".equals(selectedRepeat) ? activeTextColor : inactiveTextColor);
+        SelectableButtonStyler.applySelected(btnRepeatNever, "Never".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatWeekly, "Weekly".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatBiweekly, "Biweekly".equals(selectedRepeat));
+        SelectableButtonStyler.applySelected(btnRepeatMonthly, "Monthly".equals(selectedRepeat));
     }
 
     /**

@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
@@ -25,10 +27,8 @@ import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * HomeFragment displaying today's scheduled workout and the next upcoming goal.
@@ -37,6 +37,7 @@ import java.util.Locale;
  */
 public class HomeFragment extends Fragment {
 
+    private TextView tvGreeting;
     private LinearLayout llWeekStrip;
     private LinearLayout llTodayContent;
     private TextView tvTodayEmpty;
@@ -117,6 +118,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        tvGreeting = view.findViewById(R.id.tvGreeting);
+        showGreeting();
+
         llWeekStrip = view.findViewById(R.id.llWeekStrip);
 
         // Today card views
@@ -139,18 +143,45 @@ public class HomeFragment extends Fragment {
     }
 
     /**
+     * Shows a time-of-day greeting using only the first word of the user's
+     * first name, based on the phone's current time.
+     */
+    private void showGreeting() {
+        String storedName = sessionManager.getName();
+        String firstWord = "";
+        if (storedName != null) {
+            String trimmed = storedName.trim();
+            if (!trimmed.isEmpty()) {
+                firstWord = trimmed.split("\\s+")[0];
+            }
+        }
+
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int greetingResId;
+        if (hour < 12) {
+            greetingResId = R.string.home_greeting_morning;
+        } else if (hour < 18) {
+            greetingResId = R.string.home_greeting_afternoon;
+        } else {
+            greetingResId = R.string.home_greeting_evening;
+        }
+
+        tvGreeting.setText(getString(greetingResId, firstWord));
+    }
+
+    /**
      * Populates the week strip with dates for the current week
      * and highlights today's column with light_blue color.
      */
     private void highlightToday() {
         Calendar calendar = Calendar.getInstance();
-        int todayDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        // Calendar.SUNDAY = 1, so index in our strip is dayOfWeek - 1
-        int todayIndex = todayDayOfWeek - Calendar.SUNDAY;
+        // The strip runs Monday to Sunday, so today's column is how many
+        // days today is after Monday (Monday = 0 … Sunday = 6).
+        int todayIndex = DateFormats.daysSinceMonday(calendar.get(Calendar.DAY_OF_WEEK));
 
-        // Calculate the start of the week (Sunday)
+        // Start of the week (Monday)
         Calendar weekStart = (Calendar) calendar.clone();
-        weekStart.add(Calendar.DAY_OF_YEAR, -(todayDayOfWeek - Calendar.SUNDAY));
+        weekStart.add(Calendar.DAY_OF_YEAR, -todayIndex);
 
         int highlightColor = getResources().getColor(R.color.light_blue, null);
         int mutedColor = getResources().getColor(R.color.muted, null);
@@ -224,18 +255,16 @@ public class HomeFragment extends Fragment {
 
         tvWorkoutName.setText(scheduledWorkout.getWorkout().getName());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
-        tvWorkoutDate.setText(dateFormat.format(scheduledWorkout.getScheduledDate()));
+        tvWorkoutDate.setText(DateFormats.formatShort(scheduledWorkout.getScheduledDate()));
 
         // Show START button or Completed status
         if (scheduledWorkout.isCompleted()) {
             btnStart.setText(R.string.calendar_status_completed);
-            btnStart.setEnabled(false);
-            btnStart.setAlpha(0.7f);
+            // Shared disabled look (grey, muted text) instead of a faded button.
+            SelectableButtonStyler.applyEnabled(btnStart, false);
         } else {
             btnStart.setText(R.string.home_start);
-            btnStart.setEnabled(true);
-            btnStart.setAlpha(1.0f);
+            SelectableButtonStyler.applyEnabled(btnStart, true);
         }
 
         // Populate exercise list
@@ -307,21 +336,13 @@ public class HomeFragment extends Fragment {
         llGoalContent.setVisibility(View.VISIBLE);
         tvGoalEmpty.setVisibility(View.GONE);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
         tvGoalDeadline.setText(getString(R.string.home_deadline_format,
-                dateFormat.format(goal.getDeadline())));
+                DateFormats.formatLong(goal.getDeadline())));
 
-        // Description stores the title and optional notes joined by "\n---\n"
-        // (same format the schedule/goals list uses). Split them so the heading
-        // shows only the title and the subheading shows only the notes.
-        String description = goal.getDescription();
-        String title = description;
-        String notes = "";
-        if (description != null && description.contains("\n---\n")) {
-            int separatorIndex = description.indexOf("\n---\n");
-            title = description.substring(0, separatorIndex);
-            notes = description.substring(separatorIndex + 5);
-        }
+        // Title and notes come from separate columns now: the heading shows the
+        // title and the subheading shows the optional notes.
+        String title = goal.getTitle();
+        String notes = goal.getDescription() != null ? goal.getDescription() : "";
 
         tvGoalTitle.setText(title);
         tvGoalPriority.setText(goal.getPriority());

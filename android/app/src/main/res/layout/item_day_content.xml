@@ -77,20 +77,14 @@
             android:textSize="13sp" />
 
         <!-- START button -->
-        <TextView
+        <Button
             android:id="@+id/btnStart"
+            style="@style/Widget.RepsUp.Button.Start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_start_button"
-            android:fontFamily="@font/inter_bold"
-            android:paddingStart="20dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="6dp"
+            android:visibility="gone"
             android:text="@string/home_start"
-            android:textColor="@color/dark_text"
-            android:textSize="12sp"
-            android:visibility="gone" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 

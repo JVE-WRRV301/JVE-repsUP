@@ -9,9 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.MainActivity;
@@ -25,12 +26,11 @@ import com.jve.repsup.dialogs.GoalCompleteDialog;
 import com.jve.repsup.dialogs.LevelUpDialog;
 import com.jve.repsup.dialogs.RankUpDialog;
 import com.jve.repsup.models.Goal;
-import com.jve.repsup.models.Rank;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.ProgressionManager;
 import com.jve.repsup.utils.SessionManager;
-import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
 
@@ -204,42 +204,13 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                     adapter.notifyItemChanged(position);
                     refreshTopBar();
 
-                    // Show Goal Complete dialog FIRST
+                    // Show Goal Complete dialog FIRST (title only, never the notes)
                     if (getContext() == null) return;
-                    GoalCompleteDialog goalDialog = new GoalCompleteDialog(getContext(), goal.getDescription(), xpEarned);
+                    GoalCompleteDialog goalDialog = new GoalCompleteDialog(getContext(), goal.getTitle(), xpEarned);
                     goalDialog.setOnDismissListener(d -> {
-                        // After goal dialog dismissed, check level-up
-                        if (user == null) return;
-                        int currentLevel = user.getCurrentLevel();
-                        int totalXp = user.getXp();
-
-                        // Check for multiple level-ups
-                        int newLevel = currentLevel;
-                        while (XPCalculator.shouldLevelUp(totalXp, newLevel)) {
-                            newLevel++;
-                        }
-
-                        if (newLevel > currentLevel) {
-                            int finalLevel = newLevel;
-                            int coinsEarned = (finalLevel - currentLevel) * 50;
-
-                            // Update level in DB
-                            userRepository.updateLevel(userId, finalLevel, null);
-                            userRepository.updateCoins(userId, coinsEarned, null);
-
-                            // Show Level Up dialog
-                            if (getContext() == null) return;
-                            LevelUpDialog levelDialog = new LevelUpDialog(getContext(), finalLevel);
-                            levelDialog.setOnDismissListener(ld -> {
-                                refreshTopBar();
-                                // Check rank promotion
-                                checkRankPromotionAfterGoal(userId, finalLevel);
-                            });
-                            levelDialog.show();
-                        } else {
-                            // No level-up, still refresh
-                            refreshTopBar();
-                        }
+                        // After goal dialog dismissed, hand the XP change to the
+                        // shared ProgressionManager for level/coin/rank handling.
+                        applyProgressionAfterGoal(userId);
                     });
                     goalDialog.show();
                 });
@@ -251,63 +222,60 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                 getActivity().runOnUiThread(() -> {
                     goal.setCompleted(true);
                     adapter.notifyItemChanged(position);
-                    showGoalCompleteDialog(goal.getDescription(), xpEarned);
+                    showGoalCompleteDialog(goal.getTitle(), xpEarned);
                 });
             }
         });
     }
 
     /**
-     * Checks if the user qualifies for a rank promotion after levelling up from goal completion.
-     * Shows RankUpDialog if a promotion is available.
+     * Hands the goal's XP change to the shared {@link ProgressionManager}, which
+     * works out the new level, saves it, awards coins and promotes the rank.
+     * Shows the Level Up dialog then the Rank Up dialog based on what it reports,
+     * and refreshes the top bar.
      */
-    private void checkRankPromotionAfterGoal(int userId, int newLevel) {
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null || getActivity() == null || !isAdded()) return;
-
-                int currentRankId = user.getRankId() != null ? user.getRankId() : 0;
-
-                userRepository.getNextRank(newLevel, currentRankId, new ConnectionManager.DatabaseCallback<Rank>() {
+    private void applyProgressionAfterGoal(int userId) {
+        ProgressionManager.applyProgression(userId, userRepository,
+                new ProgressionManager.ProgressionCallback() {
                     @Override
-                    public void onSuccess(Rank nextRank) {
-                        if (nextRank == null || getActivity() == null || !isAdded()) {
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> refreshTopBar());
-                            }
-                            return;
-                        }
-
-                        // Update rank in DB
-                        userRepository.updateRank(userId, nextRank.getRankId(), null);
-                        // Award 100 bonus coins
-                        userRepository.updateCoins(userId, 100, null);
-
+                    public void onResult(ProgressionManager.ProgressionResult result) {
+                        if (getActivity() == null || !isAdded()) return;
                         getActivity().runOnUiThread(() -> {
-                            if (getContext() == null) return;
-                            RankUpDialog dialog = new RankUpDialog(getContext(), nextRank.getDisplayName());
-                            dialog.setOnDismissListener(d -> refreshTopBar());
-                            dialog.show();
+                            if (!isAdded()) return;
+                            if (result.leveledUp() && getContext() != null) {
+                                LevelUpDialog levelDialog =
+                                        new LevelUpDialog(getContext(), result.getNewLevel());
+                                levelDialog.setOnDismissListener(ld -> {
+                                    refreshTopBar();
+                                    showRankUpAfterGoal(result);
+                                });
+                                levelDialog.show();
+                            } else {
+                                refreshTopBar();
+                            }
                         });
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> refreshTopBar());
-                        }
+                        if (getActivity() == null || !isAdded()) return;
+                        getActivity().runOnUiThread(() -> refreshTopBar());
                     }
                 });
-            }
+    }
 
-            @Override
-            public void onError(Exception e) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> refreshTopBar());
-                }
-            }
-        });
+    /**
+     * Shows the Rank Up dialog if the progression result reported a rank gain.
+     */
+    private void showRankUpAfterGoal(ProgressionManager.ProgressionResult result) {
+        if (getActivity() == null || !isAdded()) return;
+        if (result.rankedUp() && result.getNewRankName() != null && getContext() != null) {
+            RankUpDialog dialog = new RankUpDialog(getContext(), result.getNewRankName());
+            dialog.setOnDismissListener(d -> refreshTopBar());
+            dialog.show();
+        } else {
+            refreshTopBar();
+        }
     }
 
     /**
@@ -336,18 +304,9 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
         Intent intent = new Intent(getContext(), CreateGoalActivity.class);
         intent.putExtra("goal_id", goal.getGoalId());
 
-        // Split description into title and notes
-        String description = goal.getDescription();
-        String title = description;
-        String notes = "";
-        if (description != null && description.contains("\n---\n")) {
-            int separatorIndex = description.indexOf("\n---\n");
-            title = description.substring(0, separatorIndex);
-            notes = description.substring(separatorIndex + 5);
-        }
-
-        intent.putExtra("goal_title", title);
-        intent.putExtra("goal_notes", notes);
+        // Title and notes are stored in separate columns now.
+        intent.putExtra("goal_title", goal.getTitle());
+        intent.putExtra("goal_notes", goal.getDescription() != null ? goal.getDescription() : "");
         intent.putExtra("goal_priority", goal.getPriority());
         if (goal.getDeadline() != null) {
             intent.putExtra("goal_deadline", goal.getDeadline().getTime());
@@ -362,7 +321,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
     public void onGoalDelete(Goal goal, int position) {
         if (getContext() == null) return;
 
-        new AlertDialog.Builder(getContext())
+        new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.goal_delete_confirm_title)
                 .setMessage(R.string.goal_delete_confirm_message)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteGoal(goal, position))

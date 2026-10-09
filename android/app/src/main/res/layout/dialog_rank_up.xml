@@ -1,62 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark_grey_surface"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="32dp">
+    android:padding="16dp">
 
-    <!-- Medal icon -->
-    <TextView
-        android:id="@+id/tvMedalIcon"
-        android:layout_width="wrap_content"
+    <!-- Rounded card -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="\uD83C\uDFC5"
-        android:textSize="48sp" />
+        android:background="@drawable/bg_streak_milestone_card"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="32dp">
 
-    <!-- Congratulations title -->
-    <TextView
-        android:id="@+id/tvCongratulations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/orbitron"
-        android:text="@string/rank_up_congratulations"
-        android:textColor="@color/yellow"
-        android:textSize="22sp" />
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvCongratulations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/orbitron_bold"
+            android:gravity="center"
+            android:text="@string/rank_up_congratulations"
+            android:textColor="@color/yellow"
+            android:textSize="17sp" />
 
-    <!-- New rank unlocked subtitle -->
-    <TextView
-        android:id="@+id/tvNewRankUnlocked"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/orbitron"
-        android:text="@string/rank_up_new_rank"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+        <!-- New rank unlocked subtitle -->
+        <TextView
+            android:id="@+id/tvNewRankUnlocked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/inter"
+            android:gravity="center"
+            android:text="@string/rank_up_new_rank"
+            android:textColor="@color/muted"
+            android:textSize="14sp" />
 
-    <!-- Rank name -->
-    <TextView
-        android:id="@+id/tvRankName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/orbitron"
-        android:textColor="@color/light_blue"
-        android:textSize="28sp" />
+        <!-- Medal icon (replaces the old emoji) -->
+        <ImageView
+            android:id="@+id/ivRankUpIcon"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/rank_up_congratulations"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_medal"
+            app:tint="@color/yellow" />
 
-    <!-- Coins earned -->
-    <TextView
-        android:id="@+id/tvCoinsEarned"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/inter_medium"
-        android:text="@string/rank_up_coins"
-        android:textColor="@color/yellow"
-        android:textSize="18sp" />
+        <!-- Rank name -->
+        <TextView
+            android:id="@+id/tvRankName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/orbitron_bold"
+            android:gravity="center"
+            android:textColor="@color/light_blue"
+            android:textSize="28sp" />
+
+        <!-- Coins earned -->
+        <TextView
+            android:id="@+id/tvCoinsEarned"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/orbitron"
+            android:text="@string/rank_up_coins"
+            android:textColor="@color/yellow"
+            android:textSize="18sp" />
+
+    </LinearLayout>
 
     <!-- Buttons row -->
     <LinearLayout

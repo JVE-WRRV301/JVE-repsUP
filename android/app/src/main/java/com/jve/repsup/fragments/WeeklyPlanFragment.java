@@ -14,7 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.WeeklyPlanAdapter;
@@ -24,10 +26,8 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Fragment displaying the weekly plan with collapsible day sections.
@@ -101,13 +101,19 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                 if (getContext() == null) return;
                 Intent intent = new Intent(getContext(), CreateWorkoutActivity.class);
                 intent.putExtra(CreateWorkoutActivity.EXTRA_EDIT_WORKOUT_ID, scheduledWorkout.getWorkoutId());
+                // Pass the scheduled row so that, if the workout turns out to be a
+                // default or another user's workout, Create Workout can save a
+                // personal copy and repoint this scheduled workout at it instead
+                // of changing the shared workout.
+                intent.putExtra(CreateWorkoutActivity.EXTRA_SCHEDULED_WORKOUT_ID,
+                        scheduledWorkout.getScheduledWorkoutId());
                 startActivity(intent);
             }
 
             @Override
             public void onDeleteScheduledWorkout(ScheduledWorkout scheduledWorkout) {
                 if (getContext() == null) return;
-                new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                new MaterialAlertDialogBuilder(getContext())
                         .setTitle(R.string.weekly_plan_delete_title)
                         .setMessage(R.string.weekly_plan_delete_message)
                         .setPositiveButton(R.string.workout_action_delete, (dialog, which) -> {
@@ -193,17 +199,15 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
     }
 
     /**
-     * Updates the week range text header (e.g., "Jun 2 - Jun 8").
+     * Updates the week range text header (e.g., "6 Oct – 12 Oct").
      */
     private void updateWeekRangeHeader() {
-        SimpleDateFormat format = new SimpleDateFormat("MMM d", Locale.getDefault());
-
         Calendar weekEnd = (Calendar) currentWeekStart.clone();
         weekEnd.add(Calendar.DAY_OF_YEAR, 6);
 
-        String startStr = format.format(currentWeekStart.getTime());
-        String endStr = format.format(weekEnd.getTime());
-        tvWeekRange.setText(startStr + " - " + endStr);
+        String startStr = DateFormats.formatDayMonth(currentWeekStart.getTime());
+        String endStr = DateFormats.formatDayMonth(weekEnd.getTime());
+        tvWeekRange.setText(getString(R.string.weekly_plan_week_range, startStr, endStr));
     }
 
     /**

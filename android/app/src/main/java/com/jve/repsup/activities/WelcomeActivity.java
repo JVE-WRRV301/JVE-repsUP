@@ -9,7 +9,6 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,6 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -32,11 +32,8 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Make the activity full-screen/immersive (background extends behind status and nav bars)
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // Draw the full-screen gym background behind the status and nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
 
         // If user already has an active session, skip to MainActivity
         SessionManager sessionManager = new SessionManager(this);

@@ -1,103 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="@color/dark_grey">
 
-    <LinearLayout
+    <!-- Top section: Background image (~30% of screen) -->
+    <ImageView
+        android:id="@+id/ivGymImage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="280dp"
+        android:contentDescription="@string/login_welcome_back"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_welcome" />
 
-        <!-- Dark top section with gym image and welcome text -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/dark_grey"
-            android:minHeight="280dp">
+    <!-- Back button overlaid on top-left (returns to Welcome) -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        style="@style/Widget.RepsUp.BackButton"
+        android:layout_gravity="start|top"
+        android:contentDescription="@string/assessment_back"
+        android:src="@drawable/ic_back" />
 
-            <ImageView
-                android:id="@+id/ivGymImage"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:scaleType="centerCrop"
-                android:alpha="0.4"
-                android:contentDescription="@string/login_welcome_back"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Bottom section: Form panel with rounded top corners. -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollLogin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="240dp"
+        android:background="@drawable/bg_register_panel"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never">
 
-            <TextView
-                android:id="@+id/tvWelcomeBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/login_welcome_back"
-                android:textColor="@color/white"
-                android:textSize="28sp"
-                android:fontFamily="@font/orbitron_bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginBottom="32dp" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- White bottom card with login form -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
+            android:paddingStart="28dp"
             android:paddingTop="32dp"
+            android:paddingEnd="28dp"
             android:paddingBottom="32dp">
+
+            <!-- Log in Title -->
+            <TextView
+                android:id="@+id/tvLoginTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="@string/login_title"
+                android:textColor="@color/white"
+                style="@style/Widget.RepsUp.PageTitle" />
 
             <!-- Username field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilUsername"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/dark_grey"
-                app:hintTextColor="@color/dark_text">
+                android:hint="@string/login_username_hint"
+                app:startIconDrawable="@drawable/ic_person"
+                app:startIconTint="@color/muted">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/login_username_hint"
+                    android:fontFamily="@font/inter"
                     android:inputType="text"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="@font/inter_regular" />
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/muted"
+                    android:textSize="15sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Password field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPassword"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/dark_grey"
-                app:hintTextColor="@color/dark_text"
+                android:layout_marginTop="14dp"
+                android:hint="@string/login_password_hint"
                 app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@color/dark_grey">
+                app:passwordToggleTint="@color/muted"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/muted">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/login_password_hint"
+                    android:fontFamily="@font/inter"
                     android:inputType="textPassword"
-                    android:textColor="@color/dark_text"
-                    android:fontFamily="@font/inter_regular" />
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/muted"
+                    android:textSize="15sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,54 +104,55 @@
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/red"
                 android:textSize="14sp"
-                android:fontFamily="@font/inter_regular"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp" />
+                android:visibility="gone" />
 
             <!-- Login button -->
             <Button
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/light_blue"
+                android:fontFamily="@font/inter_bold"
                 android:text="@string/login_button"
                 android:textColor="@color/dark_text"
                 android:textSize="16sp"
-                android:fontFamily="@font/inter_bold"
-                android:backgroundTint="@color/light_blue"
-                android:layout_marginBottom="24dp" />
+                app:cornerRadius="@dimen/radius_control" />
 
             <!-- Sign Up link -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="center_horizontal">
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter"
                     android:text="@string/login_no_account"
-                    android:textColor="@color/dark_text"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/inter_regular" />
+                    android:textColor="@color/muted"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tvSignUp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/inter_bold"
                     android:text="@string/login_sign_up"
                     android:textColor="@color/light_blue"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/inter_bold"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
         </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

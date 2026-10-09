@@ -28,6 +28,18 @@ class GoalXPPropertyTest {
     }
 
     /**
+     * Review item 10: priority matching ignores case, so the lowercase values
+     * the app/seed actually save ("top"/"medium"/"low") map to the same XP as
+     * their capitalised forms.
+     */
+    @Example
+    void priorityMatchingIgnoresCase() {
+        assertEquals(1000, XPCalculator.calculateGoalXP("top"), "'top' must yield 1000 XP");
+        assertEquals(500, XPCalculator.calculateGoalXP("MEDIUM"), "'MEDIUM' must yield 500 XP");
+        assertEquals(250, XPCalculator.calculateGoalXP("  Low  "), "' Low ' must yield 250 XP");
+    }
+
+    /**
      * Property 2b: "Medium" priority always yields exactly 500 XP.
      *
      * Validates: Requirements 8.5, 17.2
@@ -65,14 +77,15 @@ class GoalXPPropertyTest {
     }
 
     /**
-     * Property 2e: Null input always returns 0 XP.
+     * Property 2e: Null input is treated as Medium (review item 10), so it yields
+     * 500 XP rather than 0.
      *
      * Validates: Requirements 8.5, 17.2
      */
     @Example
-    void nullPriorityAlwaysReturns0XP() {
+    void nullPriorityIsTreatedAsMedium() {
         int xp = XPCalculator.calculateGoalXP(null);
-        assertEquals(0, xp, "Null priority must yield 0 XP");
+        assertEquals(500, xp, "Null priority must be treated as Medium (500 XP)");
     }
 
     /**
@@ -107,10 +120,16 @@ class GoalXPPropertyTest {
 
     @Provide
     Arbitrary<String> invalidPriorityStrings() {
+        // A string is "invalid" (0 XP) only when its trimmed, lower-cased form is
+        // not one of the three priorities, since matching is now case-insensitive
+        // and trims whitespace (review item 10).
         return Arbitraries.strings()
                 .ofMinLength(0)
                 .ofMaxLength(50)
-                .filter(s -> !s.equals("Top") && !s.equals("Medium") && !s.equals("Low"));
+                .filter(s -> {
+                    String n = s.trim().toLowerCase();
+                    return !n.equals("top") && !n.equals("medium") && !n.equals("low");
+                });
     }
 
     @Provide

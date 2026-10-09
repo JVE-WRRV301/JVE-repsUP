@@ -8,10 +8,10 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class AssessmentGoalsFragment extends Fragment {
 
     private Button btnLoseWeight, btnStayConsistent, btnBuildMuscle, btnGetFitter, btnImproveEndurance;
     private Button[] allButtons;
-    private String[] goalValues = {"Lose weight", "Stay Consistent", "Build muscle", "Get fitter", "Improve endurance"};
+    private String[] goalValues = {"lose_weight", "stay_consistent", "build_muscle", "get_fitter", "improve_endurance"};
     private boolean[] selected = new boolean[5];
 
     @Nullable
@@ -70,13 +70,7 @@ public class AssessmentGoalsFragment extends Fragment {
 
     private void updateAllButtons() {
         for (int i = 0; i < allButtons.length; i++) {
-            if (selected[i]) {
-                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            } else {
-                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-            }
+            SelectableButtonStyler.applySelected(allButtons[i], selected[i]);
         }
     }
 

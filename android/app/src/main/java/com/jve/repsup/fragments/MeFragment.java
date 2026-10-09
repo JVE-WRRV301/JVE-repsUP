@@ -42,6 +42,8 @@ public class MeFragment extends Fragment {
 
     private ImageButton btnSettings;
     private ImageButton btnLocker;
+    private TextView tvMeName;
+    private TextView tvMeUsername;
     private ImageView ivAvatar;
     private ImageView ivMedal;
     private TextView tvRankName;
@@ -181,6 +183,8 @@ public class MeFragment extends Fragment {
     private void initViews(View view) {
         btnSettings = view.findViewById(R.id.btnSettings);
         btnLocker = view.findViewById(R.id.btnLocker);
+        tvMeName = view.findViewById(R.id.tvMeName);
+        tvMeUsername = view.findViewById(R.id.tvMeUsername);
         ivAvatar = view.findViewById(R.id.ivAvatar);
         ivMedal = view.findViewById(R.id.ivMedal);
         tvRankName = view.findViewById(R.id.tvRankName);
@@ -230,6 +234,14 @@ public class MeFragment extends Fragment {
      * Computes the correct level from total XP and fixes the DB if stale.
      */
     private void displayUserProfile(User user) {
+        // Title: the user's first name, with @username underneath.
+        if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty()) {
+            tvMeName.setText(user.getFirstName().trim());
+        }
+        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+            tvMeUsername.setText(getString(R.string.me_username_format, user.getUsername().trim()));
+        }
+
         // Display rank name (uppercase for the design style)
         if (user.getRankName() != null && !user.getRankName().isEmpty()) {
             tvRankName.setText(user.getRankName().toUpperCase());
@@ -237,36 +249,22 @@ public class MeFragment extends Fragment {
             tvRankName.setText(R.string.me_rank_default);
         }
 
-        int totalXp = user.getXp();
+        long totalXp = user.getXp();
 
-        // Compute the correct level based on total XP
-        int correctLevel = 1;
-        while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
-            correctLevel++;
-        }
-
-        // Fix DB if level is out of sync
-        if (correctLevel != user.getCurrentLevel()) {
-            userRepository.updateLevel(user.getUserId(), correctLevel, null);
-        }
-
-        // Refresh the top bar to stay in sync
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadTopBarData();
-        }
+        // Read the stored level only. Levelling and rewards are handled in one
+        // place — ProgressionManager, invoked after an XP change — so this
+        // screen must never silently "fix" the level.
+        int level = user.getCurrentLevel();
 
         // Display level number in circle and label below
-        tvLevelNumber.setText(String.valueOf(correctLevel));
-        tvLevelLabel.setText(getString(R.string.me_level_format, correctLevel));
+        tvLevelNumber.setText(String.valueOf(level));
+        tvLevelLabel.setText(getString(R.string.me_level_format, level));
 
-        // Calculate XP progress within current level for circular indicator
-        int xpForNext = XPCalculator.xpForNextLevel(correctLevel);
-
-        int cumulativeXpForCurrentLevel = 0;
-        for (int i = 1; i < correctLevel; i++) {
-            cumulativeXpForCurrentLevel += XPCalculator.xpForNextLevel(i);
-        }
-        int xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
+        // Calculate XP progress within current level for circular indicator.
+        // All curve maths uses long so it can't overflow at high levels.
+        long xpForNext = XPCalculator.xpForNextLevel(level);
+        long cumulativeXpForCurrentLevel = XPCalculator.cumulativeXpForLevel(level);
+        long xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
         int progressPercent = xpForNext > 0 ? (int) ((xpIntoCurrentLevel * 100L) / xpForNext) : 0;
         progressPercent = Math.max(0, Math.min(100, progressPercent));
 
@@ -274,6 +272,6 @@ public class MeFragment extends Fragment {
 
         // Display XP progress text (e.g. "250 / 500 XP")
         tvXpProgress.setText(getString(R.string.me_xp_progress_format,
-                xpIntoCurrentLevel, xpForNext));
+                (int) xpIntoCurrentLevel, (int) xpForNext));
     }
 }

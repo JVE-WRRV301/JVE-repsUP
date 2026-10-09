@@ -107,7 +107,17 @@ cp .env.example .env
 copy .env.example .env
 ```
 
-Then open `.env` in your editor and replace `your_mysql_password_here` with your actual MySQL root password. **Never commit this file** — it's already in `.gitignore`.
+Then open `.env` in your editor and replace `your_mysql_password_here` with your actual MySQL password. **Never commit this file** — it's already in `.gitignore`.
+
+> **Use a dedicated MySQL user, not `root`.** For local development against your own machine you can use `root`, but for the shared server (and ideally everywhere) create a separate MySQL user that only has the rights the app needs on the `reps_up` database, and put that user's credentials in `android/local.properties` instead of the root account. That way the password compiled into the APK can't administer the whole server. For example:
+>
+> ```sql
+> CREATE USER 'repsup_app'@'%' IDENTIFIED BY 'a_strong_password';
+> GRANT SELECT, INSERT, UPDATE, DELETE ON reps_up.* TO 'repsup_app'@'%';
+> FLUSH PRIVILEGES;
+> ```
+>
+> Then set `db.user=repsup_app` and `db.password=a_strong_password` in `android/local.properties`.
 
 ### 5. Verify the setup
 
@@ -127,6 +137,24 @@ SELECT username, current_level FROM users;
 ```
 
 You should see 16 tables, 23 exercises, and 3 test users (dyllan12345, sarahj, jaskrug). If you do, your setup is working.
+
+### Test login credentials (development only)
+
+Passwords are stored hashed (PBKDF2), so you can't read them out of the database. The seed data sets these plain passwords for the test accounts:
+
+| Username | Password |
+|---|---|
+| dyllan12345 | Password1 |
+| sarahj | Password2 |
+| jaskrug | Password3 |
+
+The admin account (reached by long-pressing the "REPS UP." title) is:
+
+| Username | Password |
+|---|---|
+| Admin | admin123 |
+
+These are for local development only.
 
 ---
 

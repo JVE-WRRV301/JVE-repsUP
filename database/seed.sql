@@ -6,7 +6,7 @@ USE reps_up;
 
 -- RANKS (required) 
 
-INSERT INTO Ranks (tier, subtier, min_lvl_required) VALUES
+INSERT INTO ranks (tier, subtier, min_lvl_required) VALUES
     ('Bronze',   'I',   1),
     ('Bronze',   'II',  5),
     ('Bronze',   'III', 10),
@@ -26,7 +26,7 @@ INSERT INTO Ranks (tier, subtier, min_lvl_required) VALUES
 
 -- EXERCISES (required) 
 
-INSERT INTO Exercise (exercise_name, muscle_group, default_sets, default_reps, difficulty, base_xp) VALUES
+INSERT INTO exercise (exercise_name, muscle_group, default_sets, default_reps, difficulty, base_xp) VALUES
     -- Chest
     -- Muscle group names match the groups shown in the app's workout UI
     -- (Chest, Back, Shoulders, Biceps, Triceps, Legs, Glutes, Abs, Calves,
@@ -90,7 +90,7 @@ INSERT INTO Exercise (exercise_name, muscle_group, default_sets, default_reps, d
 --   clothing: assets/{type}/{gender}-{bodytype}/{key}.png  (falls back to -average)
 --   hair:     assets/hair/{gender}-hair/{colour}_{key}.png (falls back to grey)
 -- Every clothing item is gender-specific (no unisex garments in this wardrobe).
-INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, is_colourable, unlock_type, lvl_required, coin_cost, cosmetic_img_data) VALUES
+INSERT INTO cosmetic_item (cosmetic_name, cosmetic_type, gender, is_colourable, unlock_type, lvl_required, coin_cost, cosmetic_img_data) VALUES
     -- MALE default items (worn on registration): id 1-3
     ('White Tank',    'top',    'male',   FALSE, 'default', 0, 0, 'white_tank_default'),   -- id 1
     ('Black Shorts',  'bottom', 'male',   FALSE, 'default', 0, 0, 'black_shorts_default'), -- id 2
@@ -105,8 +105,9 @@ INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, is_colourable, 
     -- MALE DEFAULT HAIR (worn on registration): id 7. Colourable (grey/brown/black/blonde/ginger).
     ('Default Hair',  'hair',   'male',   TRUE,  'default', 0, 0, 'default_hairstyle'),    -- id 7
     -- FEMALE DEFAULT HAIR (worn on registration by female users): id 8. Colourable.
-    -- Female hair has no grey variant, so the compositor falls through to another
-    -- colour; AvatarGenerationActivity equips this id (8) for female users.
+    -- Female hair HAS a grey variant (assets/hair/female-hair/grey_default_hairstyle.png),
+    -- so the compositor uses grey by default; AvatarGenerationActivity equips this
+    -- id (8) for female users.
     ('Default Hair',  'hair',   'female', TRUE,  'default', 0, 0, 'default_hairstyle'),    -- id 8
     -- MALE wearables (all free for testing so items can be tried on freely).
     ('White T-Shirt', 'top',    'male',   FALSE, 'default', 0, 0, 'white_tshirt'),
@@ -194,17 +195,27 @@ INSERT INTO Cosmetic_Item (cosmetic_name, cosmetic_type, gender, is_colourable, 
 
 -- ADMIN ACCOUNT (required) - so admins can create default workouts
 
-INSERT INTO Admins (admin_username, admin_password) VALUES
-    ('Admin', 'admin123');
+-- Passwords are PBKDF2 "salt:hash" values (see PasswordHasher.java), not plain
+-- text. The admin plain password (development only) is: admin123
+INSERT INTO admins (admin_username, admin_password) VALUES
+    ('Admin', '5TiM4gPGPyDz7/ioNoCm1g==:a5lJJEC1iET8NRxBB/1IuNjoAzx/HmFq8GYpXPeMo3w=');
 
 
 -- TEST USERS (development only)
--- NOTE: passwords are placeholders. 
+-- Passwords are PBKDF2 "salt:hash" values (see PasswordHasher.java). The plain
+-- passwords (development only) are:
+--   dyllan12345 -> Password1
+--   sarahj      -> Password2
+--   jaskrug     -> Password3
 
-INSERT INTO User (first_name, email, username, set_password, xp, coins, current_level, rank_id, current_streak) VALUES
-    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'placeholder_1', 450, 100, 10, 3, 14),
-    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'placeholder_2', 120, 50,  3,  1, 2),
-    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'placeholder_3', 800, 200, 18, 4, 21);
+-- XP matches each user's level under the levelling curve (XP for N->N+1 = 400 + 50*N):
+--   Dylan level 10  -> needs 5850 XP (xp 6000),  rank Bronze III (rank_id 3)
+--   Sarah level 3   -> needs 950 XP  (xp 1000),  rank Bronze I   (rank_id 1)
+--   Jason level 18  -> needs 14450 XP (xp 15000), rank Silver I  (rank_id 4)
+INSERT INTO user (first_name, email, username, set_password, xp, coins, current_level, rank_id, current_streak) VALUES
+    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 6000, 100, 10, 3, 14),
+    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 1000, 50,  3,  1, 2),
+    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'ZKoWh3LUmuUxFkanuLWZRw==:1Fb77qBPqcSajwiFuwRl7ahZDtEglGEGzR/RDyQkDEU=', 15000, 200, 18, 4, 21);
 
 
 -- USER PROFILES (test data) - fitness assessment results
@@ -213,7 +224,7 @@ INSERT INTO User (first_name, email, username, set_password, xp, coins, current_
 --   male   = average, built, chubby
 --   female = average, toned, chubby
 -- skinny/overweight were removed from the app; 'toned' has no MALE art.
-INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) VALUES
+INSERT INTO user_profile (user_id, user_gender, user_age, user_weight, user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) VALUES
     (1, 'Male',   25, 80.00,  185.00, 'built',   'intermediate', 5, 'build_muscle'),
     (2, 'Female', 28, 62.50,  168.00, 'average', 'beginner',     3, 'get_fitter'),
     (3, 'Male',   31, 75.00,  178.00, 'built',   'advanced',     6, 'build_muscle');
@@ -224,22 +235,22 @@ INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, user_heig
 -- skin_tone must have art: grey (default), fair, tan, dark. (No 'beige' art.)
 -- body_shape must be one of the 3 offered per gender (same as body_type above):
 --   male = average/built/chubby, female = average/toned/chubby.
-INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) VALUES
+INSERT INTO avatar (user_id, skin_tone, body_shape, facial_details) VALUES
     (1, 'tan',   'built',   'short_brown_hair'),
     (2, 'fair',  'average', 'long_blonde_hair'),
     (3, 'tan',   'built',   'short_black_hair');
 
 -- Link each user back to their avatar
-UPDATE User SET avatar_id = 1 WHERE user_id = 1;
-UPDATE User SET avatar_id = 2 WHERE user_id = 2;
-UPDATE User SET avatar_id = 3 WHERE user_id = 3;
+UPDATE user SET avatar_id = 1 WHERE user_id = 1;
+UPDATE user SET avatar_id = 2 WHERE user_id = 2;
+UPDATE user SET avatar_id = 3 WHERE user_id = 3;
 
 
 -- WORKOUTS 
 
 -- Default workouts (admin created, user_id is NULL)
 
-INSERT INTO Workout (user_id, workout_name, is_default) VALUES
+INSERT INTO workout (user_id, workout_name, is_default) VALUES
     (NULL, 'Push Day',                 TRUE),
     (NULL, 'Pull Day',                 TRUE),
     (NULL, 'Leg Day',                  TRUE),
@@ -247,7 +258,7 @@ INSERT INTO Workout (user_id, workout_name, is_default) VALUES
 
 -- User created workouts
 
-INSERT INTO Workout (user_id, workout_name, is_default) VALUES
+INSERT INTO workout (user_id, workout_name, is_default) VALUES
     (1, 'Chest, Shoulders and Triceps', FALSE),
     (1, 'Back and Biceps',              FALSE),
     (1, 'Glutes and Hamstrings',        FALSE),
@@ -257,67 +268,108 @@ INSERT INTO Workout (user_id, workout_name, is_default) VALUES
 -- WORKOUT EXERCISES - what's in each workout
 
 -- Push Day (workout 1)
-INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
     (1, 1, 3, 10, 1),  -- Bench Press
     (1, 4, 3, 12, 2),  -- Dumbbell Shoulder Press
     (1, 6, 3, 12, 3);  -- Tricep Pushdown
 
+-- Pull Day (workout 2)
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (2, 10, 3, 10, 1), -- Lat Pulldown
+    (2, 11, 3, 10, 2), -- Seated Row
+    (2, 24, 3, 8,  3), -- Pull Ups
+    (2, 8,  3, 12, 4), -- Bicep Curls
+    (2, 9,  3, 12, 5); -- Hammer Curls
+
+-- Leg Day (workout 3)
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (3, 20, 3, 10, 1), -- Squats
+    (3, 21, 3, 12, 2), -- Leg Press
+    (3, 18, 3, 10, 3), -- Barbell RDLs
+    (3, 15, 3, 12, 4), -- Walking Lunges
+    (3, 25, 3, 15, 5); -- Standing Calf Raises
+
+-- Core Burner (workout 4)
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (4, 22, 3, 30, 1), -- Plank
+    (4, 23, 3, 20, 2), -- Crunches
+    (4, 16, 3, 15, 3); -- Fire Hydrants
+
 -- Dylan's "Chest, Shoulders and Triceps" workout 
-INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
     (5, 1, 3, 10, 1),  -- Bench Press
     (5, 4, 3, 12, 2),  -- Dumbbell Shoulder Press
     (5, 6, 3, 12, 3);  -- Tricep Pushdown
 
 -- Dylan's "Back and Biceps" workout 
-INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
     (6, 10, 3, 10, 1), -- Lat Pulldown
     (6, 11, 3, 10, 2), -- Seated Row
     (6, 8,  3, 12, 3), -- Bicep Curls
     (6, 9,  3, 12, 4); -- Hammer Curls
 
 -- Dylan's "Glutes and Hamstrings" workout 
-INSERT INTO Workout_Exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
     (7, 12, 3, 10, 1), -- Barbell Hip Thrusts
     (7, 18, 3, 10, 2), -- Barbell RDLs
     (7, 19, 3, 12, 3); -- Hamstring Extension
 
+-- Sarah's "Beginner Full Body" workout 
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (8, 3,  3, 15, 1), -- Push Ups
+    (8, 20, 3, 10, 2), -- Squats
+    (8, 10, 3, 10, 3), -- Lat Pulldown
+    (8, 4,  3, 12, 4), -- Dumbbell Shoulder Press
+    (8, 23, 3, 20, 5); -- Crunches
+
 
 -- SCHEDULED WORKOUTS (test data) - calendar entries for Dylan
 
-INSERT INTO Scheduled_Workout (user_id, workout_id, scheduled_date, is_completed, earned_xp) VALUES
-    (1, 5, '2026-09-04', FALSE, 0),
-    (1, 7, '2026-09-02', TRUE,  90),
-    (1, 5, '2026-09-11', FALSE, 0);
+-- Dates are relative to CURDATE() so the demo always has something today and
+-- this week: one completed yesterday, one scheduled for today, and one later
+-- this week.
+INSERT INTO scheduled_workout (user_id, workout_id, scheduled_date, is_completed, earned_xp) VALUES
+    (1, 7, DATE_ADD(CURDATE(), INTERVAL -1 DAY), TRUE,  90),
+    (1, 5, CURDATE(),                            FALSE, 0),
+    (1, 5, DATE_ADD(CURDATE(), INTERVAL 3 DAY),  FALSE, 0);
 
 
 -- GOALS (test data)
 
-INSERT INTO Goal (user_id, goal_description, deadline, goal_priority, is_completed) VALUES
-    (1, 'Move up a weight in bicep curls. I want to move up from 18kgs to 20kgs within 2 weeks.', '2026-09-15', 'medium', FALSE),
-    (1, 'Bench press my body weight',                                                              '2026-09-30', 'top',    FALSE),
-    (2, 'Complete 3 workouts a week for a month',                                                  '2026-10-01', 'medium', FALSE);
+-- goal_priority must be exactly 'Top', 'Medium' or 'Low' (the values the app
+-- saves and matches on). Deadlines are relative to CURDATE() so they stay in
+-- the future for a demo.
+-- goal_title holds the short title; goal_description holds the optional notes
+-- (NULL when the goal has no notes).
+INSERT INTO goal (user_id, goal_title, goal_description, deadline, goal_priority, is_completed) VALUES
+    (1, 'Move up a weight in bicep curls', 'I want to move up from 18kgs to 20kgs within 2 weeks.', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE),
+    (1, 'Bench press my body weight',       NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Top',    FALSE),
+    (2, 'Complete 3 workouts a week for a month', NULL,                                              DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'Medium', FALSE);
 
 
 -- USER COSMETICS (test data) 
 
 -- Dylan (user 1) is male; he owns the male default set + hair, plus a couple of extras.
-INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUES
-    (1, 1, TRUE, TRUE),   -- White Tank (male, equipped)
-    (1, 2, TRUE, TRUE),   -- Black Shorts (male, equipped)
-    (1, 3, TRUE, TRUE),   -- White Socks (male, equipped)
-    (1, 7, TRUE, TRUE),   -- Default Hair (equipped)
-    (1, 8, TRUE, FALSE),  -- White Sneakers (male, owned, not worn - socks only by default)
-    (1, 9, TRUE, FALSE);  -- Grey Sweatpants (male, owned, not equipped)
+-- NOTE: ids 8 and 9 are NOT male items (8 = female Default Hair, 9 = White
+-- T-Shirt), so Dylan now owns genuine male extras: id 18 (White Sneakers, male
+-- shoes) and id 11 (Grey Zip Hoodie, male top).
+INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUES
+    (1, 1,  TRUE, TRUE),   -- White Tank (male, equipped)
+    (1, 2,  TRUE, TRUE),   -- Black Shorts (male, equipped)
+    (1, 3,  TRUE, TRUE),   -- White Socks (male, equipped)
+    (1, 7,  TRUE, TRUE),   -- Default Hair (male, equipped)
+    (1, 18, TRUE, FALSE),  -- White Sneakers (male, owned, not worn - socks only by default)
+    (1, 11, TRUE, FALSE);  -- Grey Zip Hoodie (male, owned, not equipped)
 
 
 -- OUTFIT SLOTS (test data) - Dylan's currently equipped outfit
 -- Wearing tank + shorts + socks (no shoes) by default.
 
-INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) VALUES
+INSERT INTO outfit_slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) VALUES
     (1, 1, 2, NULL, 3, 7, NULL);
 
 
 -- STREAKS (test data) - Dylan's 2-week streak with XP multiplier
 
-INSERT INTO Streak (user_id, week_st_date, num_workouts_completed, met_goal, multiplier) VALUES
+INSERT INTO streak (user_id, week_st_date, num_workouts_completed, met_goal, multiplier) VALUES
     (1, '2026-08-25', 5, TRUE, 1.50);

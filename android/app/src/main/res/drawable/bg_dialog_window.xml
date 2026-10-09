@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Rounded window background for dialogs (e.g. DatePickerTheme). The inset lets
+    the dialog float, and the rounded surface matches the app's card radius.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetTop="16dp"
+    android:insetRight="16dp"
+    android:insetBottom="16dp">
+    <shape android:shape="rectangle">
+        <solid android:color="@color/dark_grey_surface" />
+        <corners android:radius="@dimen/radius_card" />
+    </shape>
+</inset>

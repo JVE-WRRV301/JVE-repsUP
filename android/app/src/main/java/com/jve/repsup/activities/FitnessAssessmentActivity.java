@@ -3,7 +3,6 @@ package com.jve.repsup.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -14,9 +13,11 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.adapters.AssessmentPagerAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -40,13 +41,14 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Full-screen immersive
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // Draw behind the system bars, then pad the root with the status/nav
+        // insets so content isn't under the clock or gesture bar (replaces the
+        // old hard-coded 72dp top gap).
+        InsetsHelper.enableEdgeToEdge(getWindow());
 
         setContentView(R.layout.activity_fitness_assessment);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.assessmentRoot));
 
         assessmentData = new AssessmentData();
 
@@ -71,8 +73,11 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
         updateProgressBar(0);
         updateButtons(0);
 
-        // Assessment back button (step 0 only) — navigates back to Register
-        btnAssessmentBack.setOnClickListener(v -> finish());
+        // Assessment back button (step 0 only). The account already exists at
+        // this point (RegisterActivity created it and the session), so going
+        // back can't return to the sign-up form. Instead, log the half-made user
+        // out and return to the Welcome screen.
+        btnAssessmentBack.setOnClickListener(v -> logOutToWelcome());
 
         btnBack.setOnClickListener(v -> {
             int current = vpAssessment.getCurrentItem();
@@ -141,7 +146,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
 
     /**
      * Updates button text, visibility, and top bar based on the current step.
-     * Step 0: show assessment back arrow, hide progress, hide bottom Back, show "Lets Go" button.
+     * Step 0: show assessment back arrow, hide progress, hide bottom Back, show "Let's go" button.
      * Other steps: hide assessment back, show progress, show normal Back/Next.
      */
     private void updateButtons(int currentStep) {
@@ -183,15 +188,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
      * Enables or disables the Next button with appropriate styling.
      */
     public void setNextEnabled(boolean enabled) {
-        if (enabled) {
-            btnNext.setEnabled(true);
-            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.light_blue));
-            btnNext.setTextColor(ContextCompat.getColor(this, R.color.dark_text));
-        } else {
-            btnNext.setEnabled(false);
-            btnNext.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.dark_grey_surface));
-            btnNext.setTextColor(ContextCompat.getColor(this, R.color.muted));
-        }
+        SelectableButtonStyler.applyEnabled(btnNext, enabled);
     }
 
     /**
@@ -221,13 +218,31 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     }
 
     /**
+     * Logs the half-made user out and returns to the Welcome screen. Used by the
+     * step-0 back arrow: the account already exists, so we clear the session (so
+     * the next launch doesn't jump into a profile-less MainActivity) and send the
+     * user back to the start, clearing the task stack.
+     */
+    private void logOutToWelcome() {
+        new SessionManager(this).clearSession();
+        Intent intent = new Intent(this, WelcomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
      * Saves the collected assessment data to the database.
      */
     private void saveProfile() {
         SessionManager sessionManager = new SessionManager(this);
         int userId = sessionManager.getUserId();
 
-        String sql = "INSERT INTO User_Profile (user_id, user_gender, user_age, user_weight, "
+        // Disable Finish while the insert is in flight so it can't be double-tapped
+        // into inserting a second user_profile row (user_id is UNIQUE).
+        setNextEnabled(false);
+
+        String sql = "INSERT INTO user_profile (user_id, user_gender, user_age, user_weight, "
                 + "user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -247,6 +262,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Long result) {
                 runOnUiThread(() -> {
+                    if (isFinishing()) return;
                     // Navigate to AvatarGenerationActivity to generate avatar
                     Intent intent = new Intent(FitnessAssessmentActivity.this,
                             AvatarGenerationActivity.class);
@@ -255,14 +271,20 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
                     intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE,
                             assessmentData.getBodyType());
                     startActivity(intent);
+                    // Finish so Back from the avatar screen can't return here and
+                    // re-insert the profile.
+                    finish();
                 });
             }
 
             @Override
             public void onError(Exception e) {
                 runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    // Re-enable Finish so the user can retry after a failed save.
+                    setNextEnabled(true);
                     DialogUtils.showError(FitnessAssessmentActivity.this,
-                            "Failed to save profile. Please try again.");
+                            R.string.assessment_save_error);
                 });
             }
         });

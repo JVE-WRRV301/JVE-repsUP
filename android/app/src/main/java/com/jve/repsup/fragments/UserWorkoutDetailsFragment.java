@@ -17,6 +17,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.ExerciseDetailAdapter;
 import com.jve.repsup.models.Exercise;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SnackbarUtils;
 
 import java.util.List;
@@ -51,6 +52,10 @@ public class UserWorkoutDetailsFragment extends Fragment {
         etWorkoutName = view.findViewById(R.id.etWorkoutName);
         rvExerciseDetails = view.findViewById(R.id.rvExerciseDetails);
         tvNoExercises = view.findViewById(R.id.tvNoExercises);
+
+        // Keep the exercise list clear of the keyboard when a reps/weight field
+        // is focused.
+        InsetsHelper.applyImeBottomPadding(rvExerciseDetails);
         Button btnSave = view.findViewById(R.id.btnSaveWorkout);
         Button btnAddExercises = view.findViewById(R.id.btnAddExercises);
 

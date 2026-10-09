@@ -11,19 +11,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:fontFamily="@font/orbitron_bold"
         android:text="@string/create_workout_details_title"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        style="@style/Widget.RepsUp.PageTitle" />
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:boxBackgroundColor="@color/dark_grey_surface"
-        app:boxStrokeColor="@color/light_blue"
-        app:hintTextColor="@color/muted">
+        android:layout_marginBottom="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etWorkoutName"
@@ -80,7 +76,8 @@
         android:id="@+id/rvExerciseDetails"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:clipToPadding="false" />
 
     <Button
         android:id="@+id/btnSaveWorkout"
@@ -92,6 +89,6 @@
         android:text="@string/create_workout_save"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

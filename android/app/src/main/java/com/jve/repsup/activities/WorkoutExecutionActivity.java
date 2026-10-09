@@ -11,17 +11,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DisplayText;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 import java.io.Serializable;
@@ -84,7 +87,13 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw edge-to-edge, then keep content clear of the status/nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_workout_execution);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.workoutExecutionContent));
 
         workoutRepository = new WorkoutRepository();
         scheduleRepository = new ScheduleRepository();
@@ -121,14 +130,17 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             return;
         }
 
-        // Verify this scheduled workout belongs to the user and is for today
+        // Verify this scheduled workout belongs to the user and is for today.
+        // "Today" is the phone's date, not MySQL CURDATE(), so it can't disagree
+        // with the server's timezone.
         String sql = "SELECT scheduled_workout_id FROM scheduled_workout " +
                 "WHERE scheduled_workout_id = ? AND user_id = ? " +
-                "AND scheduled_date = CURDATE() AND is_completed = 0";
+                "AND scheduled_date = ? AND is_completed = 0";
 
         int userId = sessionManager.getUserId();
+        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
 
-        ConnectionManager.querySingle(sql, new Object[]{scheduledWorkoutId, userId}, rs -> {
+        ConnectionManager.querySingle(sql, new Object[]{scheduledWorkoutId, userId, today}, rs -> {
             return rs.getInt("scheduled_workout_id");
         }, new ConnectionManager.DatabaseCallback<Integer>() {
             @Override
@@ -148,8 +160,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     }
 
     private void showNotScheduledError() {
-        Toast.makeText(this, R.string.workout_execution_not_scheduled, Toast.LENGTH_LONG).show();
-        finish();
+        DialogUtils.showErrorThen(this, R.string.workout_execution_not_scheduled, this::finish);
     }
 
     /**
@@ -160,11 +171,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Workout workout) {
                 if (workout == null || workout.getExercises().isEmpty()) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(WorkoutExecutionActivity.this,
-                                R.string.workout_execution_load_error, Toast.LENGTH_LONG).show();
-                        finish();
-                    });
+                    runOnUiThread(() -> DialogUtils.showErrorThen(WorkoutExecutionActivity.this,
+                            R.string.workout_execution_load_error, WorkoutExecutionActivity.this::finish));
                     return;
                 }
 
@@ -174,11 +182,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(WorkoutExecutionActivity.this,
-                            R.string.workout_execution_load_error, Toast.LENGTH_LONG).show();
-                    finish();
-                });
+                runOnUiThread(() -> DialogUtils.showErrorThen(WorkoutExecutionActivity.this,
+                        R.string.workout_execution_load_error, WorkoutExecutionActivity.this::finish));
             }
         });
     }
@@ -195,7 +200,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
         // Update exercise info
         tvExerciseName.setText(workoutExercise.getExercise().getName());
-        tvDifficulty.setText(workoutExercise.getExercise().getDifficulty());
+        tvDifficulty.setText(DisplayText.capitalise(workoutExercise.getExercise().getDifficulty()));
 
         // Show a demo image for the exercise. Named exercises resolve to a
         // bundled drawable; anything else falls back to the placeholder.
@@ -350,8 +355,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             }
         }
 
-        btnNext.setEnabled(allChecked);
-        btnNext.setAlpha(allChecked ? 1.0f : 0.5f);
+        // Same disabled look as the assessment Next button (grey, muted text).
+        SelectableButtonStyler.applyEnabled(btnNext, allChecked);
     }
 
     /**

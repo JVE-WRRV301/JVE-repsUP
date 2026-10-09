@@ -19,6 +19,7 @@ import com.jve.repsup.fragments.UserWorkoutDetailsFragment;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
+import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
 
@@ -36,6 +37,9 @@ import java.util.List;
 public class CreateWorkoutActivity extends AppCompatActivity {
 
     public static final String EXTRA_EDIT_WORKOUT_ID = "extra_edit_workout_id";
+    // When editing from My Plan, the scheduled_workout row being edited. Lets us
+    // repoint it at a personal copy when the user edits a default/other workout.
+    public static final String EXTRA_SCHEDULED_WORKOUT_ID = "extra_scheduled_workout_id";
     public static final int MODE_CREATE = 0;
     public static final int MODE_GENERATE = 1;
     public static final int MODE_EDIT = 2;
@@ -58,8 +62,16 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     private boolean isEditMode = false;
     private int editWorkoutId = -1;
     private String editWorkoutName = "";
+    // The scheduled_workout row being edited (from My Plan), or -1 when editing a
+    // workout directly from the library.
+    private int editScheduledWorkoutId = -1;
+    // Ownership of the workout being edited, read when it loads. Used to decide
+    // whether a save can update in place or must save a personal copy instead.
+    private Integer editWorkoutOwnerId = null;
+    private boolean editWorkoutIsDefault = false;
 
     private WorkoutRepository workoutRepository;
+    private ScheduleRepository scheduleRepository;
     private SessionManager sessionManager;
 
     @Override
@@ -68,6 +80,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_workout);
 
         workoutRepository = new WorkoutRepository();
+        scheduleRepository = new ScheduleRepository();
         sessionManager = new SessionManager(this);
 
         ImageButton btnBack = findViewById(R.id.btnBack);
@@ -81,6 +94,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
         // Check if we are in edit mode
         editWorkoutId = getIntent().getIntExtra(EXTRA_EDIT_WORKOUT_ID, -1);
+        editScheduledWorkoutId = getIntent().getIntExtra(EXTRA_SCHEDULED_WORKOUT_ID, -1);
         isEditMode = editWorkoutId != -1;
 
         if (savedInstanceState == null) {
@@ -111,6 +125,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                 // Extract exercise data from the workout
                 editWorkoutName = workout.getName();
+                editWorkoutOwnerId = workout.getUserId();
+                editWorkoutIsDefault = workout.isDefault();
                 List<WorkoutExercise> workoutExercises = workout.getExercises();
                 selectedExercises.clear();
                 draftReps.clear();
@@ -367,7 +383,17 @@ public class CreateWorkoutActivity extends AppCompatActivity {
         }
 
         if (isEditMode) {
-            // Update existing workout
+            // If the workout being edited is an admin default, or is not owned by
+            // this user, we must NOT change the shared workout. Instead save a
+            // personal copy owned by this user and (when editing from My Plan)
+            // repoint the scheduled workout at that copy.
+            boolean ownedByUser = editWorkoutOwnerId != null && editWorkoutOwnerId == userId;
+            if (editWorkoutIsDefault || !ownedByUser) {
+                saveAsCopy(userId, workoutName, workoutExercises);
+                return;
+            }
+
+            // Update the user's own workout in place.
             Workout workout = new Workout();
             workout.setWorkoutId(editWorkoutId);
             workout.setUserId(userId);
@@ -414,6 +440,66 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    /**
+     * Saves the edited workout as a NEW workout owned by the user, leaving the
+     * original (a default or another user's workout) untouched. When this edit
+     * came from My Plan (a scheduled workout id was supplied), the scheduled
+     * workout is then repointed at the new copy so the user's plan shows their
+     * edited version while the shared default is unchanged.
+     */
+    private void saveAsCopy(int userId, String workoutName, List<WorkoutExercise> workoutExercises) {
+        Workout copy = new Workout();
+        copy.setUserId(userId);
+        copy.setName(workoutName);
+        copy.setDefault(false);
+        copy.setOrderIndex(0);
+
+        workoutRepository.createWorkout(copy, workoutExercises, new ConnectionManager.DatabaseCallback<Long>() {
+            @Override
+            public void onSuccess(Long newWorkoutId) {
+                if (newWorkoutId == null || newWorkoutId <= 0) {
+                    runOnUiThread(() ->
+                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                    return;
+                }
+
+                // No scheduled row to repoint (edited straight from the library):
+                // the personal copy has been created, we're done.
+                if (editScheduledWorkoutId == -1) {
+                    runOnUiThread(() -> {
+                        SnackbarUtils.show(CreateWorkoutActivity.this, R.string.edit_workout_success);
+                        findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
+                    });
+                    return;
+                }
+
+                // Point this user's scheduled workout at the new copy.
+                scheduleRepository.updateScheduledWorkoutWorkoutId(editScheduledWorkoutId, userId,
+                        newWorkoutId.intValue(), new ConnectionManager.DatabaseCallback<Integer>() {
+                            @Override
+                            public void onSuccess(Integer rows) {
+                                runOnUiThread(() -> {
+                                    SnackbarUtils.show(CreateWorkoutActivity.this, R.string.edit_workout_success);
+                                    findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                runOnUiThread(() ->
+                                        DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                            }
+                        });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() ->
+                        DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+            }
+        });
     }
 
     // ─── Getters for fragments ───

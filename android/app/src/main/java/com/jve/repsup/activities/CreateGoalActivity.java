@@ -1,7 +1,6 @@
 package com.jve.repsup.activities;
 
 import android.app.DatePickerDialog;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,19 +8,19 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Goal;
 import com.jve.repsup.repositories.GoalRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * Activity for creating a new goal.
@@ -47,12 +46,14 @@ public class CreateGoalActivity extends AppCompatActivity {
     private int editGoalId = -1;
     private boolean isEditMode = false;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_goal);
+
+        // Keep the form clear of the keyboard when a field is focused.
+        InsetsHelper.applyImeBottomPadding(findViewById(R.id.scrollCreateGoal));
 
         goalRepository = new GoalRepository();
         sessionManager = new SessionManager(this);
@@ -92,7 +93,7 @@ public class CreateGoalActivity extends AppCompatActivity {
                 }
                 if (deadlineMillis != -1) {
                     selectedDate = new Date(deadlineMillis);
-                    etGoalDate.setText(dateFormat.format(selectedDate));
+                    etGoalDate.setText(DateFormats.formatLong(selectedDate));
                 }
             }
         }
@@ -143,10 +144,14 @@ public class CreateGoalActivity extends AppCompatActivity {
                 this,
                 R.style.DatePickerTheme,
                 (view, year, month, dayOfMonth) -> {
+                    // Zero the time fields so the saved java.sql.Date is a pure
+                    // date; a leftover time-of-day could shift the day across a
+                    // server timezone boundary.
                     Calendar selected = Calendar.getInstance();
-                    selected.set(year, month, dayOfMonth);
+                    selected.set(year, month, dayOfMonth, 0, 0, 0);
+                    selected.set(Calendar.MILLISECOND, 0);
                     selectedDate = new Date(selected.getTimeInMillis());
-                    etGoalDate.setText(dateFormat.format(selectedDate));
+                    etGoalDate.setText(DateFormats.formatLong(selectedDate));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -159,25 +164,9 @@ public class CreateGoalActivity extends AppCompatActivity {
     }
 
     private void updateImportanceButtons() {
-        int activeColor = ContextCompat.getColor(this, R.color.light_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.dark_grey_surface);
-        int activeTextColor = ContextCompat.getColor(this, R.color.dark_text);
-        int inactiveTextColor = ContextCompat.getColor(this, R.color.white);
-
-        btnImportanceTop.setBackgroundTintList(ColorStateList.valueOf(
-                "Top".equals(selectedPriority) ? activeColor : inactiveColor));
-        btnImportanceTop.setTextColor(
-                "Top".equals(selectedPriority) ? activeTextColor : inactiveTextColor);
-
-        btnImportanceMedium.setBackgroundTintList(ColorStateList.valueOf(
-                "Medium".equals(selectedPriority) ? activeColor : inactiveColor));
-        btnImportanceMedium.setTextColor(
-                "Medium".equals(selectedPriority) ? activeTextColor : inactiveTextColor);
-
-        btnImportanceLow.setBackgroundTintList(ColorStateList.valueOf(
-                "Low".equals(selectedPriority) ? activeColor : inactiveColor));
-        btnImportanceLow.setTextColor(
-                "Low".equals(selectedPriority) ? activeTextColor : inactiveTextColor);
+        SelectableButtonStyler.applySelected(btnImportanceTop, "Top".equals(selectedPriority));
+        SelectableButtonStyler.applySelected(btnImportanceMedium, "Medium".equals(selectedPriority));
+        SelectableButtonStyler.applySelected(btnImportanceLow, "Low".equals(selectedPriority));
     }
 
     private void attemptSave() {
@@ -197,9 +186,8 @@ public class CreateGoalActivity extends AppCompatActivity {
             return;
         }
 
-        // Store title and notes separated by a delimiter so they can be split later
-        String description = notes.isEmpty() ? title : title + "\n---\n" + notes;
-
+        // Title and notes are stored in separate columns. Notes may be empty, in
+        // which case goal_description is stored as NULL.
         // Disable save button while processing
         btnSave.setEnabled(false);
 
@@ -207,7 +195,8 @@ public class CreateGoalActivity extends AppCompatActivity {
 
         Goal goal = new Goal();
         goal.setUserId(userId);
-        goal.setDescription(description);
+        goal.setTitle(title);
+        goal.setDescription(notes.isEmpty() ? null : notes);
         goal.setDeadline(selectedDate);
         goal.setPriority(selectedPriority);
 

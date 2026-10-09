@@ -234,61 +234,73 @@ public class ScheduleRepository {
                 "VALUES (?, ?, ?, 0)";
 
         ConnectionManager.executeAsync(connection -> {
-            long firstId = -1L;
+            // Wrap the initial insert plus any recurring occurrences in one
+            // transaction so a partial schedule can't be left behind.
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                long firstId = -1L;
 
-            // Insert the initial scheduled workout
-            try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql,
-                    java.sql.PreparedStatement.RETURN_GENERATED_KEYS)) {
-                stmt.setInt(1, scheduled.getUserId());
-                stmt.setInt(2, scheduled.getWorkoutId());
-                stmt.setDate(3, scheduled.getScheduledDate());
-                stmt.executeUpdate();
+                // Insert the initial scheduled workout
+                try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql,
+                        java.sql.PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    stmt.setInt(1, scheduled.getUserId());
+                    stmt.setInt(2, scheduled.getWorkoutId());
+                    stmt.setDate(3, scheduled.getScheduledDate());
+                    stmt.executeUpdate();
 
-                try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        firstId = keys.getLong(1);
-                    }
-                }
-            }
-
-            // Generate recurring occurrences if repeatInterval is not "Never"
-            if (repeatInterval != null && !repeatInterval.equals("Never")) {
-                int intervalDays;
-                switch (repeatInterval) {
-                    case "Weekly":
-                        intervalDays = 7;
-                        break;
-                    case "Biweekly":
-                        intervalDays = 14;
-                        break;
-                    case "Monthly":
-                        intervalDays = 30;
-                        break;
-                    default:
-                        intervalDays = 0;
-                        break;
-                }
-
-                if (intervalDays > 0) {
-                    java.util.Calendar cal = java.util.Calendar.getInstance();
-                    cal.setTime(scheduled.getScheduledDate());
-
-                    // Generate up to 12 future occurrences
-                    for (int i = 0; i < 12; i++) {
-                        cal.add(java.util.Calendar.DAY_OF_YEAR, intervalDays);
-                        Date futureDate = new Date(cal.getTimeInMillis());
-
-                        try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
-                            stmt.setInt(1, scheduled.getUserId());
-                            stmt.setInt(2, scheduled.getWorkoutId());
-                            stmt.setDate(3, futureDate);
-                            stmt.executeUpdate();
+                    try (java.sql.ResultSet keys = stmt.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            firstId = keys.getLong(1);
                         }
                     }
                 }
-            }
 
-            return firstId;
+                // Generate recurring occurrences if repeatInterval is not "Never"
+                if (repeatInterval != null && !repeatInterval.equals("Never")) {
+                    int intervalDays;
+                    switch (repeatInterval) {
+                        case "Weekly":
+                            intervalDays = 7;
+                            break;
+                        case "Biweekly":
+                            intervalDays = 14;
+                            break;
+                        case "Monthly":
+                            intervalDays = 30;
+                            break;
+                        default:
+                            intervalDays = 0;
+                            break;
+                    }
+
+                    if (intervalDays > 0) {
+                        java.util.Calendar cal = java.util.Calendar.getInstance();
+                        cal.setTime(scheduled.getScheduledDate());
+
+                        // Generate up to 12 future occurrences
+                        for (int i = 0; i < 12; i++) {
+                            cal.add(java.util.Calendar.DAY_OF_YEAR, intervalDays);
+                            Date futureDate = new Date(cal.getTimeInMillis());
+
+                            try (java.sql.PreparedStatement stmt = connection.prepareStatement(sql)) {
+                                stmt.setInt(1, scheduled.getUserId());
+                                stmt.setInt(2, scheduled.getWorkoutId());
+                                stmt.setDate(3, futureDate);
+                                stmt.executeUpdate();
+                            }
+                        }
+                    }
+                }
+
+                connection.commit();
+                return firstId;
+            } catch (java.sql.SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
         }, callback);
     }
 
@@ -297,25 +309,30 @@ public class ScheduleRepository {
      * (excluding the specified scheduledWorkoutId which was just completed).
      * Used to determine if the streak has already been incremented for today.
      */
-    public void countOtherCompletedToday(int userId, int excludeScheduledWorkoutId,
+    public void countOtherCompletedToday(int userId, int excludeScheduledWorkoutId, Date today,
                                           ConnectionManager.DatabaseCallback<Integer> callback) {
         String sql = "SELECT COUNT(*) AS cnt FROM scheduled_workout " +
-                "WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1 " +
+                "WHERE user_id = ? AND scheduled_date = ? AND is_completed = 1 " +
                 "AND scheduled_workout_id != ?";
 
-        ConnectionManager.querySingle(sql, new Object[]{userId, excludeScheduledWorkoutId},
+        // "Today" comes from the phone, not MySQL CURDATE(), so the day can't
+        // disagree with the server's timezone.
+        ConnectionManager.querySingle(sql, new Object[]{userId, today, excludeScheduledWorkoutId},
                 rs -> rs.getInt("cnt"), callback);
     }
 
     /**
      * Marks a scheduled workout as completed with earned XP, sets, and reps.
-     * Returns the number of affected rows.
+     * The {@code is_completed = 0} guard makes the update idempotent: a repeat
+     * call (e.g. after the complete screen is recreated on rotation) affects 0
+     * rows, so XP is never awarded twice.
+     * Returns the number of affected rows (1 on first completion, 0 thereafter).
      */
     public void completeScheduledWorkout(int schedId, int earnedXp, int sets, int reps,
                                           ConnectionManager.DatabaseCallback<Integer> callback) {
         String sql = "UPDATE scheduled_workout SET is_completed = 1, completed_date = NOW(), " +
                 "earned_xp = ?, completed_sets = ?, completed_reps = ? " +
-                "WHERE scheduled_workout_id = ?";
+                "WHERE scheduled_workout_id = ? AND is_completed = 0";
 
         ConnectionManager.executeUpdate(sql, new Object[]{earnedXp, sets, reps, schedId}, callback);
     }
@@ -327,12 +344,15 @@ public class ScheduleRepository {
      * If a workout was scheduled and completed, returns [true, true].
      * If a workout was scheduled but not completed, returns [true, false].
      */
-    public void getYesterdaysWorkoutStatus(int userId, ConnectionManager.DatabaseCallback<boolean[]> callback) {
+    public void getYesterdaysWorkoutStatus(int userId, Date yesterday,
+                                           ConnectionManager.DatabaseCallback<boolean[]> callback) {
+        // "Yesterday" is derived from the phone's date and passed in, rather than
+        // MySQL DATE_SUB(CURDATE(), ...), so it can't shift with the server's timezone.
         String sql = "SELECT is_completed FROM scheduled_workout " +
-                "WHERE user_id = ? AND scheduled_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) " +
+                "WHERE user_id = ? AND scheduled_date = ? " +
                 "LIMIT 1";
 
-        ConnectionManager.querySingle(sql, new Object[]{userId}, rs -> {
+        ConnectionManager.querySingle(sql, new Object[]{userId, yesterday}, rs -> {
             boolean completed = rs.getBoolean("is_completed");
             return new boolean[]{true, completed};
         }, new ConnectionManager.DatabaseCallback<boolean[]>() {
@@ -443,5 +463,20 @@ public class ScheduleRepository {
     public void deleteScheduledWorkout(int scheduledWorkoutId, ConnectionManager.DatabaseCallback<Integer> callback) {
         String sql = "DELETE FROM scheduled_workout WHERE scheduled_workout_id = ?";
         ConnectionManager.executeUpdate(sql, new Object[]{scheduledWorkoutId}, callback);
+    }
+
+    /**
+     * Repoints a scheduled workout at a different workout. Used when a user edits
+     * a scheduled default (or another user's) workout from My Plan: instead of
+     * mutating the shared workout, a personal copy is saved and this scheduled
+     * workout is pointed at that copy. Only the user's own scheduled row is
+     * changed (WHERE scheduled_workout_id = ? AND user_id = ?).
+     * Returns the number of affected rows.
+     */
+    public void updateScheduledWorkoutWorkoutId(int scheduledWorkoutId, int userId, int newWorkoutId,
+                                                 ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE scheduled_workout SET workout_id = ? " +
+                "WHERE scheduled_workout_id = ? AND user_id = ?";
+        ConnectionManager.executeUpdate(sql, new Object[]{newWorkoutId, scheduledWorkoutId, userId}, callback);
     }
 }

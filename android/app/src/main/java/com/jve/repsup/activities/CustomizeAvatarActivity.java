@@ -22,11 +22,13 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
@@ -114,7 +116,14 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw edge-to-edge, then keep content clear of the status/nav bars
+        // (replaces the old hard-coded 32dp top padding on the top bar).
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_customize_avatar);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.customizeAvatarRoot));
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -897,7 +906,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         // An avatar must be wearing at least a top and a bottom - no shirtless or
         // pantless avatars allowed.
         if (!localEquipped.containsKey("top") || !localEquipped.containsKey("bottom")) {
-            new androidx.appcompat.app.AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.locker_invalid_outfit_title)
                     .setMessage(R.string.locker_top_bottom_required)
                     .setPositiveButton(R.string.locker_invalid_outfit_ok, (d, w) -> d.dismiss())
@@ -963,7 +972,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             finish();
             return;
         }
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.locker_discard_title)
                 .setMessage(R.string.locker_discard_message)
                 .setPositiveButton(R.string.locker_discard_confirm, (d, w) -> discardAndFinish())

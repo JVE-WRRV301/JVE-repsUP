@@ -1,9 +1,12 @@
 package com.jve.repsup.activities;
 
 import android.content.Intent;
+import android.graphics.Outline;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +19,7 @@ import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.AdminRepository;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -32,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvError;
     private TextView tvSignUp;
+    private ImageButton btnBack;
 
     private UserRepository userRepository;
     private AdminRepository adminRepository;
@@ -48,7 +53,30 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Draw edge-to-edge and keep the form clear of the system bars and the
+        // keyboard on Android 15+.
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_login);
+
+        // Push the form clear of the keyboard when a field is focused.
+        View scrollLogin = findViewById(R.id.scrollLogin);
+        // Clip the scroll view so the panel's rounded top corners stay fixed while
+        // the fields scroll underneath. A uniform round-rect outline (bottom
+        // corners pushed below the view by +radius) is clippable on all supported
+        // versions, whereas the top-corners-only drawable shape is only clippable
+        // on Android 13+.
+        final int panelRadiusPx = Math.round(
+                24 * getResources().getDisplayMetrics().density);
+        scrollLogin.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(),
+                        view.getHeight() + panelRadiusPx, panelRadiusPx);
+            }
+        });
+        scrollLogin.setClipToOutline(true);
+        InsetsHelper.applyImeBottomPadding(scrollLogin);
 
         userRepository = new UserRepository();
         adminRepository = new AdminRepository();
@@ -68,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         tvError = findViewById(R.id.tvError);
         tvSignUp = findViewById(R.id.tvSignUp);
+        btnBack = findViewById(R.id.btnBack);
     }
 
     /**
@@ -80,6 +109,9 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
+
+        // Back arrow returns to the Welcome screen.
+        btnBack.setOnClickListener(v -> finish());
     }
 
     /**
@@ -96,11 +128,11 @@ public class LoginActivity extends AppCompatActivity {
 
         // Basic validation
         if (username.isEmpty()) {
-            tilUsername.setError(getString(R.string.login_username_hint));
+            tilUsername.setError(getString(R.string.login_error_username_empty));
             return;
         }
         if (password.isEmpty()) {
-            tilPassword.setError(getString(R.string.login_password_hint));
+            tilPassword.setError(getString(R.string.login_error_password_empty));
             return;
         }
 

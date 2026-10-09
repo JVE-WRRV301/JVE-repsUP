@@ -6,10 +6,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.models.User;
 import com.jve.repsup.utils.DialogUtils;
@@ -26,8 +27,9 @@ import com.jve.repsup.utils.SnackbarUtils;
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    private static final String METRIC = "Metric";
-    private static final String IMPERIAL = "Imperial";
+    // Stored lowercase to match the database default ('metric'/'imperial').
+    private static final String METRIC = "metric";
+    private static final String IMPERIAL = "imperial";
 
     private SessionManager sessionManager;
     private UserRepository userRepository;
@@ -86,8 +88,10 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(User user) {
                 runOnUiThread(() -> {
-                    if (user != null && user.getMeasurementSystem() != null) {
-                        currentMeasurementSystem = user.getMeasurementSystem();
+                    // Compare ignoring case: the stored value may be any casing,
+                    // but IMPERIAL is only selected on an explicit imperial match.
+                    if (user != null && IMPERIAL.equalsIgnoreCase(user.getMeasurementSystem())) {
+                        currentMeasurementSystem = IMPERIAL;
                     } else {
                         currentMeasurementSystem = METRIC;
                     }
@@ -136,24 +140,19 @@ public class SettingsActivity extends AppCompatActivity {
      * Updates the measurement toggle UI to highlight the selected option.
      */
     private void updateMeasurementToggleUI() {
-        if (METRIC.equals(currentMeasurementSystem)) {
-            btnMetric.setBackgroundColor(getResources().getColor(R.color.light_blue, null));
-            btnMetric.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnImperial.setBackgroundColor(getResources().getColor(R.color.dark_grey_variant, null));
-            btnImperial.setTextColor(getResources().getColor(R.color.white, null));
-        } else {
-            btnImperial.setBackgroundColor(getResources().getColor(R.color.light_blue, null));
-            btnImperial.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnMetric.setBackgroundColor(getResources().getColor(R.color.dark_grey_variant, null));
-            btnMetric.setTextColor(getResources().getColor(R.color.white, null));
-        }
+        // Tint the rounded toggle backgrounds instead of calling setBackgroundColor,
+        // which would replace the drawable with a flat (square) colour.
+        // The toggle sits on a grey card, so the "on card" variant is used.
+        boolean metric = METRIC.equals(currentMeasurementSystem);
+        SelectableButtonStyler.applySelectedOnCard(btnMetric, metric);
+        SelectableButtonStyler.applySelectedOnCard(btnImperial, !metric);
     }
 
     /**
      * Displays a confirmation dialog before logging out.
      */
     private void showLogoutConfirmation() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.settings_logout_confirm_title)
                 .setMessage(R.string.settings_logout_confirm_message)
                 .setPositiveButton(R.string.settings_logout, (dialog, which) -> performLogout())

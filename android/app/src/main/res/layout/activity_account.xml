@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollAccount"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
+    android:clipToPadding="false"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -22,23 +25,21 @@
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                style="@style/Widget.RepsUp.BackButton"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
                 android:contentDescription="@string/settings_back"
-                android:src="@android:drawable/ic_menu_revert"
-                android:tint="@color/white" />
+                android:src="@drawable/ic_back" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="40dp"
+                android:layout_marginEnd="48dp"
                 android:layout_weight="1"
-                android:fontFamily="@font/orbitron_bold"
                 android:gravity="center"
                 android:text="@string/account_title"
                 android:textColor="@color/white"
-                android:textSize="24sp" />
+                style="@style/Widget.RepsUp.PageTitle" />
         </LinearLayout>
 
         <!-- CHANGE PASSWORD Section -->
@@ -52,50 +53,80 @@
             android:textColor="@color/light_blue"
             android:textSize="12sp" />
 
-        <EditText
-            android:id="@+id/etCurrentPassword"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilCurrentPassword"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:autofillHints="password"
-            android:background="@color/dark_grey_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/account_current_password_hint"
-            android:inputType="textPassword"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/muted"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/muted">
 
-        <EditText
-            android:id="@+id/etNewPassword"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCurrentPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="password"
+                android:fontFamily="@font/inter"
+                android:inputType="textPassword"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNewPassword"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:autofillHints="newPassword"
-            android:background="@color/dark_grey_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/account_new_password_hint"
-            android:inputType="textPassword"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/muted"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/muted">
 
-        <EditText
-            android:id="@+id/etConfirmPassword"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNewPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:fontFamily="@font/inter"
+                android:inputType="textPassword"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilConfirmPassword"
+            style="@style/Widget.RepsUp.TextField"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:autofillHints="newPassword"
-            android:background="@color/dark_grey_surface"
-            android:fontFamily="@font/inter"
             android:hint="@string/account_confirm_password_hint"
-            android:inputType="textPassword"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/muted" />
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/muted"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:fontFamily="@font/inter"
+                android:inputType="textPassword"
+                android:textColor="@color/white"
+                android:textColorHint="@color/muted"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/btnChangePassword"

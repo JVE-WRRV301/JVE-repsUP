@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.jve.repsup.activities.AvatarGenerationActivity;
+import com.jve.repsup.activities.FitnessAssessmentActivity;
 import com.jve.repsup.activities.LoginActivity;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CalendarFragment;
@@ -30,7 +32,6 @@ import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
-import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
 
@@ -41,6 +42,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    // Per-user once-per-day guard for the launch streak evaluation.
+    private static final String STREAK_PREF_NAME = "RepsUpStreakEval";
+    private static final String KEY_LAST_STREAK_EVAL_PREFIX = "last_streak_eval_";
     private static final String TAG_HOME = "fragment_home";
     private static final String TAG_CALENDAR = "fragment_calendar";
     private static final String TAG_WORKOUT = "fragment_workout";
@@ -66,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
     /** Guards the top-bar avatar face render so it runs once, not on every resume. */
     private boolean avatarThumbLoaded;
 
+    /**
+     * True once continueOnCreate() has inflated the layout and wired up the top
+     * bar. The onboarding resume check is async, so onResume() can fire before
+     * then; this guards loadTopBarData() from touching still-null top-bar views.
+     */
+    private boolean mainUiReady;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,18 +90,110 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        userRepository = new UserRepository();
+        cosmeticRepository = new CosmeticRepository();
+
+        // Onboarding resume check: a user who closed the app partway through
+        // sign-up has a session but no fitness profile and/or no avatar. Send
+        // them back to the step they didn't finish instead of into a broken,
+        // profile-less MainActivity. The check is async, so defer the rest of
+        // onCreate until it confirms the user is fully onboarded.
+        resumeOnboardingIfNeeded(savedInstanceState);
+    }
+
+    /**
+     * Checks whether the logged-in user has completed sign-up and, if not,
+     * redirects to the missing step:
+     *   - no user_profile row  → FitnessAssessmentActivity
+     *   - profile but no avatar → AvatarGenerationActivity
+     * Otherwise continues building the main screen via {@link #continueOnCreate}.
+     */
+    private void resumeOnboardingIfNeeded(Bundle savedInstanceState) {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) {
+            continueOnCreate(savedInstanceState);
+            return;
+        }
+
+        String sql = "SELECT p.user_gender, p.body_type, "
+                + "(SELECT COUNT(*) FROM avatar a WHERE a.user_id = ?) AS avatar_count "
+                + "FROM user_profile p WHERE p.user_id = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId, userId}, rs -> {
+            Onboarding o = new Onboarding();
+            o.hasProfile = true;
+            o.gender = rs.getString("user_gender");
+            o.bodyType = rs.getString("body_type");
+            o.hasAvatar = rs.getInt("avatar_count") > 0;
+            return o;
+        }, new ConnectionManager.DatabaseCallback<Onboarding>() {
+            @Override
+            public void onSuccess(Onboarding o) {
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+
+                    if (o == null) {
+                        // No user_profile row → resume at the fitness assessment.
+                        Intent intent = new Intent(MainActivity.this, FitnessAssessmentActivity.class);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
+                    if (!o.hasAvatar) {
+                        // Profile exists but no avatar → resume at avatar generation.
+                        Intent intent = new Intent(MainActivity.this, AvatarGenerationActivity.class);
+                        intent.putExtra(AvatarGenerationActivity.EXTRA_GENDER, o.gender);
+                        intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE, o.bodyType);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
+                    continueOnCreate(savedInstanceState);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // On a DB error, don't block the user out of the app: build the
+                // main screen as before and let its own loads surface any issue.
+                Log.e(TAG, "Onboarding resume check failed", e);
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    continueOnCreate(savedInstanceState);
+                });
+            }
+        });
+    }
+
+    /** Small holder for the onboarding resume check result. */
+    private static class Onboarding {
+        boolean hasProfile;
+        boolean hasAvatar;
+        String gender;
+        String bodyType;
+    }
+
+    /**
+     * Builds the main navigation shell. Called once the onboarding resume check
+     * confirms the user has both a profile and an avatar.
+     */
+    private void continueOnCreate(Bundle savedInstanceState) {
         // Let the app draw behind the status bar (top bar extends behind it)
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         setContentView(R.layout.activity_main);
 
-        userRepository = new UserRepository();
-        cosmeticRepository = new CosmeticRepository();
         fragmentManager = getSupportFragmentManager();
 
         initTopBar();
         setupFragments(savedInstanceState);
         setupBottomNavigation();
+
+        // Top bar is wired up now; onResume() may safely refresh it.
+        mainUiReady = true;
+
         evaluateYesterdaysStreak();
         loadTopBarData();
     }
@@ -98,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (sessionManager != null && sessionManager.hasActiveSession()) {
+        if (mainUiReady && sessionManager != null && sessionManager.hasActiveSession()) {
             loadTopBarData();
         }
     }
@@ -135,21 +238,13 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(User user) {
                 if (user == null) return;
 
-                // Compute the correct level based on total XP
-                int totalXp = user.getXp();
-                int correctLevel = 1;
-                while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
-                    correctLevel++;
-                }
-
-                // Fix DB if level is wrong (either too low or too high)
-                if (correctLevel != user.getCurrentLevel()) {
-                    userRepository.updateLevel(userId, correctLevel, null);
-                }
-
-                int displayLevel = correctLevel;
+                // Read the stored level only. Levelling (and any coin/rank
+                // rewards) is handled in one place — ProgressionManager, invoked
+                // after an XP change — so the top bar must never silently "fix"
+                // the level here.
+                int displayLevel = user.getCurrentLevel();
                 runOnUiThread(() -> {
-                    tvLevel.setText("Lv. " + displayLevel);
+                    tvLevel.setText(getString(R.string.top_bar_level_format, displayLevel));
                     tvStreak.setText(String.valueOf(user.getCurrentStreak()));
                     tvCoins.setText(String.valueOf(user.getCoins()));
                 });
@@ -251,16 +346,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Evaluates yesterday's workout status and updates the user's streak accordingly.
-     * Called on app launch to ensure missed workouts reset the streak.
+     * Evaluates yesterday's workout status on app launch. This check may ONLY
+     * reset the streak to 0 when yesterday had a scheduled workout that was not
+     * completed; it never increments. The +1 for a completed workout happens
+     * once, in WorkoutCompleteActivity.
+     *
+     * Guarded to run at most once per calendar day per user: the last evaluated
+     * date is stored in SharedPreferences keyed by user id, and the check is
+     * skipped if it has already run today.
      */
     private void evaluateYesterdaysStreak() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
+        // Once-per-day guard: skip if we've already evaluated today for this user.
+        android.content.SharedPreferences streakPrefs =
+                getSharedPreferences(STREAK_PREF_NAME, MODE_PRIVATE);
+        String key = KEY_LAST_STREAK_EVAL_PREFIX + userId;
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        String lastEvaluated = streakPrefs.getString(key, null);
+        if (today.equals(lastEvaluated)) {
+            return;
+        }
+        // Record that the check has run today, so repeated launches skip it.
+        streakPrefs.edit().putString(key, today).apply();
+
         ScheduleRepository scheduleRepository = new ScheduleRepository();
 
-        scheduleRepository.getYesterdaysWorkoutStatus(userId, new ConnectionManager.DatabaseCallback<boolean[]>() {
+        // Compute "yesterday" from the phone's date so the streak check doesn't
+        // depend on the MySQL server's timezone.
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -1);
+        java.sql.Date yesterday = new java.sql.Date(cal.getTimeInMillis());
+
+        scheduleRepository.getYesterdaysWorkoutStatus(userId, yesterday, new ConnectionManager.DatabaseCallback<boolean[]>() {
             @Override
             public void onSuccess(boolean[] status) {
                 boolean hadScheduledWorkout = status[0];
@@ -270,7 +390,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Integer streak) {
                         int currentStreak = streak != null ? streak : 0;
-                        int newStreak = StreakManager.evaluateStreak(currentStreak, hadScheduledWorkout, completedYesterday);
+                        // Launch check may only reset the streak, never increment it.
+                        int newStreak = StreakManager.evaluateStreakOnLaunch(currentStreak, hadScheduledWorkout, completedYesterday);
 
                         if (newStreak != currentStreak) {
                             userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
