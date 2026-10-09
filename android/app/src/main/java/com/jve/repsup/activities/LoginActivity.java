@@ -16,6 +16,7 @@ import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.AdminRepository;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -48,7 +49,13 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Draw edge-to-edge and keep the form clear of the system bars and the
+        // keyboard on Android 15+.
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_login);
+
+        InsetsHelper.applySystemBarsAndImeBottomPadding(findViewById(R.id.scrollLogin));
 
         userRepository = new UserRepository();
         adminRepository = new AdminRepository();

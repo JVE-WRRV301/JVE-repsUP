@@ -3,7 +3,6 @@ package com.jve.repsup.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -17,6 +16,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.adapters.AssessmentPagerAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -40,13 +40,14 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Full-screen immersive
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // Draw behind the system bars, then pad the root with the status/nav
+        // insets so content isn't under the clock or gesture bar (replaces the
+        // old hard-coded 72dp top gap).
+        InsetsHelper.enableEdgeToEdge(getWindow());
 
         setContentView(R.layout.activity_fitness_assessment);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.assessmentRoot));
 
         assessmentData = new AssessmentData();
 

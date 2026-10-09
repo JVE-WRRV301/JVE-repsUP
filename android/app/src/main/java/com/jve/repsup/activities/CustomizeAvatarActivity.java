@@ -27,6 +27,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.dialogs.PurchaseDialog;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
@@ -114,7 +115,14 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw edge-to-edge, then keep content clear of the status/nav bars
+        // (replaces the old hard-coded 32dp top padding on the top bar).
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_customize_avatar);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.customizeAvatarRoot));
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

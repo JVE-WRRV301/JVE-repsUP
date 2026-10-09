@@ -2,6 +2,7 @@ package com.jve.repsup.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,7 +15,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Patterns;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,6 +29,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -66,13 +68,29 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Full-screen immersive like the welcome page
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // Draw the full-screen background image behind the status and nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
 
         setContentView(R.layout.activity_register);
+
+        // Push the form clear of the keyboard when a field is focused.
+        View scrollRegister = findViewById(R.id.scrollRegister);
+        // Clip the scroll view so the panel's rounded top corners stay fixed while
+        // the fields scroll underneath. A uniform round-rect outline (bottom
+        // corners pushed below the view by +radius) is clippable on all supported
+        // versions, whereas the top-corners-only drawable shape is only clippable
+        // on Android 13+.
+        final int panelRadiusPx = Math.round(
+                24 * getResources().getDisplayMetrics().density);
+        scrollRegister.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(),
+                        view.getHeight() + panelRadiusPx, panelRadiusPx);
+            }
+        });
+        scrollRegister.setClipToOutline(true);
+        InsetsHelper.applyImeBottomPadding(scrollRegister);
 
         userRepository = new UserRepository();
         sessionManager = new SessionManager(this);

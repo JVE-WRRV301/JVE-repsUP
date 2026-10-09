@@ -40,18 +40,22 @@
         <activity
             android:name=".activities.PersonalDetailsActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.AccountActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.LoginActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.RegisterActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.FitnessAssessmentActivity"
@@ -64,6 +68,7 @@
         <activity
             android:name=".activities.CreateGoalActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.WorkoutExecutionActivity"
@@ -80,6 +85,7 @@
         <activity
             android:name=".activities.AdminCreateWorkoutActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.AdminCreateExerciseActivity"
@@ -92,6 +98,7 @@
         <activity
             android:name=".activities.CreateWorkoutActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".activities.ScheduleWorkoutActivity"

@@ -14,6 +14,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SnackbarUtils;
 
@@ -38,6 +39,12 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+
+        // Shrink the scroll view above the keyboard so the focused field scrolls
+        // into view. The root ScrollView keeps fitsSystemWindows for the
+        // status/nav bars, so the IME margin is driven from its parent to avoid
+        // cancelling that.
+        InsetsHelper.applyImeBottomMarginViaParent(findViewById(R.id.scrollAccount));
 
         sessionManager = new SessionManager(this);
         userRepository = new UserRepository();

@@ -16,6 +16,7 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Goal;
 import com.jve.repsup.repositories.GoalRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
@@ -53,6 +54,9 @@ public class CreateGoalActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_goal);
+
+        // Keep the form clear of the keyboard when a field is focused.
+        InsetsHelper.applyImeBottomPadding(findViewById(R.id.scrollCreateGoal));
 
         goalRepository = new GoalRepository();
         sessionManager = new SessionManager(this);

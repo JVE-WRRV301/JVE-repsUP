@@ -19,6 +19,7 @@ import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.ProgressionManager;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
@@ -60,7 +61,13 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw edge-to-edge, then keep content clear of the status/nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_workout_complete);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.workoutCompleteRoot));
 
         scheduleRepository = new ScheduleRepository();
         userRepository = new UserRepository();
