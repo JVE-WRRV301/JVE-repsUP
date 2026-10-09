@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.MainActivity;
@@ -54,7 +54,6 @@ public class AvatarGenerationActivity extends AppCompatActivity {
 
     private ImageView ivAvatar;
     private Button btnContinue;
-    private ImageButton btnBack;
     private TextView tvAvatarSubheading;
 
     private String gender;
@@ -66,9 +65,17 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_avatar_generation);
 
+        // The profile and avatar are saved before this screen, so there's nothing
+        // to go back to. Block the system Back button; the user must continue.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Intentionally does nothing - Back is disabled on this screen.
+            }
+        });
+
         ivAvatar = findViewById(R.id.ivAvatar);
         btnContinue = findViewById(R.id.btnContinue);
-        btnBack = findViewById(R.id.btnBack);
         tvAvatarSubheading = findViewById(R.id.tvAvatarSubheading);
 
         // Get data from intent
@@ -97,7 +104,6 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         btnContinue.setEnabled(false);
 
         btnContinue.setOnClickListener(v -> navigateToMain());
-        btnBack.setOnClickListener(v -> onBackPressed());
 
         // Start avatar creation process
         createAvatarRecords();

@@ -138,6 +138,24 @@ SELECT username, current_level FROM users;
 
 You should see 16 tables, 23 exercises, and 3 test users (dyllan12345, sarahj, jaskrug). If you do, your setup is working.
 
+### Test login credentials (development only)
+
+Passwords are stored hashed (PBKDF2), so you can't read them out of the database. The seed data sets these plain passwords for the test accounts:
+
+| Username | Password |
+|---|---|
+| dyllan12345 | Password1 |
+| sarahj | Password2 |
+| jaskrug | Password3 |
+
+The admin account (reached by long-pressing the "REPS UP." title) is:
+
+| Username | Password |
+|---|---|
+| Admin | admin123 |
+
+These are for local development only.
+
 ---
 
 ## Project Structure

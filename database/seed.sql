@@ -195,17 +195,23 @@ INSERT INTO cosmetic_item (cosmetic_name, cosmetic_type, gender, is_colourable, 
 
 -- ADMIN ACCOUNT (required) - so admins can create default workouts
 
+-- Passwords are PBKDF2 "salt:hash" values (see PasswordHasher.java), not plain
+-- text. The admin plain password (development only) is: admin123
 INSERT INTO admins (admin_username, admin_password) VALUES
-    ('Admin', 'admin123');
+    ('Admin', '5TiM4gPGPyDz7/ioNoCm1g==:a5lJJEC1iET8NRxBB/1IuNjoAzx/HmFq8GYpXPeMo3w=');
 
 
 -- TEST USERS (development only)
--- NOTE: passwords are placeholders. 
+-- Passwords are PBKDF2 "salt:hash" values (see PasswordHasher.java). The plain
+-- passwords (development only) are:
+--   dyllan12345 -> Password1
+--   sarahj      -> Password2
+--   jaskrug     -> Password3
 
 INSERT INTO user (first_name, email, username, set_password, xp, coins, current_level, rank_id, current_streak) VALUES
-    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'placeholder_1', 450, 100, 10, 3, 14),
-    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'placeholder_2', 120, 50,  3,  1, 2),
-    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'placeholder_3', 800, 200, 18, 4, 21);
+    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 450, 100, 10, 3, 14),
+    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 120, 50,  3,  1, 2),
+    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'ZKoWh3LUmuUxFkanuLWZRw==:1Fb77qBPqcSajwiFuwRl7ahZDtEglGEGzR/RDyQkDEU=', 800, 200, 18, 4, 21);
 
 
 -- USER PROFILES (test data) - fitness assessment results

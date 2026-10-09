@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.jve.repsup.activities.AvatarGenerationActivity;
+import com.jve.repsup.activities.FitnessAssessmentActivity;
 import com.jve.repsup.activities.LoginActivity;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CalendarFragment;
@@ -69,6 +71,13 @@ public class MainActivity extends AppCompatActivity {
     /** Guards the top-bar avatar face render so it runs once, not on every resume. */
     private boolean avatarThumbLoaded;
 
+    /**
+     * True once continueOnCreate() has inflated the layout and wired up the top
+     * bar. The onboarding resume check is async, so onResume() can fire before
+     * then; this guards loadTopBarData() from touching still-null top-bar views.
+     */
+    private boolean mainUiReady;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,18 +91,110 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        userRepository = new UserRepository();
+        cosmeticRepository = new CosmeticRepository();
+
+        // Onboarding resume check: a user who closed the app partway through
+        // sign-up has a session but no fitness profile and/or no avatar. Send
+        // them back to the step they didn't finish instead of into a broken,
+        // profile-less MainActivity. The check is async, so defer the rest of
+        // onCreate until it confirms the user is fully onboarded.
+        resumeOnboardingIfNeeded(savedInstanceState);
+    }
+
+    /**
+     * Checks whether the logged-in user has completed sign-up and, if not,
+     * redirects to the missing step:
+     *   - no user_profile row  → FitnessAssessmentActivity
+     *   - profile but no avatar → AvatarGenerationActivity
+     * Otherwise continues building the main screen via {@link #continueOnCreate}.
+     */
+    private void resumeOnboardingIfNeeded(Bundle savedInstanceState) {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) {
+            continueOnCreate(savedInstanceState);
+            return;
+        }
+
+        String sql = "SELECT p.user_gender, p.body_type, "
+                + "(SELECT COUNT(*) FROM avatar a WHERE a.user_id = ?) AS avatar_count "
+                + "FROM user_profile p WHERE p.user_id = ?";
+
+        ConnectionManager.querySingle(sql, new Object[]{userId, userId}, rs -> {
+            Onboarding o = new Onboarding();
+            o.hasProfile = true;
+            o.gender = rs.getString("user_gender");
+            o.bodyType = rs.getString("body_type");
+            o.hasAvatar = rs.getInt("avatar_count") > 0;
+            return o;
+        }, new ConnectionManager.DatabaseCallback<Onboarding>() {
+            @Override
+            public void onSuccess(Onboarding o) {
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+
+                    if (o == null) {
+                        // No user_profile row → resume at the fitness assessment.
+                        Intent intent = new Intent(MainActivity.this, FitnessAssessmentActivity.class);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
+                    if (!o.hasAvatar) {
+                        // Profile exists but no avatar → resume at avatar generation.
+                        Intent intent = new Intent(MainActivity.this, AvatarGenerationActivity.class);
+                        intent.putExtra(AvatarGenerationActivity.EXTRA_GENDER, o.gender);
+                        intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE, o.bodyType);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
+                    continueOnCreate(savedInstanceState);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // On a DB error, don't block the user out of the app: build the
+                // main screen as before and let its own loads surface any issue.
+                Log.e(TAG, "Onboarding resume check failed", e);
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    continueOnCreate(savedInstanceState);
+                });
+            }
+        });
+    }
+
+    /** Small holder for the onboarding resume check result. */
+    private static class Onboarding {
+        boolean hasProfile;
+        boolean hasAvatar;
+        String gender;
+        String bodyType;
+    }
+
+    /**
+     * Builds the main navigation shell. Called once the onboarding resume check
+     * confirms the user has both a profile and an avatar.
+     */
+    private void continueOnCreate(Bundle savedInstanceState) {
         // Let the app draw behind the status bar (top bar extends behind it)
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         setContentView(R.layout.activity_main);
 
-        userRepository = new UserRepository();
-        cosmeticRepository = new CosmeticRepository();
         fragmentManager = getSupportFragmentManager();
 
         initTopBar();
         setupFragments(savedInstanceState);
         setupBottomNavigation();
+
+        // Top bar is wired up now; onResume() may safely refresh it.
+        mainUiReady = true;
+
         evaluateYesterdaysStreak();
         loadTopBarData();
     }
@@ -101,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (sessionManager != null && sessionManager.hasActiveSession()) {
+        if (mainUiReady && sessionManager != null && sessionManager.hasActiveSession()) {
             loadTopBarData();
         }
     }

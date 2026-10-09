@@ -62,7 +62,8 @@ CREATE TABLE user (
     first_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
-    set_password VARCHAR(100) NOT NULL,
+    -- Stores a PBKDF2 "salt:hash" value (see PasswordHasher.java), not plain text.
+    set_password VARCHAR(255) NOT NULL,
     xp INT NOT NULL DEFAULT 0,
     coins INT NOT NULL DEFAULT 0,
     current_level INT NOT NULL DEFAULT 1,

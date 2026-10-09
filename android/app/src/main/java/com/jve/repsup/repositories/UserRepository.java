@@ -3,6 +3,7 @@ package com.jve.repsup.repositories;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Rank;
 import com.jve.repsup.models.User;
+import com.jve.repsup.utils.PasswordHasher;
 
 /**
  * Repository handling User table CRUD operations.
@@ -12,20 +13,33 @@ public class UserRepository {
 
     /**
      * Authenticates a user by username and password.
-     * Returns the User object on success, null if credentials are invalid.
+     *
+     * The user is fetched by username only, then the supplied password is
+     * verified in Java against the stored PBKDF2 "salt:hash" value. This keeps
+     * the password out of the SQL comparison and makes the check case-sensitive
+     * (unlike MySQL's default collation).
+     *
+     * Returns the User object on success, null if the username is unknown or the
+     * password does not match.
      */
     public void authenticate(String username, String password, ConnectionManager.DatabaseCallback<User> callback) {
         String sql = "SELECT user_id, first_name, email, username, set_password, xp, coins, " +
                 "current_level, rank_id, current_streak, avatar_id, measurment_system, set_language " +
-                "FROM user WHERE username = ? AND set_password = ?";
+                "FROM user WHERE username = ?";
 
-        ConnectionManager.querySingle(sql, new Object[]{username, password}, rs -> {
+        ConnectionManager.querySingle(sql, new Object[]{username}, rs -> {
+            String storedPassword = rs.getString("set_password");
+            // Verify in Java; return null for a non-match so the UI treats it
+            // exactly like "no such user" (invalid credentials).
+            if (!PasswordHasher.verify(password, storedPassword)) {
+                return null;
+            }
             User user = new User();
             user.setUserId(rs.getInt("user_id"));
             user.setFirstName(rs.getString("first_name"));
             user.setEmail(rs.getString("email"));
             user.setUsername(rs.getString("username"));
-            user.setPassword(rs.getString("set_password"));
+            user.setPassword(storedPassword);
             user.setXp(rs.getInt("xp"));
             user.setCoins(rs.getInt("coins"));
             user.setCurrentLevel(rs.getInt("current_level"));
@@ -40,6 +54,7 @@ public class UserRepository {
 
     /**
      * Registers a new user with default values (xp=0, coins=0, level=1, rank_id=1, streak=0).
+     * The password is hashed (PBKDF2 "salt:hash") before being stored.
      * Returns the generated user_id on success.
      */
     public void register(User user, ConnectionManager.DatabaseCallback<Long> callback) {
@@ -50,7 +65,7 @@ public class UserRepository {
                 user.getFirstName(),
                 user.getEmail(),
                 user.getUsername(),
-                user.getPassword()
+                PasswordHasher.hash(user.getPassword())
         }, callback);
     }
 
@@ -244,9 +259,11 @@ public class UserRepository {
 
     /**
      * Changes the user's password after verifying the current password matches.
-     * Passwords are compared/stored using the existing plaintext convention used by
-     * authenticate()/register(). NOTE: this should be migrated to hashed passwords
-     * across login, register, and this screen as a coordinated security follow-up.
+     *
+     * Passwords are stored as PBKDF2 "salt:hash" values with a per-password
+     * random salt, so the current password can't be checked in SQL. Instead the
+     * stored hash is fetched, the current password is verified in Java, and only
+     * on a match is a freshly hashed new password written.
      *
      * Returns the number of affected rows (1 on success, 0 if the current password
      * did not match so no row was updated).
@@ -258,11 +275,32 @@ public class UserRepository {
      */
     public void changePassword(int userId, String currentPassword, String newPassword,
                                ConnectionManager.DatabaseCallback<Integer> callback) {
-        // The WHERE clause verifies the current password, so a 0-row result means
-        // the current password was incorrect.
-        String sql = "UPDATE user SET set_password = ? WHERE user_id = ? AND set_password = ?";
+        String selectSql = "SELECT set_password FROM user WHERE user_id = ?";
 
-        ConnectionManager.executeUpdate(sql, new Object[]{newPassword, userId, currentPassword}, callback);
+        ConnectionManager.querySingle(selectSql, new Object[]{userId}, rs -> rs.getString("set_password"),
+                new ConnectionManager.DatabaseCallback<String>() {
+                    @Override
+                    public void onSuccess(String storedPassword) {
+                        if (!PasswordHasher.verify(currentPassword, storedPassword)) {
+                            // Current password wrong: report 0 rows affected, same
+                            // as the old WHERE-clause behaviour.
+                            if (callback != null) {
+                                callback.onSuccess(0);
+                            }
+                            return;
+                        }
+                        String updateSql = "UPDATE user SET set_password = ? WHERE user_id = ?";
+                        ConnectionManager.executeUpdate(updateSql,
+                                new Object[]{PasswordHasher.hash(newPassword), userId}, callback);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        if (callback != null) {
+                            callback.onError(e);
+                        }
+                    }
+                });
     }
 
     /**

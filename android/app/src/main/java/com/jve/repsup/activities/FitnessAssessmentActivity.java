@@ -71,8 +71,11 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
         updateProgressBar(0);
         updateButtons(0);
 
-        // Assessment back button (step 0 only) — navigates back to Register
-        btnAssessmentBack.setOnClickListener(v -> finish());
+        // Assessment back button (step 0 only). The account already exists at
+        // this point (RegisterActivity created it and the session), so going
+        // back can't return to the sign-up form. Instead, log the half-made user
+        // out and return to the Welcome screen.
+        btnAssessmentBack.setOnClickListener(v -> logOutToWelcome());
 
         btnBack.setOnClickListener(v -> {
             int current = vpAssessment.getCurrentItem();
@@ -221,11 +224,29 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
     }
 
     /**
+     * Logs the half-made user out and returns to the Welcome screen. Used by the
+     * step-0 back arrow: the account already exists, so we clear the session (so
+     * the next launch doesn't jump into a profile-less MainActivity) and send the
+     * user back to the start, clearing the task stack.
+     */
+    private void logOutToWelcome() {
+        new SessionManager(this).clearSession();
+        Intent intent = new Intent(this, WelcomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
      * Saves the collected assessment data to the database.
      */
     private void saveProfile() {
         SessionManager sessionManager = new SessionManager(this);
         int userId = sessionManager.getUserId();
+
+        // Disable Finish while the insert is in flight so it can't be double-tapped
+        // into inserting a second user_profile row (user_id is UNIQUE).
+        setNextEnabled(false);
 
         String sql = "INSERT INTO user_profile (user_id, user_gender, user_age, user_weight, "
                 + "user_height, body_type, workout_lvl, num_workouts_per_week, fitness_goal) "
@@ -247,6 +268,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Long result) {
                 runOnUiThread(() -> {
+                    if (isFinishing()) return;
                     // Navigate to AvatarGenerationActivity to generate avatar
                     Intent intent = new Intent(FitnessAssessmentActivity.this,
                             AvatarGenerationActivity.class);
@@ -255,12 +277,18 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
                     intent.putExtra(AvatarGenerationActivity.EXTRA_BODY_TYPE,
                             assessmentData.getBodyType());
                     startActivity(intent);
+                    // Finish so Back from the avatar screen can't return here and
+                    // re-insert the profile.
+                    finish();
                 });
             }
 
             @Override
             public void onError(Exception e) {
                 runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    // Re-enable Finish so the user can retry after a failed save.
+                    setNextEnabled(true);
                     DialogUtils.showError(FitnessAssessmentActivity.this,
                             "Failed to save profile. Please try again.");
                 });
