@@ -114,6 +114,13 @@ class WorkoutXPCalculatorTest {
         return Arbitraries.integers().between(1, 20);
     }
 
+    @Provide
+    Arbitrary<Integer> wideLevels() {
+        // Deliberately wide range to exercise the long arithmetic well past the
+        // point where the old int-based doubling curve overflowed (~level 22).
+        return Arbitraries.integers().between(1, 100000);
+    }
+
     // ─── Property 2a: XP Formula Preservation ────────────────────────────────────
 
     /**
@@ -161,37 +168,110 @@ class WorkoutXPCalculatorTest {
                 "empty exerciseResults should always return 0");
     }
 
-    // ─── Property 2c: shouldLevelUp Preservation ─────────────────────────────────
+    // ─── Levelling curve: XP to go from level N to N+1 = 400 + 50 * N ────────────
+
+    @Test
+    void xpForNextLevelMatchesTheRule() {
+        // level 1→2 = 450, 2→3 = 500, 3→4 = 550 ...
+        assertEquals(450L, XPCalculator.xpForNextLevel(1));
+        assertEquals(500L, XPCalculator.xpForNextLevel(2));
+        assertEquals(550L, XPCalculator.xpForNextLevel(3));
+        assertEquals(900L, XPCalculator.xpForNextLevel(10));
+    }
+
+    @Test
+    void cumulativeXpForLevelMatchesWorkedExamples() {
+        assertEquals(0L, XPCalculator.cumulativeXpForLevel(1));
+        assertEquals(450L, XPCalculator.cumulativeXpForLevel(2));   // 450
+        assertEquals(950L, XPCalculator.cumulativeXpForLevel(3));   // 450 + 500
+        assertEquals(1500L, XPCalculator.cumulativeXpForLevel(4));  // + 550
+    }
+
+    @Test
+    void levelForTotalXpAtAndAroundBoundaries() {
+        assertEquals(1, XPCalculator.levelForTotalXp(0));
+        assertEquals(1, XPCalculator.levelForTotalXp(449));
+        assertEquals(2, XPCalculator.levelForTotalXp(450));   // exactly reaches level 2
+        assertEquals(2, XPCalculator.levelForTotalXp(949));
+        assertEquals(3, XPCalculator.levelForTotalXp(950));   // exactly reaches level 3
+    }
+
+    @Test
+    void levelForTotalXpMatchesSeedUsers() {
+        // Seed users under the new curve:
+        assertEquals(2, XPCalculator.levelForTotalXp(450));  // Dylan
+        assertEquals(1, XPCalculator.levelForTotalXp(120));  // Sarah
+        assertEquals(2, XPCalculator.levelForTotalXp(800));  // Jason
+    }
+
+    @Test
+    void levelForTotalXpHandlesHugeXpWithoutOverflowing() {
+        // A very large XP value must still terminate and return a sane level.
+        // The old int-based doubling curve overflowed and could loop forever.
+        int level = XPCalculator.levelForTotalXp(Long.MAX_VALUE / 2);
+        assertTrue(level > 1, "Huge XP should map to a high level, got " + level);
+    }
+
+    // ─── Property: cumulative curve is the sum of the per-level deltas ───────────
 
     /**
-     * Property 2c: shouldLevelUp(totalXp, currentLevel) returns true when
-     * totalXp >= 500 * (2^currentLevel - 1), and false otherwise.
-     *
-     * The cumulative threshold to reach level N+1 is 500 * (2^N - 1).
-     *
-     * Validates: Requirements 3.6, 3.7
+     * cumulativeXpForLevel(L) must equal the running sum of xpForNextLevel(N)
+     * for N = 1 .. L-1 — the two must stay consistent for all levels.
      */
-    @Property(tries = 200)
-    void shouldLevelUpIsCorrectForAllLevelsAndXp(
+    @Property(tries = 500)
+    void cumulativeEqualsSumOfPerLevelDeltas(
+            @ForAll("validLevels") int level
+    ) {
+        long expected = 0L;
+        for (int n = 1; n < level; n++) {
+            expected += XPCalculator.xpForNextLevel(n);
+        }
+        assertEquals(expected, XPCalculator.cumulativeXpForLevel(level),
+                "cumulative must equal the running sum of per-level XP at level " + level);
+    }
+
+    // ─── Property: shouldLevelUp agrees with the cumulative threshold ────────────
+
+    /**
+     * shouldLevelUp(totalXp, currentLevel) returns true when totalXp reaches the
+     * cumulative requirement for currentLevel + 1, and false just below it.
+     * Exercised across a wide level range to confirm long arithmetic never
+     * overflows or spins.
+     */
+    @Property(tries = 500)
+    void shouldLevelUpAgreesWithCumulativeThreshold(
             @ForAll("validLevels") int currentLevel
     ) {
-        int cumulativeThreshold = 500 * ((int) Math.pow(2, currentLevel) - 1);
+        long threshold = XPCalculator.cumulativeXpForLevel(currentLevel + 1);
 
-        // Exactly at threshold — should level up
-        assertTrue(XPCalculator.shouldLevelUp(cumulativeThreshold, currentLevel),
-                String.format("Should level up at threshold: totalXp=%d, level=%d, threshold=%d",
-                        cumulativeThreshold, currentLevel, cumulativeThreshold));
+        assertTrue(XPCalculator.shouldLevelUp(threshold, currentLevel),
+                String.format("Should level up at threshold: xp=%d, level=%d", threshold, currentLevel));
+        assertTrue(XPCalculator.shouldLevelUp(threshold + 1, currentLevel),
+                String.format("Should level up above threshold: xp=%d, level=%d", threshold + 1, currentLevel));
+        if (threshold > 0) {
+            assertFalse(XPCalculator.shouldLevelUp(threshold - 1, currentLevel),
+                    String.format("Should NOT level up below threshold: xp=%d, level=%d", threshold - 1, currentLevel));
+        }
+    }
 
-        // Above threshold — should level up
-        assertTrue(XPCalculator.shouldLevelUp(cumulativeThreshold + 1, currentLevel),
-                String.format("Should level up above threshold: totalXp=%d, level=%d",
-                        cumulativeThreshold + 1, currentLevel));
+    // ─── Property: levelForTotalXp is the inverse of the cumulative curve ────────
 
-        // Below threshold — should NOT level up
-        if (cumulativeThreshold > 0) {
-            assertFalse(XPCalculator.shouldLevelUp(cumulativeThreshold - 1, currentLevel),
-                    String.format("Should NOT level up below threshold: totalXp=%d, level=%d, threshold=%d",
-                            cumulativeThreshold - 1, currentLevel, cumulativeThreshold));
+    /**
+     * For any level L (over a wide range), the cumulative XP to reach L maps back
+     * to exactly level L, and one XP short maps to L-1. This confirms
+     * levelForTotalXp never overflows or loops for large levels.
+     */
+    @Property(tries = 500)
+    void levelForTotalXpIsInverseOfCumulative(
+            @ForAll("wideLevels") int level
+    ) {
+        long atLevel = XPCalculator.cumulativeXpForLevel(level);
+        assertEquals(level, XPCalculator.levelForTotalXp(atLevel),
+                "XP exactly at the level threshold should map back to that level");
+
+        if (level > 1) {
+            assertEquals(level - 1, XPCalculator.levelForTotalXp(atLevel - 1),
+                    "One XP short of the threshold should map to the previous level");
         }
     }
 

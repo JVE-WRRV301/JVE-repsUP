@@ -60,30 +60,67 @@ public class XPCalculator {
     }
 
     /**
-     * Determines the XP threshold needed for the next level.
-     * Level 1→2 requires 500 XP, level 2→3 requires 1000 XP,
-     * level 3→4 requires 2000 XP, etc. (doubles each level).
-     * Formula: 500 * 2^(currentLevel - 1)
+     * Determines the XP needed to advance from the current level to the next.
+     * The gentle, linear curve is: XP to go from level N to N+1 = 400 + 50 * N.
+     * So level 1→2 = 450, level 2→3 = 500, level 3→4 = 550, and so on.
+     *
+     * The arithmetic uses long values so it can never overflow at high levels.
      *
      * @param currentLevel the user's current level (must be >= 1)
      * @return XP required to advance from currentLevel to currentLevel+1
      */
-    public static int xpForNextLevel(int currentLevel) {
-        return 500 * (int) Math.pow(2, currentLevel - 1);
+    public static long xpForNextLevel(int currentLevel) {
+        return 400L + 50L * currentLevel;
     }
 
     /**
-     * Checks if total XP meets or exceeds the cumulative threshold for the current level.
-     * The cumulative threshold to reach level N+1 is 500 * (2^N - 1),
-     * which is the sum of the doubling series: 500 + 1000 + 2000 + ...
+     * Returns the cumulative XP needed to reach the given level from level 1.
+     * This is the sum of (400 + 50 * N) for N = 1 .. level-1, which simplifies
+     * to (level - 1) * (400 + 25 * level). Reaching level 1 needs 0 XP.
+     *
+     * All arithmetic is done in long to avoid overflow at high levels.
+     *
+     * @param level the target level (must be >= 1)
+     * @return cumulative XP required to reach that level
+     */
+    public static long cumulativeXpForLevel(int level) {
+        if (level <= 1) {
+            return 0L;
+        }
+        long l = level;
+        return (l - 1L) * (400L + 25L * l);
+    }
+
+    /**
+     * Works out the level a user is at for a given total XP under the current
+     * curve. Returns the highest level L (>= 1) whose cumulative XP requirement
+     * is met by {@code xp}.
+     *
+     * Walks the cumulative thresholds in long arithmetic so it can't overflow or
+     * spin forever: the loop stops as soon as the next level's requirement is
+     * beyond the supplied XP.
+     *
+     * @param xp the user's total accumulated XP
+     * @return the level the user should be at (minimum 1)
+     */
+    public static int levelForTotalXp(long xp) {
+        int level = 1;
+        while (xp >= cumulativeXpForLevel(level + 1)) {
+            level++;
+        }
+        return level;
+    }
+
+    /**
+     * Checks if total XP meets or exceeds the cumulative threshold to advance
+     * past the current level (i.e. to reach currentLevel + 1).
      *
      * @param totalXp      the user's total accumulated XP
      * @param currentLevel the user's current level (must be >= 1)
      * @return true if the user has enough XP to level up
      */
-    public static boolean shouldLevelUp(int totalXp, int currentLevel) {
-        int cumulativeThreshold = 500 * ((int) Math.pow(2, currentLevel) - 1);
-        return totalXp >= cumulativeThreshold;
+    public static boolean shouldLevelUp(long totalXp, int currentLevel) {
+        return totalXp >= cumulativeXpForLevel(currentLevel + 1);
     }
 
     /**

@@ -9,9 +9,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Property-based tests for Level-Up Threshold (Property 6).
- * Verifies that {@link XPCalculator#shouldLevelUp(int, int)} is deterministic
- * and correctly compares totalXp against the cumulative threshold
- * (sum of i*100 for i=1..currentLevel = currentLevel * (currentLevel + 1) * 50).
+ * Verifies that {@link XPCalculator#shouldLevelUp(long, int)} is deterministic
+ * and correctly compares totalXp against the cumulative threshold to reach the
+ * next level, which under the current curve (XP for N->N+1 = 400 + 50*N) is
+ * {@link XPCalculator#cumulativeXpForLevel(int)} evaluated at currentLevel + 1.
  *
  * Uses jqwik to generate arbitrary levels and XP values.
  *
@@ -42,9 +43,8 @@ class LevelUpThresholdPropertyTest {
     // ─── Property 6b: Returns true when XP >= threshold ───
 
     /**
-     * Property 6b: For any level >= 1, when totalXp >= cumulative threshold,
-     * shouldLevelUp returns true.
-     * Cumulative threshold = currentLevel * (currentLevel + 1) * 50.
+     * Property 6b: For any level >= 1, when totalXp >= the cumulative threshold
+     * to reach the next level, shouldLevelUp returns true.
      *
      * Validates: Requirements 18.1
      */
@@ -53,8 +53,8 @@ class LevelUpThresholdPropertyTest {
             @ForAll("levelValues") int currentLevel,
             @ForAll @IntRange(min = 0, max = 1_000_000) int extraXp
     ) {
-        int threshold = currentLevel * (currentLevel + 1) * 50;
-        int totalXp = threshold + extraXp;
+        long threshold = XPCalculator.cumulativeXpForLevel(currentLevel + 1);
+        long totalXp = threshold + extraXp;
 
         assertTrue(XPCalculator.shouldLevelUp(totalXp, currentLevel),
                 "shouldLevelUp must return true when totalXp (" + totalXp +
@@ -64,9 +64,8 @@ class LevelUpThresholdPropertyTest {
     // ─── Property 6c: Returns false when XP < threshold ───
 
     /**
-     * Property 6c: For any level >= 1, when totalXp < cumulative threshold,
-     * shouldLevelUp returns false.
-     * Cumulative threshold = currentLevel * (currentLevel + 1) * 50.
+     * Property 6c: For any level >= 1, when totalXp < the cumulative threshold
+     * to reach the next level, shouldLevelUp returns false.
      *
      * Validates: Requirements 18.1
      */
@@ -75,10 +74,10 @@ class LevelUpThresholdPropertyTest {
             @ForAll("levelValues") int currentLevel,
             @ForAll("xpValues") int rawXp
     ) {
-        int threshold = currentLevel * (currentLevel + 1) * 50;
+        long threshold = XPCalculator.cumulativeXpForLevel(currentLevel + 1);
 
-        // Constrain totalXp to be strictly below threshold (at least 1 below)
-        int totalXp = rawXp % threshold; // Guarantees 0 <= totalXp < threshold
+        // Constrain totalXp to be strictly below threshold (0 <= totalXp < threshold)
+        long totalXp = rawXp % threshold; // threshold is always > 0 for level >= 1
 
         assertFalse(XPCalculator.shouldLevelUp(totalXp, currentLevel),
                 "shouldLevelUp must return false when totalXp (" + totalXp +
@@ -94,17 +93,17 @@ class LevelUpThresholdPropertyTest {
      */
     @Example
     void atExactThresholdReturnsTrue() {
-        // Level 1: threshold = 1 * 2 * 50 = 100
-        assertTrue(XPCalculator.shouldLevelUp(100, 1),
-                "Level 1 threshold is 100; XP=100 should level up");
+        // Level 1: reaching level 2 needs 450 XP
+        assertTrue(XPCalculator.shouldLevelUp(450, 1),
+                "Level 1 threshold is 450; XP=450 should level up");
 
-        // Level 5: threshold = 5 * 6 * 50 = 1500
-        assertTrue(XPCalculator.shouldLevelUp(1500, 5),
-                "Level 5 threshold is 1500; XP=1500 should level up");
+        // Level 5: reaching level 6 needs 2750 XP
+        assertTrue(XPCalculator.shouldLevelUp(2750, 5),
+                "Level 5 threshold is 2750; XP=2750 should level up");
 
-        // Level 10: threshold = 10 * 11 * 50 = 5500
-        assertTrue(XPCalculator.shouldLevelUp(5500, 10),
-                "Level 10 threshold is 5500; XP=5500 should level up");
+        // Level 10: reaching level 11 needs 6750 XP
+        assertTrue(XPCalculator.shouldLevelUp(6750, 10),
+                "Level 10 threshold is 6750; XP=6750 should level up");
     }
 
     /**
@@ -114,17 +113,17 @@ class LevelUpThresholdPropertyTest {
      */
     @Example
     void atThresholdMinusOneReturnsFalse() {
-        // Level 1: threshold = 100, so 99 should not level up
-        assertFalse(XPCalculator.shouldLevelUp(99, 1),
-                "Level 1 threshold is 100; XP=99 should NOT level up");
+        // Level 1: threshold = 450, so 449 should not level up
+        assertFalse(XPCalculator.shouldLevelUp(449, 1),
+                "Level 1 threshold is 450; XP=449 should NOT level up");
 
-        // Level 5: threshold = 1500, so 1499 should not level up
-        assertFalse(XPCalculator.shouldLevelUp(1499, 5),
-                "Level 5 threshold is 1500; XP=1499 should NOT level up");
+        // Level 5: threshold = 2750, so 2749 should not level up
+        assertFalse(XPCalculator.shouldLevelUp(2749, 5),
+                "Level 5 threshold is 2750; XP=2749 should NOT level up");
 
-        // Level 10: threshold = 5500, so 5499 should not level up
-        assertFalse(XPCalculator.shouldLevelUp(5499, 10),
-                "Level 10 threshold is 5500; XP=5499 should NOT level up");
+        // Level 10: threshold = 6750, so 6749 should not level up
+        assertFalse(XPCalculator.shouldLevelUp(6749, 10),
+                "Level 10 threshold is 6750; XP=6749 should NOT level up");
     }
 
     /**
@@ -145,9 +144,9 @@ class LevelUpThresholdPropertyTest {
      */
     @Example
     void highLevelWithSufficientXpReturnsTrue() {
-        // Level 100: threshold = 100 * 101 * 50 = 505000
-        assertTrue(XPCalculator.shouldLevelUp(505000, 100),
-                "Level 100 threshold is 505000; XP=505000 should level up");
+        // Level 100: reaching level 101 needs 100 * (400 + 25*101) = 292500 XP
+        assertTrue(XPCalculator.shouldLevelUp(292500, 100),
+                "Level 100 threshold is 292500; XP=292500 should level up");
     }
 
     // ─── Custom Providers ───

@@ -32,7 +32,6 @@ import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.AvatarCompositor;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
-import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
 
@@ -239,19 +238,11 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(User user) {
                 if (user == null) return;
 
-                // Compute the correct level based on total XP
-                int totalXp = user.getXp();
-                int correctLevel = 1;
-                while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
-                    correctLevel++;
-                }
-
-                // Fix DB if level is wrong (either too low or too high)
-                if (correctLevel != user.getCurrentLevel()) {
-                    userRepository.updateLevel(userId, correctLevel, null);
-                }
-
-                int displayLevel = correctLevel;
+                // Read the stored level only. Levelling (and any coin/rank
+                // rewards) is handled in one place — ProgressionManager, invoked
+                // after an XP change — so the top bar must never silently "fix"
+                // the level here.
+                int displayLevel = user.getCurrentLevel();
                 runOnUiThread(() -> {
                     tvLevel.setText("Lv. " + displayLevel);
                     tvStreak.setText(String.valueOf(user.getCurrentStreak()));

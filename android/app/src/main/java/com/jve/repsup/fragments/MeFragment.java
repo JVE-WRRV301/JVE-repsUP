@@ -237,36 +237,22 @@ public class MeFragment extends Fragment {
             tvRankName.setText(R.string.me_rank_default);
         }
 
-        int totalXp = user.getXp();
+        long totalXp = user.getXp();
 
-        // Compute the correct level based on total XP
-        int correctLevel = 1;
-        while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
-            correctLevel++;
-        }
-
-        // Fix DB if level is out of sync
-        if (correctLevel != user.getCurrentLevel()) {
-            userRepository.updateLevel(user.getUserId(), correctLevel, null);
-        }
-
-        // Refresh the top bar to stay in sync
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadTopBarData();
-        }
+        // Read the stored level only. Levelling and rewards are handled in one
+        // place — ProgressionManager, invoked after an XP change — so this
+        // screen must never silently "fix" the level.
+        int level = user.getCurrentLevel();
 
         // Display level number in circle and label below
-        tvLevelNumber.setText(String.valueOf(correctLevel));
-        tvLevelLabel.setText(getString(R.string.me_level_format, correctLevel));
+        tvLevelNumber.setText(String.valueOf(level));
+        tvLevelLabel.setText(getString(R.string.me_level_format, level));
 
-        // Calculate XP progress within current level for circular indicator
-        int xpForNext = XPCalculator.xpForNextLevel(correctLevel);
-
-        int cumulativeXpForCurrentLevel = 0;
-        for (int i = 1; i < correctLevel; i++) {
-            cumulativeXpForCurrentLevel += XPCalculator.xpForNextLevel(i);
-        }
-        int xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
+        // Calculate XP progress within current level for circular indicator.
+        // All curve maths uses long so it can't overflow at high levels.
+        long xpForNext = XPCalculator.xpForNextLevel(level);
+        long cumulativeXpForCurrentLevel = XPCalculator.cumulativeXpForLevel(level);
+        long xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
         int progressPercent = xpForNext > 0 ? (int) ((xpIntoCurrentLevel * 100L) / xpForNext) : 0;
         progressPercent = Math.max(0, Math.min(100, progressPercent));
 
@@ -274,6 +260,6 @@ public class MeFragment extends Fragment {
 
         // Display XP progress text (e.g. "250 / 500 XP")
         tvXpProgress.setText(getString(R.string.me_xp_progress_format,
-                xpIntoCurrentLevel, xpForNext));
+                (int) xpIntoCurrentLevel, (int) xpForNext));
     }
 }

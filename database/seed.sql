@@ -208,10 +208,14 @@ INSERT INTO admins (admin_username, admin_password) VALUES
 --   sarahj      -> Password2
 --   jaskrug     -> Password3
 
+-- XP matches each user's level under the levelling curve (XP for N->N+1 = 400 + 50*N):
+--   Dylan level 10  -> needs 5850 XP (xp 6000),  rank Bronze III (rank_id 3)
+--   Sarah level 3   -> needs 950 XP  (xp 1000),  rank Bronze I   (rank_id 1)
+--   Jason level 18  -> needs 14450 XP (xp 15000), rank Silver I  (rank_id 4)
 INSERT INTO user (first_name, email, username, set_password, xp, coins, current_level, rank_id, current_streak) VALUES
-    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 450, 100, 10, 3, 14),
-    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 120, 50,  3,  1, 2),
-    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'ZKoWh3LUmuUxFkanuLWZRw==:1Fb77qBPqcSajwiFuwRl7ahZDtEglGEGzR/RDyQkDEU=', 800, 200, 18, 4, 21);
+    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 6000, 100, 10, 3, 14),
+    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 1000, 50,  3,  1, 2),
+    ('Jason Kruger',   'jason@example.com',   'jaskrug',       'ZKoWh3LUmuUxFkanuLWZRw==:1Fb77qBPqcSajwiFuwRl7ahZDtEglGEGzR/RDyQkDEU=', 15000, 200, 18, 4, 21);
 
 
 -- USER PROFILES (test data) - fitness assessment results

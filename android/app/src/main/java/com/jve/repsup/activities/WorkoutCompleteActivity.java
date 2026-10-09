@@ -14,13 +14,12 @@ import com.jve.repsup.dialogs.LevelUpDialog;
 import com.jve.repsup.dialogs.RankUpDialog;
 import com.jve.repsup.dialogs.StreakMilestoneDialog;
 import com.jve.repsup.models.ExerciseResult;
-import com.jve.repsup.models.Rank;
-import com.jve.repsup.models.User;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.ProgressionManager;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
 import com.jve.repsup.utils.XPCalculator;
@@ -306,59 +305,55 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when user taps Continue. Reads latest user state from DB,
-     * checks for level-up and rank-up, shows dialogs in order, then checks streak.
+     * Called when user taps Continue. Hands the XP change to the shared
+     * {@link ProgressionManager}, which works out the new level, saves it,
+     * awards coins and promotes the rank, then shows the Level Up / Rank Up
+     * dialogs it reports, then checks the streak.
      * Dialog order: Level Up → Rank Up → Streak Milestone → Navigate Home
      */
     private void navigateHome() {
         int userId = sessionManager.getUserId();
         btnContinue.setEnabled(false); // Prevent double-tap
 
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null) {
-                    checkStreakAndNavigate(userId);
-                    return;
-                }
+        ProgressionManager.applyProgression(userId, userRepository,
+                new ProgressionManager.ProgressionCallback() {
+                    @Override
+                    public void onResult(ProgressionManager.ProgressionResult result) {
+                        if (result.leveledUp()) {
+                            runOnUiThread(() -> {
+                                LevelUpDialog dialog = new LevelUpDialog(
+                                        WorkoutCompleteActivity.this, result.getNewLevel());
+                                dialog.setOnDismissListener(d ->
+                                        showRankUpThenStreak(userId, result));
+                                dialog.show();
+                            });
+                        } else {
+                            checkStreakAndNavigate(userId);
+                        }
+                    }
 
-                int currentLevel = user.getCurrentLevel();
-                int totalUserXp = user.getXp();
+                    @Override
+                    public void onError(Exception e) {
+                        checkStreakAndNavigate(userId);
+                    }
+                });
+    }
 
-                // Check for multiple level-ups
-                int newLevel = currentLevel;
-                while (XPCalculator.shouldLevelUp(totalUserXp, newLevel)) {
-                    newLevel++;
-                }
-
-                if (newLevel > currentLevel) {
-                    int finalLevel = newLevel;
-                    int coinsEarned = (finalLevel - currentLevel) * 50;
-
-                    // Update level in DB
-                    userRepository.updateLevel(userId, finalLevel, null);
-                    // Award coins for level up
-                    userRepository.updateCoins(userId, coinsEarned, null);
-
-                    // Show level-up dialog
-                    runOnUiThread(() -> {
-                        LevelUpDialog dialog = new LevelUpDialog(WorkoutCompleteActivity.this, finalLevel);
-                        dialog.setOnDismissListener(d -> {
-                            // After level-up dismissed, check rank promotion
-                            checkRankPromotion(userId, finalLevel, () -> checkStreakAndNavigate(userId));
-                        });
-                        dialog.show();
-                    });
-                } else {
-                    checkStreakAndNavigate(userId);
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                checkStreakAndNavigate(userId);
-            }
-        });
+    /**
+     * After the Level Up dialog, shows the Rank Up dialog if the progression
+     * result reported a rank gain, then continues to the streak check.
+     */
+    private void showRankUpThenStreak(int userId, ProgressionManager.ProgressionResult result) {
+        if (result.rankedUp() && result.getNewRankName() != null) {
+            runOnUiThread(() -> {
+                RankUpDialog dialog = new RankUpDialog(
+                        WorkoutCompleteActivity.this, result.getNewRankName());
+                dialog.setOnDismissListener(d -> checkStreakAndNavigate(userId));
+                dialog.show();
+            });
+        } else {
+            checkStreakAndNavigate(userId);
+        }
     }
 
     /**
@@ -402,62 +397,6 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         } else {
             proceedToHome();
         }
-    }
-
-    /**
-     * Checks if the user's new level qualifies for a rank promotion.
-     * If a next rank is available, updates the user's rank_id, awards 100 bonus coins,
-     * and shows a RankUpDialog before continuing the flow.
-     *
-     * @param userId   the user's ID
-     * @param newLevel the user's new level after levelling up
-     * @param onComplete callback to run after rank check completes
-     */
-    private void checkRankPromotion(int userId, int newLevel, Runnable onComplete) {
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null) {
-                    onComplete.run();
-                    return;
-                }
-
-                int currentRankId = user.getRankId() != null ? user.getRankId() : 0;
-
-                userRepository.getNextRank(newLevel, currentRankId, new ConnectionManager.DatabaseCallback<Rank>() {
-                    @Override
-                    public void onSuccess(Rank nextRank) {
-                        if (nextRank != null) {
-                            // User qualifies for rank promotion — update rank
-                            userRepository.updateRank(userId, nextRank.getRankId(), null);
-
-                            // Award 100 bonus coins for rank up
-                            userRepository.updateCoins(userId, 100, null);
-
-                            // Show RankUpDialog on the UI thread
-                            runOnUiThread(() -> {
-                                RankUpDialog dialog = new RankUpDialog(
-                                        WorkoutCompleteActivity.this, nextRank.getDisplayName());
-                                dialog.setOnDismissListener(d -> onComplete.run());
-                                dialog.show();
-                            });
-                        } else {
-                            onComplete.run();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        onComplete.run();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                onComplete.run();
-            }
-        });
     }
 
     /**
