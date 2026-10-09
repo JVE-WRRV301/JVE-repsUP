@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
@@ -113,7 +114,7 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
             @Override
             public void onDeleteScheduledWorkout(ScheduledWorkout scheduledWorkout) {
                 if (getContext() == null) return;
-                new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                new MaterialAlertDialogBuilder(getContext())
                         .setTitle(R.string.weekly_plan_delete_title)
                         .setMessage(R.string.weekly_plan_delete_message)
                         .setPositiveButton(R.string.workout_action_delete, (dialog, which) -> {

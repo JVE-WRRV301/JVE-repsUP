@@ -22,6 +22,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
@@ -905,7 +906,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         // An avatar must be wearing at least a top and a bottom - no shirtless or
         // pantless avatars allowed.
         if (!localEquipped.containsKey("top") || !localEquipped.containsKey("bottom")) {
-            new androidx.appcompat.app.AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.locker_invalid_outfit_title)
                     .setMessage(R.string.locker_top_bottom_required)
                     .setPositiveButton(R.string.locker_invalid_outfit_ok, (d, w) -> d.dismiss())
@@ -971,7 +972,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             finish();
             return;
         }
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.locker_discard_title)
                 .setMessage(R.string.locker_discard_message)
                 .setPositiveButton(R.string.locker_discard_confirm, (d, w) -> discardAndFinish())

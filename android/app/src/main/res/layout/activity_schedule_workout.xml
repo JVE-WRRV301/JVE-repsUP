@@ -40,11 +40,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="40dp"
-                android:fontFamily="@font/orbitron_bold"
                 android:text="@string/schedule_workout_title"
                 android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                style="@style/Widget.RepsUp.PageTitle" />
 
             <!-- Date Picker Field -->
             <com.google.android.material.textfield.TextInputLayout
@@ -56,6 +54,10 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
                 app:boxStrokeColor="@color/light_blue"
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control"
                 app:hintTextColor="@color/light_blue">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -64,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="false"
-                    android:fontFamily="@font/inter_regular"
+                    android:fontFamily="@font/inter"
                     android:hint="@string/schedule_workout_date_hint"
                     android:inputType="none"
                     android:textColor="@color/white"
@@ -79,7 +81,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/inter_regular"
+                android:fontFamily="@font/inter"
                 android:text="@string/schedule_workout_select_workout"
                 android:textColor="@color/muted"
                 android:textSize="14sp" />
@@ -104,7 +106,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/inter_regular"
+                android:fontFamily="@font/inter"
                 android:text="@string/schedule_workout_repeat_label"
                 android:textColor="@color/muted"
                 android:textSize="14sp" />
@@ -130,7 +132,7 @@
                     android:text="@string/schedule_workout_repeat_never"
                     android:textColor="@color/dark_text"
                     android:textSize="12sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
                 <Button
                     android:id="@+id/btnRepeatWeekly"
@@ -143,7 +145,7 @@
                     android:text="@string/schedule_workout_repeat_weekly"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
             </LinearLayout>
 
@@ -168,7 +170,7 @@
                     android:text="@string/schedule_workout_repeat_biweekly"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
                 <Button
                     android:id="@+id/btnRepeatMonthly"
@@ -181,7 +183,7 @@
                     android:text="@string/schedule_workout_repeat_monthly"
                     android:textColor="@color/white"
                     android:textSize="12sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
             </LinearLayout>
 
@@ -193,7 +195,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/inter_regular"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/red"
                 android:textSize="14sp"
                 android:visibility="gone" />
@@ -214,6 +216,6 @@
         android:text="@string/schedule_workout_save"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

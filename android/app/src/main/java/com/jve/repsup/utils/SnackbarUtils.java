@@ -1,7 +1,9 @@
 package com.jve.repsup.utils;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.StringRes;
@@ -67,12 +69,32 @@ public final class SnackbarUtils {
 
     /**
      * Applies the app's dark theme styling and makes the text easier to read:
-     * surface-coloured background, white text, two lines allowed, and a light-blue
-     * "Dismiss" action so the user can clear it immediately or let it auto-hide.
+     * surface-coloured background, white text, up to three lines, and a
+     * light-blue "Dismiss" action so the user can clear it immediately or let
+     * it auto-hide.
+     *
+     * The background is set with a tint list, not setBackgroundColor, so
+     * Material's rounded Snackbar background (radius_control) is kept instead of
+     * being replaced by a flat rectangle. Side and bottom margins let it float.
      */
     private static void style(Snackbar snackbar) {
         View sbView = snackbar.getView();
-        sbView.setBackgroundColor(ContextCompat.getColor(sbView.getContext(), R.color.dark_grey_surface));
+
+        // Give the Snackbar a rounded (radius_control) background and tint it,
+        // instead of setBackgroundColor which flattens it to a square rectangle.
+        float radius = sbView.getResources().getDimension(R.dimen.radius_control);
+        sbView.setBackground(buildRoundedBackground(sbView, radius));
+        sbView.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(sbView.getContext(), R.color.dark_grey_surface)));
+
+        // Side and bottom margins so the Snackbar floats above the screen edge.
+        if (sbView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) sbView.getLayoutParams();
+            int margin = (int) (16 * sbView.getResources().getDisplayMetrics().density);
+            params.setMargins(margin, margin, margin, margin);
+            sbView.setLayoutParams(params);
+        }
 
         TextView text = sbView.findViewById(com.google.android.material.R.id.snackbar_text);
         if (text != null) {
@@ -83,5 +105,19 @@ public final class SnackbarUtils {
 
         snackbar.setActionTextColor(ContextCompat.getColor(sbView.getContext(), R.color.light_blue));
         snackbar.setAction(R.string.snackbar_dismiss, v -> snackbar.dismiss());
+    }
+
+    /**
+     * Builds a surface-coloured rounded rectangle at the given corner radius,
+     * used so the Snackbar keeps a rounded (radius_control) shape.
+     */
+    private static android.graphics.drawable.GradientDrawable buildRoundedBackground(
+            View sbView, float radius) {
+        android.graphics.drawable.GradientDrawable bg =
+                new android.graphics.drawable.GradientDrawable();
+        bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        bg.setCornerRadius(radius);
+        bg.setColor(ContextCompat.getColor(sbView.getContext(), R.color.dark_grey_surface));
+        return bg;
     }
 }

@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +21,7 @@ import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
@@ -158,8 +158,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     }
 
     private void showNotScheduledError() {
-        Toast.makeText(this, R.string.workout_execution_not_scheduled, Toast.LENGTH_LONG).show();
-        finish();
+        DialogUtils.showErrorThen(this, R.string.workout_execution_not_scheduled, this::finish);
     }
 
     /**
@@ -170,11 +169,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Workout workout) {
                 if (workout == null || workout.getExercises().isEmpty()) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(WorkoutExecutionActivity.this,
-                                R.string.workout_execution_load_error, Toast.LENGTH_LONG).show();
-                        finish();
-                    });
+                    runOnUiThread(() -> DialogUtils.showErrorThen(WorkoutExecutionActivity.this,
+                            R.string.workout_execution_load_error, WorkoutExecutionActivity.this::finish));
                     return;
                 }
 
@@ -184,11 +180,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(WorkoutExecutionActivity.this,
-                            R.string.workout_execution_load_error, Toast.LENGTH_LONG).show();
-                    finish();
-                });
+                runOnUiThread(() -> DialogUtils.showErrorThen(WorkoutExecutionActivity.this,
+                        R.string.workout_execution_load_error, WorkoutExecutionActivity.this::finish));
             }
         });
     }

@@ -141,7 +141,10 @@ public class CalendarDayAdapter extends RecyclerView.Adapter<CalendarDayAdapter.
         if (day == selectedDay) {
             GradientDrawable bg = new GradientDrawable();
             bg.setShape(GradientDrawable.RECTANGLE);
-            bg.setCornerRadius(8f);
+            // radius_card resolved to px, so the highlight matches card corners
+            // instead of the old 8-pixel (not dp) value.
+            bg.setCornerRadius(holder.itemView.getResources()
+                    .getDimension(R.dimen.radius_card));
             bg.setStroke(2, ContextCompat.getColor(holder.itemView.getContext(), R.color.light_blue));
             holder.llDayCell.setBackground(bg);
         } else {

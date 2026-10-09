@@ -43,7 +43,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule2"
@@ -55,7 +55,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule3"
@@ -67,7 +67,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule4"
@@ -79,7 +79,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule5"
@@ -91,7 +91,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule6"
@@ -103,7 +103,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
         <Button
             android:id="@+id/btnSchedule7"
@@ -115,7 +115,7 @@
             android:textColor="@color/white"
             android:fontFamily="@font/inter"
             android:textSize="16sp"
-            app:cornerRadius="28dp" />
+            app:cornerRadius="@dimen/radius_control" />
 
     </LinearLayout>
 

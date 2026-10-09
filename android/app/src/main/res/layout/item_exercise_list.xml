@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:background="@color/dark_grey_surface"
+    android:background="@drawable/bg_card_dark"
     android:padding="12dp">
 
     <!-- Exercise image -->

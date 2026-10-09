@@ -3,11 +3,21 @@
 
     <!-- ==================== BUTTONS ==================== -->
 
+    <!--
+        Default Material button style, wired into Theme.RepsUp as
+        materialButtonStyle. Every <Button>/<MaterialButton> without its own
+        cornerRadius picks up radius_control automatically.
+    -->
+    <style name="Widget.RepsUp.MaterialButton" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">@dimen/radius_control</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <!-- Base button: rounded light-blue, dark text -->
     <style name="Widget.RepsUp.Button" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@color/light_blue</item>
         <item name="android:textColor">@color/dark_grey</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textAllCaps">false</item>
     </style>
@@ -16,7 +26,7 @@
     <style name="Widget.RepsUp.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="strokeColor">@color/muted</item>
         <item name="android:textColor">@color/muted</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
@@ -27,7 +37,7 @@
         <item name="android:fontFamily">@font/inter_bold</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
         <item name="android:paddingTop">14dp</item>
         <item name="android:paddingBottom">14dp</item>
         <item name="android:minHeight">52dp</item>
@@ -41,7 +51,7 @@
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
         <item name="android:minHeight">44dp</item>
         <item name="backgroundTint">@color/transparent</item>
     </style>
@@ -62,7 +72,7 @@
         <item name="android:fontFamily">@font/inter_bold</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">24dp</item>
+        <item name="cornerRadius">@dimen/radius_control</item>
         <item name="android:minHeight">52dp</item>
     </style>
 
@@ -71,7 +81,7 @@
     <!-- Base card style: dark surface with rounded corners -->
     <style name="Widget.RepsUp.Card" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/dark_grey_variant</item>
-        <item name="cardCornerRadius">16dp</item>
+        <item name="cardCornerRadius">@dimen/radius_card</item>
         <item name="cardElevation">0dp</item>
         <item name="contentPadding">16dp</item>
     </style>
@@ -97,21 +107,25 @@
     <!-- White card container (used for form sections against dark background) -->
     <style name="Widget.RepsUp.Card.White" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/white</item>
-        <item name="cardCornerRadius">16dp</item>
+        <item name="cardCornerRadius">@dimen/radius_card</item>
         <item name="cardElevation">0dp</item>
         <item name="contentPadding">16dp</item>
     </style>
 
     <!-- ==================== INPUT FIELDS ==================== -->
 
-    <!-- Text input layout (outlined box style) -->
+    <!--
+        Default text-field style, wired into Theme.RepsUp as the
+        TextInputLayout style. Any text field without its own corner radius
+        picks up radius_control automatically.
+    -->
     <style name="Widget.RepsUp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/light_blue</item>
         <item name="boxStrokeWidth">1.5dp</item>
-        <item name="boxCornerRadiusTopStart">12dp</item>
-        <item name="boxCornerRadiusTopEnd">12dp</item>
-        <item name="boxCornerRadiusBottomStart">12dp</item>
-        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_control</item>
         <item name="boxBackgroundColor">@color/dark_grey_surface</item>
         <item name="hintTextColor">@color/light_blue</item>
         <item name="android:textColorHint">@color/muted</item>
@@ -126,6 +140,25 @@
         <item name="android:paddingBottom">16dp</item>
     </style>
 
+    <!--
+        Shared text-field style for Login, Register and Create Goal: transparent
+        box, dark-grey stroke that turns light blue on focus, radius_control
+        corners and a floating light-blue label. Wired into Theme.RepsUp as
+        textInputStyle so every text field matches.
+    -->
+    <style name="Widget.RepsUp.TextField" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="boxStrokeColor">@color/text_field_stroke</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_control</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_control</item>
+        <item name="hintTextColor">@color/light_blue</item>
+        <item name="android:textColorHint">@color/muted</item>
+    </style>
+
     <!-- ==================== TEXT STYLES ==================== -->
 
     <!-- Heading (Orbitron font for branding) -->
@@ -133,6 +166,28 @@
         <item name="android:fontFamily">@font/orbitron_bold</item>
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Page title: one size and one font for every screen title -->
+    <style name="TextAppearance.RepsUp.PageTitle" parent="TextAppearance.RepsUp.Heading">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <!--
+        Widget style for page titles. Applied with style="..." rather than
+        textAppearance so the theme's android:fontFamily (inter) can't override
+        Orbitron on the title.
+    -->
+    <style name="Widget.RepsUp.PageTitle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Page title variant that stays in normal case (greetings, user names) -->
+    <style name="Widget.RepsUp.PageTitle.Personal" parent="Widget.RepsUp.PageTitle">
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <!-- Subheading -->

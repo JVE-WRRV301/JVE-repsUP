@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Stroke colour for Widget.RepsUp.TextField: light blue when the field is
+    focused, dark grey otherwise.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/light_blue" android:state_focused="true" />
+    <item android:color="@color/dark_grey" />
+</selector>

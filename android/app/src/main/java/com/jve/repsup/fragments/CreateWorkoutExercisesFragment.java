@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
@@ -111,7 +113,7 @@ public class CreateWorkoutExercisesFragment extends Fragment {
         etSets.setText(String.valueOf(defaultSets));
         etReps.setText(String.valueOf(defaultReps));
 
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .setPositiveButton(R.string.admin_add_exercise, (d, which) -> {
                     int sets = parseOrDefault(etSets.getText().toString(), defaultSets);

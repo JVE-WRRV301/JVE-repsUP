@@ -7,6 +7,36 @@
     android:background="@color/dark_grey"
     tools:context="com.jve.repsup.fragments.MeFragment">
 
+    <!-- Name + @username title (top-left) -->
+    <LinearLayout
+        android:id="@+id/llMeTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@id/btnSettings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvMeName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.RepsUp.PageTitle.Personal"
+            tools:text="Emma" />
+
+        <TextView
+            android:id="@+id/tvMeUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter"
+            android:textColor="@color/muted"
+            android:textSize="14sp"
+            tools:text="@emma" />
+    </LinearLayout>
+
     <!-- Settings gear icon top-right -->
     <ImageButton
         android:id="@+id/btnSettings"
@@ -34,7 +64,7 @@
         app:layout_constraintBottom_toTopOf="@id/cardGymRank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSettings">
+        app:layout_constraintTop_toBottomOf="@id/llMeTitle">
 
         <!-- Full-body avatar display -->
         <ImageView
@@ -78,11 +108,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:fontFamily="@font/orbitron"
+            android:fontFamily="@font/orbitron_bold"
             android:text="@string/me_gym_rank_title"
             android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="18sp" />
 
         <!-- Rank medal + Level circle row -->
         <LinearLayout
@@ -122,10 +151,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:fontFamily="@font/orbitron"
+                    android:fontFamily="@font/orbitron_bold"
                     android:textColor="@color/burnt_orange"
                     android:textSize="14sp"
-                    android:textStyle="bold"
                     tools:text="BRONZE II" />
             </LinearLayout>
 
@@ -167,10 +195,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/orbitron"
+                        android:fontFamily="@font/orbitron_bold"
                         android:textColor="@color/white"
                         android:textSize="28sp"
-                        android:textStyle="bold"
                         tools:text="10" />
                 </FrameLayout>
 
@@ -180,10 +207,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:fontFamily="@font/orbitron"
+                    android:fontFamily="@font/orbitron_bold"
                     android:textColor="@color/light_blue"
                     android:textSize="14sp"
-                    android:textStyle="bold"
                     tools:text="LEVEL 10" />
 
                 <!-- XP progress text -->

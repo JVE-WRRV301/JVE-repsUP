@@ -37,6 +37,7 @@ import java.util.Locale;
  */
 public class HomeFragment extends Fragment {
 
+    private TextView tvGreeting;
     private LinearLayout llWeekStrip;
     private LinearLayout llTodayContent;
     private TextView tvTodayEmpty;
@@ -117,6 +118,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        tvGreeting = view.findViewById(R.id.tvGreeting);
+        showGreeting();
+
         llWeekStrip = view.findViewById(R.id.llWeekStrip);
 
         // Today card views
@@ -136,6 +140,33 @@ public class HomeFragment extends Fragment {
         tvGoalDescription = view.findViewById(R.id.tvGoalDescription);
 
         btnStart.setOnClickListener(v -> startWorkout());
+    }
+
+    /**
+     * Shows a time-of-day greeting using only the first word of the user's
+     * first name, based on the phone's current time.
+     */
+    private void showGreeting() {
+        String storedName = sessionManager.getName();
+        String firstWord = "";
+        if (storedName != null) {
+            String trimmed = storedName.trim();
+            if (!trimmed.isEmpty()) {
+                firstWord = trimmed.split("\\s+")[0];
+            }
+        }
+
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int greetingResId;
+        if (hour < 12) {
+            greetingResId = R.string.home_greeting_morning;
+        } else if (hour < 18) {
+            greetingResId = R.string.home_greeting_afternoon;
+        } else {
+            greetingResId = R.string.home_greeting_evening;
+        }
+
+        tvGreeting.setText(getString(greetingResId, firstWord));
     }
 
     /**

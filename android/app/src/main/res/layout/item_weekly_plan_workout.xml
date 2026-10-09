@@ -20,10 +20,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/orbitron"
+            android:fontFamily="@font/orbitron_bold"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/ivWorkoutMenu"

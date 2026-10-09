@@ -11,9 +11,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -330,7 +331,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 getString(R.string.calendar_option_create_goal)
         };
 
-        new AlertDialog.Builder(getContext())
+        new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.calendar_add_title)
                 .setItems(options, (dialog, which) -> {
                     switch (which) {

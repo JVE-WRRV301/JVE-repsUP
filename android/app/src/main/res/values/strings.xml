@@ -21,6 +21,7 @@
     <string name="coins_description">Coin balance</string>
 
     <!-- Login -->
+    <string name="login_title">Log in</string>
     <string name="login_welcome_back">Welcome back!</string>
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>
@@ -61,6 +62,9 @@
     <string name="register_login_word">Login</string>
 
     <!-- Home Fragment -->
+    <string name="home_greeting_morning">Good morning, %1$s</string>
+    <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
+    <string name="home_greeting_evening">Good evening, %1$s</string>
     <string name="home_today">TODAY</string>
     <string name="home_next_goal">NEXT GOAL</string>
     <string name="home_start">START</string>
@@ -507,6 +511,7 @@
     <string name="locker_subtab_special">Special</string>
 
     <!-- Me Fragment -->
+    <string name="me_username_format">@%1$s</string>
     <string name="me_locker_description">Open locker</string>
     <string name="me_rank_description">Gym rank</string>
     <string name="me_rank_default">Bronze I</string>

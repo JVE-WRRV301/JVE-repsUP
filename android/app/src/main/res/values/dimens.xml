@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== CORNER RADII ==================== -->
+    <!--
+        The whole app uses exactly two corner radii.
+
+        radius_control – the pill radius for interactive controls:
+            buttons, text fields, chips, toggles and snackbars.
+
+        radius_card – the softer radius for containers:
+            cards, list rows, locker cells and every popup / dialog / menu.
+
+        Pill and circle shapes (dots, avatars, gender circles, skin-colour
+        circles, the coin badge and the level circle) are oval/ring shapes
+        and deliberately keep their own geometry.
+    -->
+    <dimen name="radius_control">28dp</dimen>
+    <dimen name="radius_card">16dp</dimen>
+
+</resources>

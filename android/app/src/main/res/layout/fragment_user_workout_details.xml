@@ -11,11 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:fontFamily="@font/orbitron_bold"
         android:text="@string/create_workout_details_title"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        style="@style/Widget.RepsUp.PageTitle" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -93,6 +91,6 @@
         android:text="@string/create_workout_save"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

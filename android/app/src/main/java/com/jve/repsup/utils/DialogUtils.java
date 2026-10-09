@@ -3,8 +3,8 @@ package com.jve.repsup.utils;
 import android.content.Context;
 
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
 
 /**
@@ -37,10 +37,29 @@ public final class DialogUtils {
      */
     public static void showError(Context context, String message) {
         if (context == null || message == null) return;
-        new AlertDialog.Builder(context)
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.error_dialog_title)
                 .setMessage(message)
                 .setPositiveButton(R.string.error_dialog_ok, null)
+                .show();
+    }
+
+    /**
+     * Shows an error dialog (string resource) and runs the given action once the
+     * dialog is dismissed. Useful for terminal errors where the screen should
+     * close only after the user has seen and acknowledged the message.
+     * Safe to call with a null context (no-op).
+     */
+    public static void showErrorThen(Context context, @StringRes int messageResId,
+                                     Runnable onDismiss) {
+        if (context == null) return;
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.error_dialog_title)
+                .setMessage(messageResId)
+                .setPositiveButton(R.string.error_dialog_ok, null)
+                .setOnDismissListener(d -> {
+                    if (onDismiss != null) onDismiss.run();
+                })
                 .show();
     }
 }

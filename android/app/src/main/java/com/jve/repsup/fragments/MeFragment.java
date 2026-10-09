@@ -42,6 +42,8 @@ public class MeFragment extends Fragment {
 
     private ImageButton btnSettings;
     private ImageButton btnLocker;
+    private TextView tvMeName;
+    private TextView tvMeUsername;
     private ImageView ivAvatar;
     private ImageView ivMedal;
     private TextView tvRankName;
@@ -181,6 +183,8 @@ public class MeFragment extends Fragment {
     private void initViews(View view) {
         btnSettings = view.findViewById(R.id.btnSettings);
         btnLocker = view.findViewById(R.id.btnLocker);
+        tvMeName = view.findViewById(R.id.tvMeName);
+        tvMeUsername = view.findViewById(R.id.tvMeUsername);
         ivAvatar = view.findViewById(R.id.ivAvatar);
         ivMedal = view.findViewById(R.id.ivMedal);
         tvRankName = view.findViewById(R.id.tvRankName);
@@ -230,6 +234,14 @@ public class MeFragment extends Fragment {
      * Computes the correct level from total XP and fixes the DB if stale.
      */
     private void displayUserProfile(User user) {
+        // Title: the user's first name, with @username underneath.
+        if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty()) {
+            tvMeName.setText(user.getFirstName().trim());
+        }
+        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+            tvMeUsername.setText(getString(R.string.me_username_format, user.getUsername().trim()));
+        }
+
         // Display rank name (uppercase for the design style)
         if (user.getRankName() != null && !user.getRankName().isEmpty()) {
             tvRankName.setText(user.getRankName().toUpperCase());

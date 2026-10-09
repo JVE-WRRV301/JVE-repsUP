@@ -1,6 +1,6 @@
 package com.jve.repsup.fragments;
 
-import android.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -353,7 +353,7 @@ public class WorkoutFragment extends Fragment implements
         rvReorder.setAdapter(adapterHolder[0]);
         itemTouchHelper.attachToRecyclerView(rvReorder);
 
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.workout_reorder_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.workout_reorder_save, (dialog, which) -> {
@@ -445,7 +445,7 @@ public class WorkoutFragment extends Fragment implements
 
     @Override
     public void onWorkoutDelete(Workout workout, int position) {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.workout_delete_confirm_title)
                 .setMessage(R.string.workout_delete_confirm_message)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {

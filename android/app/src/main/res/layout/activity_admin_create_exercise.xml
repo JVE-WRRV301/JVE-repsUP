@@ -40,11 +40,9 @@
                 android:id="@+id/tvCreateExerciseTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/orbitron_bold"
                 android:text="@string/admin_create_exercise_title"
                 android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                style="@style/Widget.RepsUp.PageTitle"
                 android:layout_marginBottom="24dp" />
 
             <!-- Exercise Name Label -->
@@ -68,10 +66,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etExerciseName"
@@ -124,7 +122,7 @@
                     android:textColor="@color/white"
                     android:textAllCaps="true"
                     android:textSize="12sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
             </FrameLayout>
 
             <!-- Muscle Group Label -->
@@ -148,10 +146,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <AutoCompleteTextView
                     android:id="@+id/actvMuscleGroup"
@@ -185,10 +183,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <AutoCompleteTextView
                     android:id="@+id/actvDifficulty"
@@ -222,10 +220,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDefaultSets"
@@ -259,10 +257,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDefaultReps"
@@ -296,10 +294,10 @@
                 app:boxBackgroundColor="@color/dark_grey_surface"
                 app:boxStrokeColor="@color/light_blue"
                 app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                app:boxCornerRadiusTopStart="@dimen/radius_control"
+                app:boxCornerRadiusTopEnd="@dimen/radius_control"
+                app:boxCornerRadiusBottomStart="@dimen/radius_control"
+                app:boxCornerRadiusBottomEnd="@dimen/radius_control">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etBaseXp"
@@ -328,6 +326,6 @@
         android:text="@string/btn_save_exercise"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

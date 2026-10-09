@@ -13,6 +13,15 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Greeting title -->
+        <TextView
+            android:id="@+id/tvGreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.RepsUp.PageTitle.Personal"
+            tools:text="Good morning, Emma" />
+
         <!-- Week Strip -->
         <LinearLayout
             android:id="@+id/llWeekStrip"
@@ -230,10 +239,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home_today"
-                android:fontFamily="@font/orbitron"
+                android:fontFamily="@font/orbitron_bold"
                 android:textColor="@color/light_blue"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="12sp" />
 
             <!-- Workout Content (visible when workout exists) -->
             <LinearLayout
@@ -248,10 +256,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:fontFamily="@font/orbitron"
+                    android:fontFamily="@font/orbitron_bold"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvWorkoutDate"
@@ -277,12 +284,11 @@
                     android:layout_height="44dp"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_start_button"
-                    android:fontFamily="@font/orbitron"
+                    android:fontFamily="@font/orbitron_bold"
                     android:gravity="center"
                     android:text="@string/home_start"
                     android:textColor="@color/dark_text"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -318,10 +324,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home_next_goal"
-                android:fontFamily="@font/orbitron"
+                android:fontFamily="@font/orbitron_bold"
                 android:textColor="@color/red"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="12sp" />
 
             <!-- Goal Content (visible when goal exists) -->
             <LinearLayout
@@ -352,10 +357,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:fontFamily="@font/orbitron"
+                        android:fontFamily="@font/orbitron_bold"
                         android:textColor="@color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tvGoalPriority"

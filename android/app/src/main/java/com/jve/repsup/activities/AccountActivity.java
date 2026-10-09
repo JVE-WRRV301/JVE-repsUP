@@ -7,9 +7,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.repositories.UserRepository;
@@ -121,7 +121,7 @@ public class AccountActivity extends AppCompatActivity {
      * Shows an irreversible-action confirmation dialog before deleting the account.
      */
     private void confirmDeleteAccount() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.account_delete_confirm_title)
                 .setMessage(R.string.account_delete_confirm_message)
                 .setPositiveButton(R.string.account_delete, (dialog, which) -> performDeleteAccount())

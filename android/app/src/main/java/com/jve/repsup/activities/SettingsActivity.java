@@ -6,9 +6,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager.DatabaseCallback;
 import com.jve.repsup.models.User;
@@ -139,15 +139,17 @@ public class SettingsActivity extends AppCompatActivity {
      * Updates the measurement toggle UI to highlight the selected option.
      */
     private void updateMeasurementToggleUI() {
+        // Tint the rounded toggle backgrounds instead of calling setBackgroundColor,
+        // which would replace the drawable with a flat (square) colour.
         if (METRIC.equals(currentMeasurementSystem)) {
-            btnMetric.setBackgroundColor(getResources().getColor(R.color.light_blue, null));
+            btnMetric.setBackgroundTintList(getColorStateList(R.color.light_blue));
             btnMetric.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnImperial.setBackgroundColor(getResources().getColor(R.color.dark_grey_variant, null));
+            btnImperial.setBackgroundTintList(getColorStateList(R.color.dark_grey_variant));
             btnImperial.setTextColor(getResources().getColor(R.color.white, null));
         } else {
-            btnImperial.setBackgroundColor(getResources().getColor(R.color.light_blue, null));
+            btnImperial.setBackgroundTintList(getColorStateList(R.color.light_blue));
             btnImperial.setTextColor(getResources().getColor(R.color.dark_text, null));
-            btnMetric.setBackgroundColor(getResources().getColor(R.color.dark_grey_variant, null));
+            btnMetric.setBackgroundTintList(getColorStateList(R.color.dark_grey_variant));
             btnMetric.setTextColor(getResources().getColor(R.color.white, null));
         }
     }
@@ -156,7 +158,7 @@ public class SettingsActivity extends AppCompatActivity {
      * Displays a confirmation dialog before logging out.
      */
     private void showLogoutConfirmation() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.settings_logout_confirm_title)
                 .setMessage(R.string.settings_logout_confirm_message)
                 .setPositiveButton(R.string.settings_logout, (dialog, which) -> performLogout())
