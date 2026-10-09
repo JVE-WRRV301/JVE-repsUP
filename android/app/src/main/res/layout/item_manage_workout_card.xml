@@ -51,7 +51,7 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/admin_workout_menu"
-            android:src="@android:drawable/ic_menu_more"
+            android:src="@drawable/ic_more_vert"
             android:scaleType="centerInside" />
 
     </LinearLayout>

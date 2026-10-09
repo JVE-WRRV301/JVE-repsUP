@@ -198,8 +198,9 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.tvDayName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
         }
 
-        // Rotate arrow based on collapsed state
-        holder.ivDayExpand.setRotation(item.isCollapsed ? 180f : 0f);
+        // Swap the chevron drawable based on collapsed state (no rotation).
+        holder.ivDayExpand.setImageResource(
+                item.isCollapsed ? R.drawable.ic_chevron_down : R.drawable.ic_chevron_up);
 
         holder.itemView.setOnClickListener(v -> {
             boolean currentlyCollapsed = Boolean.TRUE.equals(collapsedDays.get(day.dayIndex));

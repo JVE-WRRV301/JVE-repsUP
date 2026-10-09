@@ -32,7 +32,7 @@
         android:id="@+id/ivDragHandle"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@android:drawable/ic_menu_sort_by_size"
+        android:src="@drawable/ic_drag_handle"
         android:contentDescription="@string/workout_reorder_drag_handle" />
 
 </LinearLayout>

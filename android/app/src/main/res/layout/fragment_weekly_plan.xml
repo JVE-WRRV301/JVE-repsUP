@@ -23,7 +23,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:contentDescription="@string/weekly_plan_prev_week"
-            android:src="@android:drawable/ic_media_previous"
+            android:src="@drawable/ic_chevron_left"
             app:tint="@color/white"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
@@ -43,7 +43,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:contentDescription="@string/weekly_plan_next_week"
-            android:src="@android:drawable/ic_media_next"
+            android:src="@drawable/ic_chevron_right"
             app:tint="@color/white"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
     </LinearLayout>

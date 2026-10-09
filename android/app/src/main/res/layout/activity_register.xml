@@ -17,17 +17,10 @@
     <!-- Back button overlaid on top-left -->
     <ImageButton
         android:id="@+id/btnBack"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        style="@style/Widget.RepsUp.BackButton"
         android:layout_gravity="start|top"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/assessment_back"
-        android:padding="8dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_back"
-        app:tint="@color/white" />
+        android:src="@drawable/ic_back" />
 
     <!-- Bottom section: Form panel with rounded top corners.
          The rounded background lives on the scroll view (clipped to its outline)

@@ -30,6 +30,6 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:contentDescription="@string/weekly_plan_expand_collapse"
-        android:src="@android:drawable/arrow_up_float" />
+        android:src="@drawable/ic_chevron_up" />
 
 </LinearLayout>

@@ -22,12 +22,11 @@
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_revert"
-                android:contentDescription="@string/settings_back"
-                android:tint="@color/white" />
+                style="@style/Widget.RepsUp.BackButton"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="@string/settings_back" />
 
             <TextView
                 android:layout_width="0dp"
@@ -37,7 +36,7 @@
                 android:textColor="@color/white"
                 style="@style/Widget.RepsUp.PageTitle"
                 android:gravity="center"
-                android:layout_marginEnd="40dp" />
+                android:layout_marginEnd="48dp" />
         </LinearLayout>
 
         <!-- USER Section Header -->
@@ -75,12 +74,12 @@
                 android:textSize="16sp"
                 android:fontFamily="@font/inter" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="›"
-                android:textColor="@color/muted"
-                android:textSize="20sp" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_chevron_right"
+                android:tint="@color/muted" />
         </LinearLayout>
 
         <!-- Account Row -->
@@ -107,12 +106,12 @@
                 android:textSize="16sp"
                 android:fontFamily="@font/inter" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="›"
-                android:textColor="@color/muted"
-                android:textSize="20sp" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_chevron_right"
+                android:tint="@color/muted" />
         </LinearLayout>
 
         <!-- APPLICATION Section Header -->
@@ -222,12 +221,12 @@
                 android:fontFamily="@font/inter"
                 android:layout_marginEnd="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="›"
-                android:textColor="@color/muted"
-                android:textSize="20sp" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_chevron_right"
+                android:tint="@color/muted" />
         </LinearLayout>
 
         <!-- Spacer to push logout to bottom -->

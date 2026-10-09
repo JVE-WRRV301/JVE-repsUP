@@ -34,7 +34,7 @@
             android:layout_height="32dp"
             android:contentDescription="@string/calendar_add_action"
             android:src="@drawable/ic_add_circle"
-            app:tint="@color/white" />
+            app:tint="@color/light_blue" />
     </LinearLayout>
 
     <!-- Scrollable content: calendar + tabs + tab content -->
@@ -61,7 +61,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:contentDescription="@string/calendar_prev_month"
-                    android:src="@android:drawable/ic_media_previous"
+                    android:src="@drawable/ic_chevron_left"
                     app:tint="@color/white" />
 
                 <TextView
@@ -80,7 +80,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:contentDescription="@string/calendar_next_month"
-                    android:src="@android:drawable/ic_media_next"
+                    android:src="@drawable/ic_chevron_right"
                     app:tint="@color/white" />
             </LinearLayout>
 

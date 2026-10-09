@@ -34,7 +34,7 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/workout_add_description"
             android:padding="4dp"
-            android:src="@android:drawable/ic_input_add"
+            android:src="@drawable/ic_add_circle"
             app:tint="@color/light_blue" />
 
     </RelativeLayout>
@@ -119,7 +119,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="@string/workout_back_description"
-                    android:src="@android:drawable/ic_menu_revert"
+                    android:src="@drawable/ic_back"
                     app:tint="@color/light_blue" />
 
                 <TextView

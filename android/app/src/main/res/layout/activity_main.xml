@@ -92,7 +92,7 @@
             android:layout_toStartOf="@id/tvStreak"
             android:layout_centerVertical="true"
             android:layout_marginEnd="4dp"
-            android:src="@drawable/ic_fire"
+            android:src="@drawable/ic_streak_fire"
             android:contentDescription="Streak" />
 
     </RelativeLayout>

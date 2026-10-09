@@ -76,6 +76,24 @@
         <item name="android:minHeight">52dp</item>
     </style>
 
+    <!--
+        Shared back-button style used on every screen with a back arrow
+        (Login, Register, Settings, Account, Personal Details, Workout
+        library, etc). 48dp touch target, 8dp padding, matching start/top
+        margin, white tint and a borderless ripple. Pair with
+        android:src="@drawable/ic_back".
+    -->
+    <style name="Widget.RepsUp.BackButton" parent="android:Widget">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginTop">36dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">@color/white</item>
+    </style>
+
     <!-- ==================== CARDS ==================== -->
 
     <!-- Base card style: dark surface with rounded corners -->
