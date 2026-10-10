@@ -70,7 +70,7 @@ CREATE TABLE user (
     rank_id INT,
     current_streak INT NOT NULL DEFAULT 0,
     avatar_id INT,
-    measurment_system VARCHAR(10) DEFAULT 'metric',
+    measurement_system VARCHAR(10) DEFAULT 'metric',
     set_language VARCHAR(10) DEFAULT 'en',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (rank_id) REFERENCES ranks(rank_id) ON DELETE SET NULL
@@ -189,8 +189,29 @@ CREATE TABLE scheduled_workout (
     earned_xp INT DEFAULT 0,
     completed_sets INT DEFAULT 0,
     completed_reps INT DEFAULT 0,
+    series_id INT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (workout_id) REFERENCES workout(workout_id) ON DELETE CASCADE
+);
+
+
+-- EXERCISE LOG: what the user actually did per exercise when completing a workout
+-- (newest row per exercise = the "last weight"; linked rows feed calendar history)
+
+CREATE TABLE exercise_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    scheduled_workout_id INT NULL,
+    sets_completed INT NOT NULL DEFAULT 0,
+    total_reps INT NOT NULL DEFAULT 0,
+    weight_kg DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+    logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_exercise_log_user_exercise (user_id, exercise_id),
+    INDEX idx_exercise_log_scheduled (scheduled_workout_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (exercise_id) REFERENCES exercise(exercise_id) ON DELETE CASCADE,
+    FOREIGN KEY (scheduled_workout_id) REFERENCES scheduled_workout(scheduled_workout_id) ON DELETE SET NULL
 );
 
 
@@ -205,6 +226,7 @@ CREATE TABLE goal (
     goal_priority VARCHAR(20) NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,
     completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 
@@ -214,7 +236,6 @@ CREATE TABLE goal (
 CREATE TABLE xp_log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    amount INT NOT NULL,
     source_type VARCHAR(20) NOT NULL,
     source_id INT NOT NULL,
     xp_earned INT NOT NULL,
@@ -231,21 +252,9 @@ CREATE TABLE coin_transaction (
     user_id INT NOT NULL,
     amount INT NOT NULL,
     cosmetic_id INT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (cosmetic_id) REFERENCES cosmetic_item(cosmetic_id) ON DELETE SET NULL
-);
-
-
--- STREAKS: weekly streak tracking and XP multipliers
-
-CREATE TABLE streak (
-    streak_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    week_st_date DATE NOT NULL,
-    num_workouts_completed INT DEFAULT 0,
-    met_goal BOOLEAN DEFAULT FALSE,
-    multiplier DECIMAL(3,2) DEFAULT 1.00,
-    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 
 
@@ -253,6 +262,7 @@ CREATE TABLE streak (
 
 CREATE INDEX idx_workouts_user ON workout(user_id);
 CREATE INDEX idx_scheduled_user_date ON scheduled_workout(user_id, scheduled_date);
+CREATE INDEX idx_scheduled_series ON scheduled_workout(series_id);
 CREATE INDEX idx_goals_user ON goal(user_id);
 CREATE INDEX idx_xp_logs_user ON xp_log(user_id);
 CREATE INDEX idx_user_cosmetics_user ON user_cosmetic(user_id);

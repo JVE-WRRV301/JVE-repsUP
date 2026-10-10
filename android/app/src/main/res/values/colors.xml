@@ -14,6 +14,13 @@
     <color name="yellow">#FFFAD942</color>
     <color name="burnt_orange">#FFCC6B2C</color>
 
+    <!-- Rank tiers (medal and rank name on the Me tab) -->
+    <color name="rank_bronze">#FFCD7F32</color>
+    <color name="rank_silver">#FFC4CAD3</color>
+    <color name="rank_gold">#FFF5C518</color>
+    <color name="rank_platinum">#FF5FD9C8</color>
+    <color name="rank_diamond">#FF6CB8FF</color>
+
     <!-- Text -->
     <color name="white">#FFFFFFFF</color>
     <color name="muted">#FFB0B0B8</color>

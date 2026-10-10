@@ -69,13 +69,23 @@
         android:layout_height="0dp"
         android:layout_weight="2" />
 
+    <!-- Shown while the XP and streak are being saved -->
+    <ProgressBar
+        android:id="@+id/pbSaving"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="12dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/light_blue" />
+
     <!-- Continue Button -->
     <Button
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_button_primary"
+        android:background="@drawable/bg_button_rounded"
         android:fontFamily="@font/inter"
         android:text="@string/workout_complete_continue"
         android:textColor="@color/dark_text"

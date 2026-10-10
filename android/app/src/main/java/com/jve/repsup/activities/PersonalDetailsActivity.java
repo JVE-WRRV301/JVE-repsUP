@@ -35,6 +35,7 @@ public class PersonalDetailsActivity extends AppCompatActivity {
     private Button btnSave;
 
     private String originalUsername;
+    private String originalEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +80,7 @@ public class PersonalDetailsActivity extends AppCompatActivity {
                     etEmail.setText(user.getEmail());
                     etUsername.setText(user.getUsername());
                     originalUsername = user.getUsername();
+                    originalEmail = user.getEmail();
                 });
             }
 
@@ -91,8 +93,8 @@ public class PersonalDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Validates input and saves the updated details, checking username uniqueness
-     * only when the username has actually changed.
+     * Validates input and saves the updated details. Username and email uniqueness are
+     * only checked when that value has actually changed.
      */
     private void onSave() {
         String name = etName.getText().toString().trim();
@@ -111,9 +113,9 @@ public class PersonalDetailsActivity extends AppCompatActivity {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
-        // If username unchanged, skip the uniqueness check and save directly.
+        // If username unchanged, skip its uniqueness check and go on to the email check.
         if (username.equalsIgnoreCase(originalUsername)) {
-            persistDetails(userId, name, email, username);
+            checkEmailThenPersist(userId, name, email, username);
             return;
         }
 
@@ -123,6 +125,36 @@ public class PersonalDetailsActivity extends AppCompatActivity {
                 if (Boolean.TRUE.equals(taken)) {
                     runOnUiThread(() -> SnackbarUtils.show(PersonalDetailsActivity.this,
                             R.string.personal_details_username_taken));
+                } else {
+                    checkEmailThenPersist(userId, name, email, username);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> DialogUtils.showError(PersonalDetailsActivity.this,
+                        R.string.personal_details_save_error));
+            }
+        });
+    }
+
+    /**
+     * Saves straight away when the email is unchanged; otherwise first checks that no
+     * other account uses it, so the user gets a specific message instead of a
+     * generic save error.
+     */
+    private void checkEmailThenPersist(int userId, String name, String email, String username) {
+        if (email.equalsIgnoreCase(originalEmail)) {
+            persistDetails(userId, name, email, username);
+            return;
+        }
+
+        userRepository.isEmailTaken(email, new DatabaseCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean taken) {
+                if (Boolean.TRUE.equals(taken)) {
+                    runOnUiThread(() -> SnackbarUtils.show(PersonalDetailsActivity.this,
+                            R.string.personal_details_email_taken));
                 } else {
                     persistDetails(userId, name, email, username);
                 }

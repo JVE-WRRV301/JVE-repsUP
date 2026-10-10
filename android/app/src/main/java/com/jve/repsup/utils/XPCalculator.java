@@ -139,6 +139,6 @@ public class XPCalculator {
         userRepository.updateXp(userId, xpEarned, null);
 
         // Insert an XP_Log record to track this earning
-        userRepository.insertXpLog(userId, xpEarned, sourceType, sourceId, xpEarned, 0, null);
+        userRepository.insertXpLog(userId, sourceType, sourceId, xpEarned, 0, null);
     }
 }

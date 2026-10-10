@@ -11,6 +11,16 @@ import java.util.List;
  */
 public class GoalRepository {
 
+    // Goal XP rules: a goal must be at least this old before it can be completed,
+    // and a user can complete at most this many goals in one day.
+    public static final int MIN_GOAL_AGE_HOURS = 24;
+    public static final int MAX_GOALS_PER_DAY = 3;
+
+    // Results of checkCanComplete
+    public static final int COMPLETE_OK = 0;
+    public static final int COMPLETE_TOO_NEW = 1;
+    public static final int COMPLETE_DAILY_LIMIT = 2;
+
     /**
      * Retrieves all goals for a user, ordered by deadline ascending.
      */
@@ -89,13 +99,41 @@ public class GoalRepository {
     }
 
     /**
-     * Marks a goal as completed by setting is_completed=1 and completed_at=NOW().
-     * Returns the number of affected rows.
+     * Checks the goal XP rules before a goal is completed. Returns COMPLETE_OK,
+     * COMPLETE_TOO_NEW (goal is under 24 hours old) or COMPLETE_DAILY_LIMIT (the
+     * user already completed 3 goals today). Both checks use the database clock,
+     * the same one that stamps created_at and completed_at.
      */
-    public void completeGoal(int goalId, ConnectionManager.DatabaseCallback<Integer> callback) {
-        String sql = "UPDATE goal SET is_completed = 1, completed_at = NOW() WHERE goal_id = ?";
+    public void checkCanComplete(int userId, int goalId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "SELECT " +
+                "(SELECT COUNT(*) FROM goal WHERE goal_id = ? AND user_id = ? " +
+                "AND created_at <= DATE_SUB(NOW(), INTERVAL " + MIN_GOAL_AGE_HOURS + " HOUR)) AS old_enough, " +
+                "(SELECT COUNT(*) FROM goal WHERE user_id = ? AND is_completed = 1 " +
+                "AND completed_at >= CURDATE()) AS done_today";
 
-        ConnectionManager.executeUpdate(sql, new Object[]{goalId}, callback);
+        ConnectionManager.querySingle(sql, new Object[]{goalId, userId, userId}, rs -> {
+            if (rs.getInt("old_enough") == 0) {
+                return COMPLETE_TOO_NEW;
+            }
+            if (rs.getInt("done_today") >= MAX_GOALS_PER_DAY) {
+                return COMPLETE_DAILY_LIMIT;
+            }
+            return COMPLETE_OK;
+        }, callback);
+    }
+
+    /**
+     * Marks a goal as completed by setting is_completed=1 and completed_at=NOW().
+     * Only changes a goal that belongs to the user, is not already completed and
+     * is at least 24 hours old, so a double tap can't award the XP twice.
+     * Returns the number of affected rows (0 if the goal could not be completed).
+     */
+    public void completeGoal(int userId, int goalId, ConnectionManager.DatabaseCallback<Integer> callback) {
+        String sql = "UPDATE goal SET is_completed = 1, completed_at = NOW() " +
+                "WHERE goal_id = ? AND user_id = ? AND is_completed = 0 " +
+                "AND created_at <= DATE_SUB(NOW(), INTERVAL " + MIN_GOAL_AGE_HOURS + " HOUR)";
+
+        ConnectionManager.executeUpdate(sql, new Object[]{goalId, userId}, callback);
     }
 
     /**

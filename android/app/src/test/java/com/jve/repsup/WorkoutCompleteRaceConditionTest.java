@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * Counterexample documentation:
  * - 3 exercises with baseXp=10, sets=3 should persist 90 XP but persists 0
- * - 1 exercise with baseXp=50, sets=5, streak=14 (1.5x) should persist 375 XP but persists 0
+ * - 1 exercise with baseXp=50, sets=5, streak=7 (1.5x) should persist 375 XP but persists 0
  * - 8 exercises with varying baseXp and sets should persist calculated total but persists 0
  */
 class WorkoutCompleteRaceConditionTest {
@@ -244,7 +244,7 @@ class WorkoutCompleteRaceConditionTest {
 
     /**
      * Case: High streak with multiplier active.
-     * 1 exercise, baseXp=50, sets=5, streak=14 (multiplier=1.5)
+     * 1 exercise, baseXp=50, sets=5, streak=7 (multiplier=1.5)
      * Expected: persistedXp = 50*5*1.5 = 375 (fixed: persistence inside callback)
      */
     @Example
@@ -252,7 +252,7 @@ class WorkoutCompleteRaceConditionTest {
         List<ExerciseResult> results = new ArrayList<>();
         results.add(new ExerciseResult(1, 50, 5, 50, 100.0));
 
-        WorkoutCompletionSimulator simulator = new WorkoutCompletionSimulator(results, 14);
+        WorkoutCompletionSimulator simulator = new WorkoutCompletionSimulator(results, 7);
         simulator.executeFixedFlow();
 
         // Expected: 50 * 5 * 1.5 = 375

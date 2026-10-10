@@ -1,95 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/dark_grey">
+    android:background="@color/dark_grey"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tvSectionTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/assessment_section_fitness"
-        android:textColor="@color/muted"
-        android:fontFamily="@font/inter"
-        android:textSize="14sp"
-        android:gravity="center" />
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView
-        android:id="@+id/tvQuestion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assessment_goals_question"
-        android:textColor="@color/white"
-        android:fontFamily="@font/orbitron"
-        android:textSize="22sp"
-        android:layout_marginTop="24dp"
-        android:gravity="center" />
+        <TextView
+            android:id="@+id/tvSectionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_section_fitness"
+            android:textColor="@color/muted"
+            android:fontFamily="@font/inter"
+            android:textSize="14sp"
+            android:gravity="center" />
 
-    <TextView
-        android:id="@+id/tvGoalsHint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assessment_goals_hint"
-        android:textColor="@color/muted"
-        android:fontFamily="@font/inter"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:id="@+id/tvQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_goals_question"
+            android:textColor="@color/white"
+            android:fontFamily="@font/orbitron"
+            android:textSize="22sp"
+            android:layout_marginTop="24dp"
+            android:gravity="center" />
 
-    <Button
-        android:id="@+id/btnGoalLoseWeight"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/assessment_goal_lose_weight"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tvGoalsHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assessment_goals_hint"
+            android:textColor="@color/muted"
+            android:fontFamily="@font/inter"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
 
-    <Button
-        android:id="@+id/btnGoalStayConsistent"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/assessment_goal_stay_consistent"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <Button
+            android:id="@+id/btnGoalLoseWeight"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/assessment_goal_lose_weight"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/radius_control"
+            app:iconGravity="start"
+            app:iconPadding="8dp" />
 
-    <Button
-        android:id="@+id/btnGoalBuildMuscle"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/assessment_goal_build_muscle"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <Button
+            android:id="@+id/btnGoalStayConsistent"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/assessment_goal_stay_consistent"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/radius_control"
+            app:iconGravity="start"
+            app:iconPadding="8dp" />
 
-    <Button
-        android:id="@+id/btnGoalGetFitter"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/assessment_goal_get_fitter"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <Button
+            android:id="@+id/btnGoalBuildMuscle"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/assessment_goal_build_muscle"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/radius_control"
+            app:iconGravity="start"
+            app:iconPadding="8dp" />
 
-    <Button
-        android:id="@+id/btnGoalImproveEndurance"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/assessment_goal_improve_endurance"
-        android:backgroundTint="@color/dark_grey_surface"
-        android:textColor="@color/white"
-        android:fontFamily="@font/inter"
-        android:textSize="16sp" />
+        <Button
+            android:id="@+id/btnGoalGetFitter"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/assessment_goal_get_fitter"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/radius_control"
+            app:iconGravity="start"
+            app:iconPadding="8dp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnGoalImproveEndurance"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/assessment_goal_improve_endurance"
+            android:backgroundTint="@color/dark_grey_surface"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter"
+            android:textSize="16sp"
+            app:cornerRadius="@dimen/radius_control"
+            app:iconGravity="start"
+            app:iconPadding="8dp" />
+
+    </LinearLayout>
+
+</ScrollView>

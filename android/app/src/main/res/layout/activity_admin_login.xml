@@ -3,8 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/adminLoginRoot"
     android:background="@color/dark_grey"
     android:padding="32dp">
+
+    <!-- Pushes the title down so it clears the status bar and sits lower on the screen -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
 
     <!-- Admin Login Title -->
     <TextView
@@ -14,11 +23,9 @@
         android:text="@string/admin_login_title"
         android:textColor="@color/white"
         style="@style/Widget.RepsUp.PageTitle"
-        app:layout_constraintBottom_toTopOf="@id/tilAdminUsername"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintTop_toBottomOf="@id/guideTop" />
 
     <!-- Username Field -->
     <com.google.android.material.textfield.TextInputLayout

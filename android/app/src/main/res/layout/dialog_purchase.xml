@@ -11,9 +11,11 @@
     <!-- Item image -->
     <ImageView
         android:id="@+id/img_purchase_item"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:scaleType="centerCrop"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:background="@drawable/bg_placeholder_item"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
         android:contentDescription="@string/purchase_item_description"
         tools:src="@drawable/ic_launcher_foreground" />
 

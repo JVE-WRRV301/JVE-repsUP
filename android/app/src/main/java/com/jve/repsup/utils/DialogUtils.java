@@ -13,7 +13,7 @@ import com.jve.repsup.R;
  * Toasts are shown here as an AlertDialog the user must dismiss, so failures are
  * noticed rather than flashing by.
  *
- * Validation hints and brief success confirmations intentionally remain Toasts.
+ * Validation hints and brief success confirmations are shown as Snackbars (see SnackbarUtils).
  */
 public final class DialogUtils {
 
@@ -29,6 +29,22 @@ public final class DialogUtils {
     public static void showError(Context context, @StringRes int messageResId) {
         if (context == null) return;
         showError(context, context.getString(messageResId));
+    }
+
+    /**
+     * Shows a dialog with its own specific title (instead of the generic error
+     * title) and a string resource message. Used when the user did something the
+     * app won't allow and the title should say what, e.g. "Daily limit reached".
+     * Safe to call with a null context (no-op).
+     */
+    public static void showError(Context context, @StringRes int titleResId,
+                                 @StringRes int messageResId) {
+        if (context == null) return;
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(titleResId)
+                .setMessage(messageResId)
+                .setPositiveButton(R.string.error_dialog_ok, null)
+                .show();
     }
 
     /**

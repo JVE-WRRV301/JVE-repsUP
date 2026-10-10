@@ -39,7 +39,7 @@
 
     </RelativeLayout>
 
-    <!-- TabLayout for Saved / Library -->
+    <!-- TabLayout for Saved / Library / Default -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
@@ -52,97 +52,131 @@
         app:tabTextColor="@color/muted" />
 
     <!-- Content area for Saved tab -->
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/flSavedContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSavedWorkouts"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="16dp" />
-
-        <TextView
-            android:id="@+id/tvSavedEmpty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/inter"
-            android:text="@string/workout_saved_empty"
-            android:textColor="@color/muted"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-    </FrameLayout>
-
-    <!-- Content area for Library tab -->
-    <FrameLayout
-        android:id="@+id/flLibraryContent"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="gone">
+        android:orientation="vertical">
 
-        <!-- Muscle group grid view -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvMuscleGroups"
+        <EditText
+            android:id="@+id/etSavedSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="8dp" />
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_search_field"
+            android:drawablePadding="12dp"
+            android:drawableStart="@drawable/ic_search"
+            android:drawableTint="@color/muted"
+            android:fontFamily="@font/inter"
+            android:hint="@string/workout_search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/muted"
+            android:textSize="14sp" />
 
-        <!-- Exercise list (shown after tapping a muscle group) -->
-        <LinearLayout
-            android:id="@+id/llExerciseListContainer"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Back button to return to muscle group grid -->
-            <LinearLayout
-                android:id="@+id/llLibraryBackRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp">
-
-                <ImageView
-                    android:id="@+id/btnLibraryBack"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="@string/workout_back_description"
-                    android:src="@drawable/ic_back"
-                    app:tint="@color/light_blue" />
-
-                <TextView
-                    android:id="@+id/tvLibraryGroupTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/inter_bold"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvExerciseList"
+                android:id="@+id/rvSavedWorkouts"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:padding="16dp" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/tvSavedEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/inter"
+                android:text="@string/workout_saved_empty"
+                android:textColor="@color/muted"
+                android:textSize="14sp"
+                android:visibility="gone" />
 
-    </FrameLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- Content area for Default tab (admin workouts, view only) -->
+    <LinearLayout
+        android:id="@+id/flDefaultContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/etDefaultSearch"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_search_field"
+            android:drawablePadding="12dp"
+            android:drawableStart="@drawable/ic_search"
+            android:drawableTint="@color/muted"
+            android:fontFamily="@font/inter"
+            android:hint="@string/workout_search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/muted"
+            android:textSize="14sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDefaultWorkouts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="16dp" />
+
+            <TextView
+                android:id="@+id/tvDefaultEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/inter"
+                android:text="@string/workout_default_empty"
+                android:textColor="@color/muted"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- Content area for Library tab: search, a tab per muscle group, exercises -->
+    <com.jve.repsup.views.ExerciseBrowserView
+        android:id="@+id/exerciseBrowser"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone" />
 
 </LinearLayout>

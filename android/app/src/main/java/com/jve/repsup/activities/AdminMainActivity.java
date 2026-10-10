@@ -7,6 +7,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -20,7 +21,10 @@ public class AdminMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetsHelper.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_admin_main);
+        // Keep the title clear of the status bar and the buttons clear of the gesture bar.
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.adminMainRoot));
 
         sessionManager = new SessionManager(this);
 

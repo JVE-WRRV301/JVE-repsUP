@@ -70,7 +70,7 @@ public class AssessmentGoalsFragment extends Fragment {
 
     private void updateAllButtons() {
         for (int i = 0; i < allButtons.length; i++) {
-            SelectableButtonStyler.applySelected(allButtons[i], selected[i]);
+            SelectableButtonStyler.applySelectedWithTick(allButtons[i], selected[i]);
         }
     }
 

@@ -55,6 +55,17 @@
                 android:layout_weight="1"
                 android:fontFamily="@font/inter"
                 android:gravity="center"
+                android:text="@string/create_workout_sets_hint"
+                android:textColor="@color/muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
                 android:text="@string/create_workout_reps_hint"
                 android:textColor="@color/muted"
                 android:textSize="12sp" />
@@ -75,6 +86,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etSets"
+                style="@style/Widget.RepsUp.CompactField"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:importantForAutofill="no"
+                android:inputType="number" />
 
             <EditText
                 android:id="@+id/etReps"

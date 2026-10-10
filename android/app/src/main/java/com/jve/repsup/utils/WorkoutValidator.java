@@ -12,10 +12,10 @@ public class WorkoutValidator {
     public static final int MIN_EXERCISES = 1;
 
     /** Maximum number of exercises allowed in a workout. */
-    public static final int MAX_EXERCISES = 8;
+    public static final int MAX_EXERCISES = 10;
 
     /**
-     * Validates whether the given exercise count falls within the accepted bounds [1..8].
+     * Validates whether the given exercise count falls within the accepted bounds [1..10].
      *
      * @param count the number of exercises
      * @return true if count is between MIN_EXERCISES and MAX_EXERCISES inclusive
@@ -26,7 +26,7 @@ public class WorkoutValidator {
 
     /**
      * Validates whether the given exercise list has a valid size.
-     * A valid list is non-null and contains between 1 and 8 exercises inclusive.
+     * A valid list is non-null and contains between 1 and 10 exercises inclusive.
      *
      * @param exercises the list of exercises to validate
      * @return true if the list is non-null and its size is between MIN_EXERCISES and MAX_EXERCISES

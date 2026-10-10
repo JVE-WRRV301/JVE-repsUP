@@ -13,6 +13,7 @@
          Top spacing comes from the status-bar inset applied to the root at
          runtime, not a fixed 32dp padding. -->
     <LinearLayout
+        android:id="@+id/locker_top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -145,7 +146,7 @@
             app:tabSelectedTextColor="@color/white"
             app:tabIndicatorColor="@color/light_blue"
             app:tabIndicatorHeight="2dp"
-            app:tabMode="scrollable"
+            app:tabMode="fixed"
             app:tabGravity="fill"
             app:tabTextAppearance="@style/LockerSubTabText" />
 

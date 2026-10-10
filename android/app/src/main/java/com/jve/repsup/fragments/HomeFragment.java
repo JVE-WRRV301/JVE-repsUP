@@ -8,14 +8,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.jve.repsup.MainActivity;
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.GoalPriorityStyle;
 import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.database.ConnectionManager;
@@ -45,6 +46,8 @@ public class HomeFragment extends Fragment {
     private TextView tvWorkoutDate;
     private LinearLayout llExerciseList;
     private TextView btnStart;
+    private TextView tvMoreExercises;
+    private TextView tvMoreWorkouts;
 
     private LinearLayout llGoalContent;
     private TextView tvGoalEmpty;
@@ -57,7 +60,21 @@ public class HomeFragment extends Fragment {
     private GoalRepository goalRepository;
     private SessionManager sessionManager;
 
+    // The workout the card is showing (the first unfinished one today).
     private ScheduledWorkout todaysWorkout;
+
+    // How many exercises the card lists before it switches to "+N more".
+    private static final int MAX_EXERCISES_SHOWN = 3;
+
+    // The scheduled workout whose card is showing every exercise ("+N more" tapped), or -1.
+    private int expandedWorkoutId = -1;
+    // What the card is showing now, so a tap on "+N more" / "Show less" can redraw it.
+    private ScheduledWorkout shownWorkout;
+    private int shownOtherWorkouts;
+
+    // True once a load error has been shown and until a load succeeds again, so
+    // a database outage gives one message, not one per card or per tab switch.
+    private boolean loadErrorShown = false;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -91,6 +108,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Hidden tabs refresh in onHiddenChanged when they are shown again.
+        if (isHidden()) {
+            return;
+        }
         refreshData();
     }
 
@@ -130,6 +151,8 @@ public class HomeFragment extends Fragment {
         tvWorkoutDate = view.findViewById(R.id.tvWorkoutDate);
         llExerciseList = view.findViewById(R.id.llExerciseList);
         btnStart = view.findViewById(R.id.btnStart);
+        tvMoreExercises = view.findViewById(R.id.tvMoreExercises);
+        tvMoreWorkouts = view.findViewById(R.id.tvMoreWorkouts);
 
         // Goal card views
         llGoalContent = view.findViewById(R.id.llGoalContent);
@@ -140,6 +163,25 @@ public class HomeFragment extends Fragment {
         tvGoalDescription = view.findViewById(R.id.tvGoalDescription);
 
         btnStart.setOnClickListener(v -> startWorkout());
+        tvMoreWorkouts.setOnClickListener(v -> openCalendarOn(Calendar.getInstance().getTime()));
+    }
+
+    /**
+     * Shows the connection error once. It stays quiet until a load succeeds
+     * again, so the two cards failing together (or the user switching tabs while
+     * the database is down) don't stack up dialogs.
+     */
+    private void showLoadErrorOnce() {
+        if (loadErrorShown) return;
+        loadErrorShown = true;
+        DialogUtils.showError(getContext(), R.string.login_connection_error);
+    }
+
+    /** Opens the Calendar tab on the given day. */
+    private void openCalendarOn(java.util.Date date) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).openCalendarOnDate(date);
+        }
     }
 
     /**
@@ -200,6 +242,15 @@ public class HomeFragment extends Fragment {
                     int dayOfMonth = dayCalendar.get(Calendar.DAY_OF_MONTH);
                     dateView.setText(String.valueOf(dayOfMonth));
 
+                    // Tapping a day opens the Calendar on that day.
+                    java.util.Date dayDate = dayCalendar.getTime();
+                    dayColumn.setClickable(true);
+                    dayColumn.setFocusable(true);
+                    dayColumn.setBackgroundResource(selectableBackground());
+                    dayColumn.setContentDescription(getString(R.string.home_open_day_format,
+                            DateFormats.formatShort(dayDate)));
+                    dayColumn.setOnClickListener(v -> openCalendarOn(dayDate));
+
                     // Highlight today
                     if (i == todayIndex) {
                         labelView.setTextColor(highlightColor);
@@ -213,22 +264,33 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    /** Resource id of the standard tap-ripple background. */
+    private int selectableBackground() {
+        android.util.TypedValue outValue = new android.util.TypedValue();
+        requireContext().getTheme().resolveAttribute(
+                android.R.attr.selectableItemBackground, outValue, true);
+        return outValue.resourceId;
+    }
+
     /**
-     * Loads today's scheduled workout from the database.
+     * Loads today's scheduled workouts from the database.
      */
     private void loadTodaysWorkout() {
         int userId = sessionManager.getUserId();
         if (userId == -1) return;
 
-        scheduleRepository.getTodaysWorkout(userId, new ConnectionManager.DatabaseCallback<ScheduledWorkout>() {
+        scheduleRepository.getTodaysWorkouts(userId, new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
             @Override
-            public void onSuccess(ScheduledWorkout result) {
+            public void onSuccess(List<ScheduledWorkout> result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    todaysWorkout = result;
-                    if (result != null && result.getWorkout() != null) {
-                        showWorkoutCard(result);
+                    if (!isAdded()) return;
+                    loadErrorShown = false;
+                    if (result != null && !result.isEmpty() && result.get(0).getWorkout() != null) {
+                        todaysWorkout = result.get(0);
+                        showWorkoutCard(todaysWorkout, result.size() - 1);
                     } else {
+                        todaysWorkout = null;
                         showRestDayState();
                     }
                 });
@@ -238,18 +300,27 @@ public class HomeFragment extends Fragment {
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    todaysWorkout = null;
                     showRestDayState();
-                    DialogUtils.showError(getContext(), R.string.login_connection_error);
+                    showLoadErrorOnce();
                 });
             }
         });
     }
 
     /**
-     * Displays the workout card with name, date, and exercises.
-     * Shows "Completed" status if the workout has already been finished.
+     * Displays the workout card with name, date, and the first few exercises
+     * (with a "+N more" line for the rest). Shows "Completed" status if the
+     * workout has already been finished. otherWorkouts is how many more workouts
+     * are scheduled today; if there are any, a tappable "+N more workout today"
+     * line opens today in the Calendar.
      */
-    private void showWorkoutCard(ScheduledWorkout scheduledWorkout) {
+    private void showWorkoutCard(ScheduledWorkout scheduledWorkout, int otherWorkouts) {
+        shownWorkout = scheduledWorkout;
+        shownOtherWorkouts = otherWorkouts;
+        boolean expanded = scheduledWorkout.getScheduledWorkoutId() == expandedWorkoutId;
+
         llTodayContent.setVisibility(View.VISIBLE);
         tvTodayEmpty.setVisibility(View.GONE);
 
@@ -270,8 +341,11 @@ public class HomeFragment extends Fragment {
         // Populate exercise list
         llExerciseList.removeAllViews();
         List<WorkoutExercise> exercises = scheduledWorkout.getWorkout().getExercises();
+        int hiddenExercises = 0;
         if (exercises != null) {
-            for (WorkoutExercise we : exercises) {
+            int shown = expanded ? exercises.size() : Math.min(exercises.size(), MAX_EXERCISES_SHOWN);
+            hiddenExercises = exercises.size() - Math.min(exercises.size(), MAX_EXERCISES_SHOWN);
+            for (WorkoutExercise we : exercises.subList(0, shown)) {
                 View exerciseItem = LayoutInflater.from(getContext())
                         .inflate(R.layout.item_exercise_preview, llExerciseList, false);
 
@@ -287,6 +361,30 @@ public class HomeFragment extends Fragment {
 
                 llExerciseList.addView(exerciseItem);
             }
+        }
+
+        if (hiddenExercises > 0) {
+            // Tapping the line shows every exercise; tapping "Show less" folds it back.
+            tvMoreExercises.setText(expanded
+                    ? getString(R.string.workout_show_less)
+                    : getString(R.string.home_more_exercises_format, hiddenExercises));
+            tvMoreExercises.setVisibility(View.VISIBLE);
+            tvMoreExercises.setOnClickListener(v -> {
+                if (shownWorkout == null) return;
+                int id = shownWorkout.getScheduledWorkoutId();
+                expandedWorkoutId = expandedWorkoutId == id ? -1 : id;
+                showWorkoutCard(shownWorkout, shownOtherWorkouts);
+            });
+        } else {
+            tvMoreExercises.setVisibility(View.GONE);
+        }
+
+        if (otherWorkouts > 0) {
+            tvMoreWorkouts.setText(getResources().getQuantityString(
+                    R.plurals.home_more_workouts_today, otherWorkouts, otherWorkouts));
+            tvMoreWorkouts.setVisibility(View.VISIBLE);
+        } else {
+            tvMoreWorkouts.setVisibility(View.GONE);
         }
     }
 
@@ -310,6 +408,8 @@ public class HomeFragment extends Fragment {
             public void onSuccess(Goal result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    loadErrorShown = false;
                     if (result != null) {
                         showGoalCard(result);
                     } else {
@@ -322,8 +422,9 @@ public class HomeFragment extends Fragment {
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     showNoGoalsState();
-                    DialogUtils.showError(getContext(), R.string.login_connection_error);
+                    showLoadErrorOnce();
                 });
             }
         });
@@ -345,7 +446,8 @@ public class HomeFragment extends Fragment {
         String notes = goal.getDescription() != null ? goal.getDescription() : "";
 
         tvGoalTitle.setText(title);
-        tvGoalPriority.setText(goal.getPriority());
+        // Same label and colour as on the Goals list.
+        GoalPriorityStyle.apply(tvGoalPriority, goal.getPriority());
 
         if (!notes.isEmpty()) {
             tvGoalDescription.setText(notes);

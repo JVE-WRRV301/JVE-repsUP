@@ -12,7 +12,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DisplayText;
@@ -21,11 +24,14 @@ import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
+import com.jve.repsup.repositories.ExerciseLogRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.InsetsHelper;
+import com.jve.repsup.utils.ExerciseDemo;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.WeightFormat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -63,6 +69,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     private final Map<Integer, List<SetInput>> enteredSetsByIndex = new HashMap<>();
 
     private ImageButton btnBack;
+    private ImageButton btnQuit;
+    private TextView btnSkipExercise;
 
     /**
      * Snapshot of a single set row's raw input, used to restore the UI when the
@@ -83,6 +91,8 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     private WorkoutRepository workoutRepository;
     private ScheduleRepository scheduleRepository;
     private SessionManager sessionManager;
+    // Last logged weight (kg) per exercise id; used to pre-fill the weight boxes.
+    private final Map<Integer, Double> lastWeights = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,10 +125,33 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         btnAddSet = findViewById(R.id.btnAddSet);
         btnNext = findViewById(R.id.btnNext);
         btnBack = findViewById(R.id.btnBack);
+        btnQuit = findViewById(R.id.btnQuit);
+        btnSkipExercise = findViewById(R.id.btnSkipExercise);
 
         btnAddSet.setOnClickListener(v -> addSetRow());
         btnNext.setOnClickListener(v -> onNextClicked());
         btnBack.setOnClickListener(v -> onBackClicked());
+        btnSkipExercise.setOnClickListener(v -> onSkipClicked());
+
+        // The X button and the phone's Back button both ask before leaving, so one
+        // tap can't throw away the whole workout.
+        btnQuit.setOnClickListener(v -> confirmQuit());
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                confirmQuit();
+            }
+        });
+    }
+
+    /** Asks "Quit workout?" and leaves (losing progress) only if the user confirms. */
+    private void confirmQuit() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.workout_quit_title)
+                .setMessage(R.string.workout_quit_message)
+                .setPositiveButton(R.string.workout_quit_confirm, (dialog, which) -> finish())
+                .setNegativeButton(R.string.workout_quit_stay, null)
+                .show();
     }
 
     /**
@@ -177,7 +210,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
                 }
 
                 exercises = workout.getExercises();
-                runOnUiThread(() -> displayCurrentExercise());
+                loadLastWeightsThenDisplay();
             }
 
             @Override
@@ -186,6 +219,27 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
                         R.string.workout_execution_load_error, WorkoutExecutionActivity.this::finish));
             }
         });
+    }
+
+    /**
+     * Looks up the weights the user last logged, so the weight boxes can start
+     * with them, then shows the first exercise. If the lookup fails the boxes just
+     * start with the workout's target weight.
+     */
+    private void loadLastWeightsThenDisplay() {
+        new ExerciseLogRepository().getLastWeights(sessionManager.getUserId(),
+                new ConnectionManager.DatabaseCallback<Map<Integer, Double>>() {
+                    @Override
+                    public void onSuccess(Map<Integer, Double> weights) {
+                        if (weights != null) lastWeights.putAll(weights);
+                        runOnUiThread(() -> displayCurrentExercise());
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        runOnUiThread(() -> displayCurrentExercise());
+                    }
+                });
     }
 
     /**
@@ -233,8 +287,12 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             if (defaultSets <= 0) {
                 defaultSets = 3; // fallback
             }
+            // Start with the weight last logged for this exercise, if there is one.
+            Double lastWeight = lastWeights.get(workoutExercise.getExerciseId());
+            double startWeight = lastWeight != null && lastWeight > 0
+                    ? lastWeight : workoutExercise.getTargetWeight();
             for (int i = 0; i < defaultSets; i++) {
-                addSetRow(workoutExercise.getReps(), workoutExercise.getTargetWeight());
+                addSetRow(workoutExercise.getReps(), startWeight);
             }
         }
 
@@ -244,30 +302,11 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
     }
 
     /**
-     * Maps an exercise name to its demonstration drawable. Uses keyword
-     * matching so DB names like "Dumbbell Shoulder Press" or
-     * "Dumbbell Lateral Raises" resolve correctly. Falls back to the generic
-     * exercise placeholder when no specific demo exists.
+     * Maps an exercise name to its demonstration drawable (shared with the
+     * exercise detail popup in {@link ExerciseDemo}).
      */
     private int demoDrawableFor(String exerciseName) {
-        if (exerciseName == null) {
-            return R.drawable.ic_exercise_placeholder;
-        }
-
-        String name = exerciseName.toLowerCase();
-
-        if (name.contains("lateral rais")) {
-            // Note: drawable filename has a typo ("lataeral") - kept as-is.
-            return R.drawable.lataeral_raises_avatar;
-        }
-        if (name.contains("shoulder press")) {
-            return R.drawable.shoulder_press_avatar;
-        }
-        if (name.contains("bench press")) {
-            return R.drawable.bench_press_avatar;
-        }
-
-        return R.drawable.ic_exercise_placeholder;
+        return ExerciseDemo.drawableFor(exerciseName);
     }
 
     /**
@@ -298,10 +337,9 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         etWeight.setText(input.weight);
         cbDone.setChecked(input.done);
 
-        cbDone.setOnCheckedChangeListener((buttonView, isChecked) -> updateNextButtonState());
-
+        bindRowControls(setRow);
         llSetRows.addView(setRow);
-        updateNextButtonState();
+        refreshRows();
     }
 
     /**
@@ -325,38 +363,62 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         }
 
         if (defaultWeight > 0) {
-            etWeight.setText(String.valueOf(defaultWeight));
+            etWeight.setText(WeightFormat.plain(defaultWeight));
         }
 
-        // Monitor checkbox changes to update Next button state
+        bindRowControls(setRow);
+        llSetRows.addView(setRow);
+        refreshRows();
+    }
+
+    /** Wires a set row's tick box (updates Next) and remove button. */
+    private void bindRowControls(View setRow) {
+        CheckBox cbDone = setRow.findViewById(R.id.cbDone);
         cbDone.setOnCheckedChangeListener((buttonView, isChecked) -> updateNextButtonState());
 
-        llSetRows.addView(setRow);
+        setRow.findViewById(R.id.btnRemoveSet).setOnClickListener(v -> {
+            // Always keep at least one set.
+            if (llSetRows.getChildCount() > 1) {
+                llSetRows.removeView(setRow);
+                refreshRows();
+            }
+        });
+    }
+
+    /**
+     * Renumbers the set rows, hides the remove button when only one set is
+     * left, and updates the Next button.
+     */
+    private void refreshRows() {
+        int count = llSetRows.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View row = llSetRows.getChildAt(i);
+            ((TextView) row.findViewById(R.id.tvSetNumber)).setText(String.valueOf(i + 1));
+            row.findViewById(R.id.btnRemoveSet)
+                    .setVisibility(count > 1 ? View.VISIBLE : View.INVISIBLE);
+        }
         updateNextButtonState();
     }
 
     /**
-     * Enables the Next button only when all set checkboxes are checked.
+     * Enables the Next button once at least one set is ticked. Sets the user
+     * does not do can stay unticked (or be removed), and earn no XP.
      */
     private void updateNextButtonState() {
-        boolean allChecked = true;
+        boolean anyChecked = false;
         int childCount = llSetRows.getChildCount();
-
-        if (childCount == 0) {
-            allChecked = false;
-        }
 
         for (int i = 0; i < childCount; i++) {
             View row = llSetRows.getChildAt(i);
             CheckBox cbDone = row.findViewById(R.id.cbDone);
-            if (!cbDone.isChecked()) {
-                allChecked = false;
+            if (cbDone.isChecked()) {
+                anyChecked = true;
                 break;
             }
         }
 
         // Same disabled look as the assessment Next button (grey, muted text).
-        SelectableButtonStyler.applyEnabled(btnNext, allChecked);
+        SelectableButtonStyler.applyEnabled(btnNext, anyChecked);
     }
 
     /**
@@ -364,15 +426,60 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
      */
     private void onNextClicked() {
         saveCurrentExerciseResult();
+        goForward();
+    }
 
+    /**
+     * Skips the current exercise: nothing is counted for it (0 XP) and every set
+     * is left unticked in case the user comes back to it.
+     */
+    private void onSkipClicked() {
+        WorkoutExercise workoutExercise = exercises.get(currentExerciseIndex);
+
+        List<SetInput> rawSets = new ArrayList<>();
+        for (int i = 0; i < llSetRows.getChildCount(); i++) {
+            View row = llSetRows.getChildAt(i);
+            EditText etReps = row.findViewById(R.id.etReps);
+            EditText etWeight = row.findViewById(R.id.etWeight);
+            rawSets.add(new SetInput(etReps.getText().toString().trim(),
+                    etWeight.getText().toString().trim(), false));
+        }
+        enteredSetsByIndex.put(currentExerciseIndex, rawSets);
+
+        storeResult(new ExerciseResult(workoutExercise.getExerciseId(),
+                workoutExercise.getExercise().getBaseXp(), 0, 0, 0));
+        goForward();
+    }
+
+    /** Moves to the next exercise, or finishes the workout after the last one. */
+    private void goForward() {
         if (currentExerciseIndex < exercises.size() - 1) {
-            // Move to next exercise
             currentExerciseIndex++;
             displayCurrentExercise();
         } else {
-            // Last exercise completed - navigate to WorkoutCompleteActivity
-            navigateToComplete();
+            finishWorkout();
         }
+    }
+
+    /**
+     * Finishes the workout if at least one set was done. If every exercise was
+     * skipped there is nothing to save, so the user can go back or quit.
+     */
+    private void finishWorkout() {
+        int setsDone = 0;
+        for (ExerciseResult r : exerciseResults) {
+            if (r != null) setsDone += r.getSetsCompleted();
+        }
+        if (setsDone == 0) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.workout_nothing_logged_title)
+                    .setMessage(R.string.workout_nothing_logged_message)
+                    .setPositiveButton(R.string.workout_nothing_logged_back, null)
+                    .setNegativeButton(R.string.workout_nothing_logged_quit, (d, w) -> finish())
+                    .show();
+            return;
+        }
+        navigateToComplete();
     }
 
     /**
@@ -406,6 +513,7 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
         int setsCompleted = 0;
         int totalReps = 0;
         double totalWeight = 0;
+        double maxWeight = 0;
 
         List<SetInput> rawSets = new ArrayList<>();
 
@@ -424,8 +532,6 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
             rawSets.add(new SetInput(repsText, weightText, done));
 
             if (done) {
-                setsCompleted++;
-
                 int reps = 0;
                 double weight = 0;
 
@@ -440,8 +546,13 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
                     } catch (NumberFormatException ignored) {}
                 }
 
-                totalReps += reps;
-                totalWeight += weight;
+                // Only a ticked set with at least 1 rep counts (and earns XP).
+                if (reps > 0) {
+                    setsCompleted++;
+                    totalReps += reps;
+                    totalWeight += weight;
+                    maxWeight = Math.max(maxWeight, weight);
+                }
             }
         }
 
@@ -450,7 +561,11 @@ public class WorkoutExecutionActivity extends AppCompatActivity {
 
         // Store the aggregate result at this exercise's index, overwriting any
         // previous result for the same exercise rather than appending a duplicate.
-        ExerciseResult result = new ExerciseResult(exerciseId, baseXp, setsCompleted, totalReps, totalWeight);
+        storeResult(new ExerciseResult(exerciseId, baseXp, setsCompleted, totalReps, totalWeight, maxWeight));
+    }
+
+    /** Stores the result at the current exercise's index (replacing an earlier one). */
+    private void storeResult(ExerciseResult result) {
         while (exerciseResults.size() <= currentExerciseIndex) {
             exerciseResults.add(null);
         }

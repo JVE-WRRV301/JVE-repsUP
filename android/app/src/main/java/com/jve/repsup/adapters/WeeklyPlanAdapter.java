@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.ExerciseLogText;
+import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.WorkoutExercise;
 
@@ -41,6 +43,13 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private final OnStartClickListener startClickListener;
 
     private Date today;
+
+    // What was logged when each completed workout was done: scheduled workout id, then exercise id.
+    private Map<Integer, Map<Integer, ExerciseResult>> logs = new HashMap<>();
+
+    public void setLogs(Map<Integer, Map<Integer, ExerciseResult>> logs) {
+        this.logs = logs != null ? logs : new HashMap<>();
+    }
 
     /**
      * Listener for the START button tap on today's workout.
@@ -207,6 +216,20 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         });
     }
 
+    /**
+     * The sets text of an exercise row: the plan ("3 sets"), or for a completed
+     * workout what was actually done ("3 sets × 10 reps · 20 kg"). A completed
+     * workout with no logs (finished before logging existed) still shows the plan.
+     */
+    private void setExerciseLine(TextView tvSets, ScheduledWorkout sw, WorkoutExercise we) {
+        Map<Integer, ExerciseResult> done = sw.isCompleted() ? logs.get(sw.getScheduledWorkoutId()) : null;
+        if (done != null) {
+            ExerciseLogText.apply(tvSets, done.get(we.getExerciseId()));
+        } else {
+            tvSets.setText(tvSets.getContext().getString(R.string.home_sets_format, we.getSets()));
+        }
+    }
+
     private void bindWorkoutCard(WorkoutCardViewHolder holder, ListItem item) {
         Context context = holder.itemView.getContext();
         DayData day = item.dayData;
@@ -276,7 +299,7 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 WorkoutExercise we = exercises.get(i);
                 String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
                 tvName.setText(exerciseName);
-                tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                setExerciseLine(tvSets, sw, we);
 
                 // Load exercise image from drawable resources based on exercise name
                 loadExerciseImage(ivImage, exerciseName);
@@ -302,7 +325,7 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         WorkoutExercise we = exercises.get(i);
                         String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
                         tvName.setText(exerciseName);
-                        tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                        setExerciseLine(tvSets, sw, we);
 
                         loadExerciseImage(ivImage, exerciseName);
 

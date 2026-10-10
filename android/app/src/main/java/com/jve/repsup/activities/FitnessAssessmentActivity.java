@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -204,7 +203,7 @@ public class FitnessAssessmentActivity extends AppCompatActivity {
             case 4: setNextEnabled(true); break; // Height always has a value
             case 5: setNextEnabled(assessmentData.getBodyType() != null); break;
             case 6: setNextEnabled(assessmentData.getWorkoutLevel() != null); break;
-            case 7: setNextEnabled(true); break; // Schedule always has a value
+            case 7: setNextEnabled(assessmentData.getWorkoutsPerWeek() > 0); break;
             case 8: setNextEnabled(!assessmentData.getFitnessGoals().isEmpty()); break;
             default: setNextEnabled(true);
         }

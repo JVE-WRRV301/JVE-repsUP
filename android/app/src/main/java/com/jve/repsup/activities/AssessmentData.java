@@ -17,7 +17,8 @@ public class AssessmentData {
     private boolean heightInCm = true;
     private String bodyType;
     private String workoutLevel;
-    private int workoutsPerWeek = 3;
+    // 0 = nothing chosen yet; step 8 needs a selection before Next is enabled.
+    private int workoutsPerWeek = 0;
     private List<String> fitnessGoals = new ArrayList<>();
 
     public String getGender() { return gender; }

@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import android.util.Log;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
@@ -16,7 +17,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +34,7 @@ import com.jve.repsup.models.Avatar;
 import com.jve.repsup.models.CosmeticItem;
 import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.utils.AvatarCompositor;
+import com.jve.repsup.utils.AvatarState;
 import com.jve.repsup.utils.SessionManager;
 
 import java.util.ArrayList;
@@ -42,22 +43,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Avatar customization screen (Locker).
- * Displays avatar preview at top (expandable), coin balance, category tabs (Body, Face, Hair, Clothing),
- * sub-tabs for Face and Clothing, and a grid of placeholder items.
+ * Avatar customisation screen (Locker).
+ * Shows the avatar preview at the top (it can be lowered to fill the screen), the coin
+ * balance, the category tabs (Body, Hair, Clothing), the Clothing sub-tabs and a grid of items.
  *
- * Body tab: skin colour picker row + 6 body type placeholders (all unlocked).
- * Face tab: subtabs (Nose, Eyes, Mouth, Eyebrows) — 9 placeholders each, all unlocked.
- * Hair tab: 9 placeholders, first 3 free, rest locked.
- * Clothing tab: subtabs (Top, Bottom, Shoes, Accessories, Special) — 9 placeholders each,
- *   first 3 free in regular subtabs; all locked in Special with higher prices.
+ * Body tab: skin colour row + one thumbnail per body type, drawn in the current skin tone.
+ * Hair tab: hair styles from the database, plus a colour row for colourable styles.
+ * Clothing tab: sub-tabs Top, Bottom and Shoes, each listing the items from the database.
+ *
+ * Items that cost 0 coins are free to wear. Paid items show their price and open the
+ * purchase dialog. "Placeholder" items are not wearable yet and show "Soon" instead of a price.
+ * Nothing is written to the database until Save is tapped; purchases are the exception
+ * because they spend coins straight away.
  */
 public class CustomizeAvatarActivity extends AppCompatActivity {
 
+    private static final String TAG = "CustomizeAvatarActivity";
+
     private static final String[] CATEGORIES = {"Body", "Hair", "Clothing"};
-    private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes", "Special"};
+    private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes"};
 
     // Skin tones: names stored in Avatar.skin_tone, with a representative swatch each.
     private static final String[] SKIN_TONE_NAMES = {"fair", "tan", "dark"};
@@ -111,7 +119,15 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
     // Avatar preview heights
     private static final int AVATAR_HEIGHT_COLLAPSED = 200; // dp
-    private static final int AVATAR_HEIGHT_EXPANDED = 420; // dp
+    // Fixed pieces of the locker panel (dp), used to work out how tall the avatar can be
+    // when lowered: handle 36, category tabs 44, sub tabs 36, colour row 52 + 12 margin,
+    // grid padding 24 and one row of items 116.
+    private static final int PANEL_HANDLE_DP = 36;
+    private static final int PANEL_CATEGORY_TABS_DP = 44;
+    private static final int PANEL_SUB_TABS_DP = 36;
+    private static final int PANEL_COLOUR_ROW_DP = 64;
+    private static final int PANEL_GRID_PADDING_DP = 24;
+    private static final int PANEL_FIRST_ROW_DP = 116;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,30 +205,64 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     private void toggleExpand() {
         isExpanded = !isExpanded;
 
-        float density = getResources().getDisplayMetrics().density;
-        int startHeight = isExpanded
-                ? (int) (AVATAR_HEIGHT_COLLAPSED * density)
-                : (int) (AVATAR_HEIGHT_EXPANDED * density);
-        int endHeight = isExpanded
-                ? (int) (AVATAR_HEIGHT_EXPANDED * density)
-                : (int) (AVATAR_HEIGHT_COLLAPSED * density);
-
-        ValueAnimator animator = ValueAnimator.ofInt(startHeight, endHeight);
-        animator.setDuration(300);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.addUpdateListener(animation -> {
-            int value = (int) animation.getAnimatedValue();
-            ViewGroup.LayoutParams params = avatarPreviewContainer.getLayoutParams();
-            params.height = value;
-            avatarPreviewContainer.setLayoutParams(params);
-        });
-        animator.start();
+        animateAvatarHeightTo(isExpanded
+                ? computeExpandedAvatarHeight()
+                : dpToPx(AVATAR_HEIGHT_COLLAPSED));
 
         // Rotate the arrow
         imgExpandArrow.animate()
                 .rotation(isExpanded ? 180f : 0f)
                 .setDuration(300)
                 .start();
+    }
+
+    /** Animates the avatar preview from its current height to {@code target} pixels. */
+    private void animateAvatarHeightTo(int target) {
+        int start = avatarPreviewContainer.getLayoutParams().height;
+        if (start == target) {
+            return;
+        }
+        ValueAnimator animator = ValueAnimator.ofInt(start, target);
+        animator.setDuration(300);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(animation -> {
+            ViewGroup.LayoutParams params = avatarPreviewContainer.getLayoutParams();
+            params.height = (int) animation.getAnimatedValue();
+            avatarPreviewContainer.setLayoutParams(params);
+        });
+        animator.start();
+    }
+
+    /**
+     * Works out how tall the avatar can be when lowered: everything on screen except the
+     * top bar, the arrow, both tab rows, the colour row (when shown) and the first row of
+     * items. Measured at runtime so it suits any screen size.
+     */
+    private int computeExpandedAvatarHeight() {
+        View root = findViewById(R.id.customizeAvatarRoot);
+        View topBar = findViewById(R.id.locker_top_bar);
+        int collapsed = dpToPx(AVATAR_HEIGHT_COLLAPSED);
+        if (root == null || topBar == null || root.getHeight() == 0) {
+            return collapsed;
+        }
+        int fixedDp = PANEL_HANDLE_DP + PANEL_CATEGORY_TABS_DP + PANEL_GRID_PADDING_DP
+                + PANEL_FIRST_ROW_DP;
+        if (tabSubcategories.getVisibility() == View.VISIBLE) {
+            fixedDp += PANEL_SUB_TABS_DP;
+        }
+        if (skinColorScroll.getVisibility() == View.VISIBLE) {
+            fixedDp += PANEL_COLOUR_ROW_DP;
+        }
+        int available = root.getHeight() - root.getPaddingTop() - root.getPaddingBottom()
+                - topBar.getHeight() - dpToPx(fixedDp);
+        return Math.max(collapsed, available);
+    }
+
+    /** Re-fits the lowered avatar when the tab rows above the grid change. */
+    private void refreshExpandedHeight() {
+        if (isExpanded) {
+            animateAvatarHeightTo(computeExpandedAvatarHeight());
+        }
     }
 
     private void setupClickListeners() {
@@ -234,6 +284,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
                 showClothingTab();
                 break;
         }
+        // The tab rows above the grid differ per category, so re-fit the lowered avatar.
+        // Post it so the visibility changes above have been applied first.
+        avatarPreviewContainer.post(this::refreshExpandedHeight);
     }
 
     private void showBodyTab() {
@@ -341,7 +394,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     private void populateClothingTab() {
         String type = currentClothingType();
         if (type == null) {
-            showEmptyGrid();     // e.g. "Special" - no items authored yet
+            showEmptyGrid();     // unknown sub-tab: nothing to list
         } else {
             populateGridForType(type);
         }
@@ -378,15 +431,14 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
     /**
      * Maps the current Clothing subtab label to its Cosmetic_Item.cosmetic_type.
-     * Note the DB uses the SINGULAR "accessory". Returns null for subtabs that
-     * have no cosmetic backing (e.g. "Special").
+     * Note the DB uses the SINGULAR "accessory". Returns null for an unknown subtab.
      */
     private String currentClothingType() {
         switch (currentSubcategory) {
             case "Top":     return "top";
             case "Bottom":  return "bottom";
             case "Shoes":   return "shoes";
-            default:        return null; // "Special" has no items yet
+            default:        return null;
         }
     }
 
@@ -461,6 +513,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         // the user taps Save. Nothing is written to the DB here, so backing out
         // without saving discards the change.
         populateSkinColors(); // refresh selection ring
+        populateBodyPlaceholders(); // body thumbnails follow the skin tone
         updateAvatarPreview();
     }
 
@@ -480,8 +533,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
     }
 
     /**
-     * Builds one Body-tab cell previewing a body type via the avatar_{gender}_{bodytype}
-     * drawable. Tapping it sets the avatar's body_shape.
+     * Builds one Body-tab cell previewing a body type via the base_{gender}_{bodytype}_{tone}
+     * drawable for the current skin tone (grey until a tone is chosen). Tapping it sets
+     * the avatar's body_shape.
      */
     private View createBodyTypeView(String bodyType, boolean selected) {
         View view = LayoutInflater.from(this)
@@ -501,9 +555,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
         lockOverlay.setVisibility(View.GONE);
 
-        // Preview drawable: avatar_{gender}_{bodytype} (the assessment full-body images).
-        int resId = getResources().getIdentifier(
-                "avatar_" + userGender + "_" + bodyType, "drawable", getPackageName());
+        // Preview drawable: the base body for this body type in the current skin tone.
+        int resId = AvatarCompositor.getBaseBodyResource(this, userGender, bodyType,
+                userAvatar != null ? userAvatar.getSkinTone() : null);
         if (resId != 0) {
             imgItem.clearColorFilter();
             imgItem.setImageResource(resId);
@@ -567,7 +621,20 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             showEmptyGrid();
             return;
         }
-        for (CosmeticItem item : items) {
+        // Owned items first, then the rest; each group cheapest to most expensive.
+        List<CosmeticItem> sorted = new ArrayList<>(items);
+        sorted.sort((a, b) -> {
+            boolean ownedA = isOwned(a);
+            boolean ownedB = isOwned(b);
+            if (ownedA != ownedB) {
+                return ownedA ? -1 : 1;
+            }
+            if (a.getCoinCost() != b.getCoinCost()) {
+                return Integer.compare(a.getCoinCost(), b.getCoinCost());
+            }
+            return Integer.compare(a.getCosmeticId(), b.getCosmeticId());
+        });
+        for (CosmeticItem item : sorted) {
             gridItems.addView(createCosmeticItemView(item));
         }
     }
@@ -618,7 +685,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
         // Free items (cost 0) are treated as owned so they can be equipped directly,
         // without a 0-coin "purchase" step. Paid items must be bought first.
-        boolean owned = item.getCoinCost() <= 0 || ownedCosmeticIds.contains(item.getCosmeticId());
+        boolean owned = isOwned(item);
         boolean equipped = isEquipped(item);
 
         if (equipped) {
@@ -681,6 +748,11 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
         }).start();
     }
 
+    /** Free items count as owned; paid items are owned once bought. */
+    private boolean isOwned(CosmeticItem item) {
+        return item.getCoinCost() <= 0 || ownedCosmeticIds.contains(item.getCosmeticId());
+    }
+
     /**
      * True when the given item is the one currently equipped in its type slot.
      */
@@ -717,7 +789,7 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
      */
     private void showPurchaseDialog(CosmeticItem item) {
         PurchaseDialog dialog = PurchaseDialog.newInstance(item, coinBalance,
-                purchasedItem -> onPurchaseConfirmed(purchasedItem));
+                userGender, purchasedItem -> onPurchaseConfirmed(purchasedItem));
         dialog.show(getSupportFragmentManager(), "PurchaseDialog");
     }
 
@@ -742,8 +814,11 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
+                        boolean noCoins = e.getMessage() != null
+                                && e.getMessage().contains("Insufficient");
                         runOnUiThread(() -> DialogUtils.showError(CustomizeAvatarActivity.this,
-                                getString(R.string.locker_save_error)));
+                                getString(noCoins ? R.string.locker_not_enough_coins
+                                                  : R.string.locker_purchase_error)));
                     }
                 });
     }
@@ -793,7 +868,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* grid still renders, all locked */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadOwnedCosmetics: database call failed", e);
+                /* grid still renders, all locked */
+            }
         });
     }
 
@@ -823,7 +901,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* preview shows body only */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadEquippedItems: database call failed", e);
+                /* preview shows body only */
+            }
         });
     }
 
@@ -838,7 +919,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* keep default gender */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadGender: database call failed", e);
+                /* keep default gender */
+            }
         });
     }
 
@@ -894,10 +978,43 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
         // Compositing decodes assets from disk, so do it off the UI thread.
         new Thread(() -> {
-            Bitmap avatarBitmap = AvatarCompositor.composite(
+            Bitmap full = AvatarCompositor.composite(
                     getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
+            // Crop to the figure so it fills the preview with the feet at the bottom edge.
+            android.graphics.Rect box = figureBounds(gender, bodyType, skinTone, hairColour);
+            Bitmap avatarBitmap = Bitmap.createBitmap(full, box.left, box.top,
+                    box.width(), box.height());
             runOnUiThread(() -> imgAvatarPreview.setImageBitmap(avatarBitmap));
         }).start();
+    }
+
+    private String figureBoundsKey;
+    private android.graphics.Rect figureBoundsValue;
+
+    /**
+     * The crop box for the preview. It is worked out from the bare body (no clothes), plus
+     * some room above for hair, so the avatar does not change size as items are swapped.
+     */
+    private synchronized android.graphics.Rect figureBounds(String gender, String bodyType,
+                                                            String skinTone, String hairColour) {
+        String key = gender + "|" + bodyType + "|" + skinTone;
+        if (figureBoundsValue != null && key.equals(figureBoundsKey)) {
+            return figureBoundsValue;
+        }
+        Bitmap bare = AvatarCompositor.composite(getApplicationContext(), gender, bodyType,
+                skinTone, hairColour, new ArrayList<>());
+        android.graphics.Rect r = AvatarCompositor.opaqueBounds(bare);
+        int size = bare.getWidth();
+        int pad = Math.round(size * 0.02f);
+        int hairRoom = Math.round(size * 0.06f);
+        // Keep the box square-ish wide enough for wide outfits (hoodies, jackets).
+        int left = Math.max(0, r.left - Math.round(size * 0.08f));
+        int right = Math.min(size, r.right + Math.round(size * 0.08f));
+        int top = Math.max(0, r.top - hairRoom);
+        int bottom = Math.min(bare.getHeight(), r.bottom + pad);
+        figureBoundsKey = key;
+        figureBoundsValue = new android.graphics.Rect(left, top, right, bottom);
+        return figureBoundsValue;
     }
 
     // ==================== SAVE / DISCARD ====================
@@ -914,52 +1031,64 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             return;
         }
 
+        // Stop a second tap while saving; re-enabled below if the save fails.
+        btnSave.setEnabled(false);
+
         // Persist the avatar body attributes (skin tone, body shape, hair colour)
         // together with the outfit. These were held locally until now so that
-        // backing out without saving discards them.
+        // backing out without saving discards them. "Outfit saved!" is only shown
+        // once every one of these writes has finished without an error.
         final String skinTone = userAvatar != null ? userAvatar.getSkinTone() : null;
         final String bodyShape = userAvatar != null ? userAvatar.getBodyShape() : null;
         final String hairColour = userAvatar != null ? userAvatar.getHairColour() : null;
 
-        if (skinTone != null) {
-            cosmeticRepository.updateSkinTone(userId, skinTone, noOpCallback());
-        }
-        if (bodyShape != null) {
-            cosmeticRepository.updateBodyShape(userId, bodyShape, noOpCallback());
-        }
-        if (hairColour != null) {
-            cosmeticRepository.updateHairColour(userId, hairColour, noOpCallback());
-        }
-
-        List<CosmeticItem> equippedList = new ArrayList<>(localEquipped.values());
-        cosmeticRepository.saveAllEquipped(userId, equippedList, new DatabaseCallback<Integer>() {
+        int writes = 1 + (skinTone != null ? 1 : 0) + (bodyShape != null ? 1 : 0)
+                + (hairColour != null ? 1 : 0);
+        final AtomicInteger pending = new AtomicInteger(writes);
+        final AtomicBoolean failed = new AtomicBoolean(false);
+        final DatabaseCallback<Integer> step = new DatabaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
-                hasUnsavedChanges = false;
-                runOnUiThread(() -> {
-                    SnackbarUtils.show(CustomizeAvatarActivity.this, getString(R.string.locker_outfit_saved));
-                    findViewById(android.R.id.content).postDelayed(() -> finish(), 1500);
-                });
+                stepDone();
             }
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() ->
-                        DialogUtils.showError(CustomizeAvatarActivity.this,
-                                getString(R.string.locker_save_error)));
+                failed.set(true);
+                stepDone();
             }
-        });
+
+            private void stepDone() {
+                if (pending.decrementAndGet() == 0) {
+                    runOnUiThread(() -> finishSave(!failed.get()));
+                }
+            }
+        };
+
+        if (skinTone != null) {
+            cosmeticRepository.updateSkinTone(userId, skinTone, step);
+        }
+        if (bodyShape != null) {
+            cosmeticRepository.updateBodyShape(userId, bodyShape, step);
+        }
+        if (hairColour != null) {
+            cosmeticRepository.updateHairColour(userId, hairColour, step);
+        }
+        cosmeticRepository.saveAllEquipped(userId, new ArrayList<>(localEquipped.values()), step);
     }
 
-    /** A no-op DB callback for best-effort avatar-attribute writes during save. */
-    private DatabaseCallback<Integer> noOpCallback() {
-        return new DatabaseCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer result) { /* no-op */ }
-
-            @Override
-            public void onError(Exception e) { /* best-effort */ }
-        };
+    /** Runs on the UI thread once every save write has finished. */
+    private void finishSave(boolean ok) {
+        // Even a partial save may have changed the avatar, so let the Me tab redraw it.
+        AvatarState.markChanged();
+        if (ok) {
+            hasUnsavedChanges = false;
+            SnackbarUtils.show(this, getString(R.string.locker_outfit_saved));
+            findViewById(android.R.id.content).postDelayed(this::finish, 1500);
+        } else {
+            btnSave.setEnabled(true);
+            DialogUtils.showError(this, getString(R.string.locker_save_error));
+        }
     }
 
     /**

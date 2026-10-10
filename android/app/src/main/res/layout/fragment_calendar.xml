@@ -187,6 +187,26 @@
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:layout_marginTop="8dp" />
+
+                <!-- Goals due on the selected day -->
+                <LinearLayout
+                    android:id="@+id/llDayGoals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- Shown when the selected day has no workouts and no goals -->
+                <TextView
+                    android:id="@+id/tvDayNothing"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:text="@string/calendar_day_nothing_planned"
+                    android:textColor="@color/muted"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Tab layout for My Plan / Goals -->

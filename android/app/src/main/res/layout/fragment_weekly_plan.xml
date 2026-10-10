@@ -48,6 +48,21 @@
             xmlns:app="http://schemas.android.com/apk/res-auto" />
     </LinearLayout>
 
+    <!-- Empty state: sits above the day list, styled like the Goals empty message -->
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/inter"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/weekly_plan_empty"
+        android:textColor="@color/muted"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
     <!-- Weekly plan list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWeeklyPlan"
@@ -58,17 +73,5 @@
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:paddingBottom="16dp" />
-
-    <!-- Empty state -->
-    <TextView
-        android:id="@+id/tvEmptyState"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/weekly_plan_empty"
-        android:textColor="@color/muted"
-        android:textSize="14sp"
-        android:padding="32dp"
-        android:visibility="gone" />
 
 </LinearLayout>

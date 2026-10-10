@@ -313,7 +313,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* leave placeholder image */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadAvatarThumbBody: database call failed", e);
+                /* leave placeholder image */
+            }
         });
     }
 
@@ -402,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onError(Exception e) {
+                                    Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                                     // Log error silently
                                 }
                             });
@@ -410,6 +414,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
+                        Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                         // Log error silently
                     }
                 });
@@ -417,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                 // Log error silently — don't disrupt app launch
             }
         });
@@ -496,5 +502,17 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+    }
+
+    /**
+     * Switches to the Calendar tab and opens it on the given date. Used by the
+     * Home week strip, where tapping a day shows what is planned on it.
+     */
+    public void openCalendarOnDate(java.util.Date date) {
+        if (calendarFragment == null) return;
+        calendarFragment.showDate(date);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        // Fires the normal tab-switch listener, which hides Home and shows Calendar.
+        bottomNav.setSelectedItemId(R.id.nav_calendar);
     }
 }

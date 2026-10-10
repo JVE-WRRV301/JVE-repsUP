@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.repositories.AdminRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
 
 /**
@@ -34,7 +35,10 @@ public class AdminLoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetsHelper.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_admin_login);
+        // Keep the title clear of the status bar and the form clear of the gesture bar.
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.adminLoginRoot));
 
         adminRepository = new AdminRepository();
         sessionManager = new SessionManager(this);
