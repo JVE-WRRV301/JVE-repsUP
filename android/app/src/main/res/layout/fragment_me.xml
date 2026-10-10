@@ -130,6 +130,7 @@
 
                 <!-- Medal icon with border -->
                 <FrameLayout
+                    android:id="@+id/flMedal"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:background="@drawable/bg_rank_medal_border"

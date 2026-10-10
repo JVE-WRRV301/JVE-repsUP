@@ -2,6 +2,8 @@ package com.jve.repsup.fragments;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.MainActivity;
@@ -26,10 +29,12 @@ import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.AvatarCompositor;
+import com.jve.repsup.utils.AvatarState;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * MeFragment displaying the user's full-body avatar, gym rank card with medal icon
@@ -46,6 +51,7 @@ public class MeFragment extends Fragment {
     private TextView tvMeUsername;
     private ImageView ivAvatar;
     private ImageView ivMedal;
+    private View flMedal;
     private TextView tvRankName;
     private TextView tvLevelNumber;
     private TextView tvLevelLabel;
@@ -55,6 +61,12 @@ public class MeFragment extends Fragment {
     private UserRepository userRepository;
     private CosmeticRepository cosmeticRepository;
     private SessionManager sessionManager;
+
+    // The avatar version (see AvatarState) last drawn here and in the top bar.
+    // The avatar is only rebuilt when the locker has changed it since.
+    private int avatarVersionShown = -1;
+    private int avatarVersionRequested = -1;
+    private int avatarThumbVersion;
 
     public MeFragment() {
         // Required empty public constructor
@@ -81,8 +93,9 @@ public class MeFragment extends Fragment {
 
         initViews(view);
         setupClickListeners();
-        loadUserProfile();
-        loadAvatar();
+        // The top bar loads its own picture at start-up, so it is only refreshed
+        // here when the avatar changes after this point. Data is loaded in onResume.
+        avatarThumbVersion = AvatarState.version();
     }
 
     @Override
@@ -107,13 +120,18 @@ public class MeFragment extends Fragment {
 
     private void refreshData() {
         loadUserProfile();
-        // Refresh the avatar so outfit/skin-tone changes made in the locker show here.
-        loadAvatar();
-        // Also refresh the top-bar profile picture: the avatar may have changed in
-        // the locker, and the top bar otherwise renders the face only once per
-        // session. This keeps the profile picture in sync with the avatar.
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).refreshAvatarThumb();
+        int version = AvatarState.version();
+        // Only rebuild the avatar when the locker has changed it since last time.
+        if (avatarVersionShown != version) {
+            avatarVersionRequested = version;
+            loadAvatar();
+        }
+        // Same for the top-bar profile picture.
+        if (avatarThumbVersion != version) {
+            avatarThumbVersion = version;
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).refreshAvatarThumb();
+            }
         }
     }
 
@@ -176,7 +194,10 @@ public class MeFragment extends Fragment {
             Bitmap bmp = AvatarCompositor.composite(
                     requireContext().getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
             if (getActivity() == null || !isAdded()) return;
-            getActivity().runOnUiThread(() -> ivAvatar.setImageBitmap(bmp));
+            getActivity().runOnUiThread(() -> {
+                ivAvatar.setImageBitmap(bmp);
+                avatarVersionShown = avatarVersionRequested;
+            });
         }).start();
     }
 
@@ -187,6 +208,7 @@ public class MeFragment extends Fragment {
         tvMeUsername = view.findViewById(R.id.tvMeUsername);
         ivAvatar = view.findViewById(R.id.ivAvatar);
         ivMedal = view.findViewById(R.id.ivMedal);
+        flMedal = view.findViewById(R.id.flMedal);
         tvRankName = view.findViewById(R.id.tvRankName);
         tvLevelNumber = view.findViewById(R.id.tvLevelNumber);
         tvLevelLabel = view.findViewById(R.id.tvLevelLabel);
@@ -230,6 +252,38 @@ public class MeFragment extends Fragment {
     }
 
     /**
+     * Colours the rank medal, its border and the rank name for the user's tier
+     * (Bronze, Silver, Gold, Platinum or Diamond). The tier is the first word of
+     * the rank name, for example "Silver II".
+     */
+    private void applyRankColour(@Nullable String rankName) {
+        String name = rankName == null ? "" : rankName.trim().toLowerCase(Locale.ROOT);
+        int colourRes = R.color.rank_bronze;
+        if (name.startsWith("silver")) {
+            colourRes = R.color.rank_silver;
+        } else if (name.startsWith("gold")) {
+            colourRes = R.color.rank_gold;
+        } else if (name.startsWith("platinum")) {
+            colourRes = R.color.rank_platinum;
+        } else if (name.startsWith("diamond")) {
+            colourRes = R.color.rank_diamond;
+        }
+        int colour = ContextCompat.getColor(requireContext(), colourRes);
+
+        tvRankName.setTextColor(colour);
+        ivMedal.setColorFilter(colour);
+
+        Drawable border = flMedal.getBackground();
+        if (border != null) {
+            border = border.mutate();
+            if (border instanceof GradientDrawable) {
+                int strokePx = Math.round(2 * getResources().getDisplayMetrics().density);
+                ((GradientDrawable) border).setStroke(strokePx, colour);
+            }
+        }
+    }
+
+    /**
      * Updates the UI with the user's rank and level progress.
      * Computes the correct level from total XP and fixes the DB if stale.
      */
@@ -248,6 +302,7 @@ public class MeFragment extends Fragment {
         } else {
             tvRankName.setText(R.string.me_rank_default);
         }
+        applyRankColour(user.getRankName());
 
         long totalXp = user.getXp();
 

@@ -557,6 +557,7 @@
     <string name="purchase_item_description">Cosmetic item</string>
     <string name="locker_item_purchased">Purchased %s!</string>
     <string name="locker_item_coming_soon">Coming soon!</string>
+    <string name="locker_purchase_error">Couldn\'t complete the purchase. Please try again.</string>
     <string name="locker_top_bottom_required">Your avatar needs to be wearing a top and a bottom before you can save.</string>
     <string name="locker_invalid_outfit_title">Incomplete outfit</string>
     <string name="locker_invalid_outfit_ok">Got it</string>
@@ -578,7 +579,6 @@
     <string name="locker_subtab_bottom">Bottom</string>
     <string name="locker_subtab_shoes">Shoes</string>
     <string name="locker_subtab_accessories">Accessories</string>
-    <string name="locker_subtab_special">Special</string>
 
     <!-- Me Fragment -->
     <string name="me_username_format">@%1$s</string>

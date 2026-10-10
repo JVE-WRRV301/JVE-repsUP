@@ -2,11 +2,9 @@ package com.jve.repsup.dialogs;
 
 import android.app.Dialog;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +19,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.jve.repsup.R;
 import com.jve.repsup.models.CosmeticItem;
+import com.jve.repsup.utils.AvatarCompositor;
 
 /**
  * Dialog for purchasing a locked cosmetic item.
@@ -34,6 +33,7 @@ public class PurchaseDialog extends DialogFragment {
 
     private CosmeticItem item;
     private int userCoinBalance;
+    private String gender = "male";
     private OnPurchaseListener listener;
 
     /**
@@ -48,13 +48,15 @@ public class PurchaseDialog extends DialogFragment {
      *
      * @param item            The cosmetic item to purchase
      * @param userCoinBalance The user's current coin balance
+     * @param gender          "male" or "female", so the right picture of the item is shown
      * @param listener        Callback for purchase confirmation
      */
     public static PurchaseDialog newInstance(CosmeticItem item, int userCoinBalance,
-                                            OnPurchaseListener listener) {
+                                            String gender, OnPurchaseListener listener) {
         PurchaseDialog dialog = new PurchaseDialog();
         dialog.item = item;
         dialog.userCoinBalance = userCoinBalance;
+        dialog.gender = gender;
         dialog.listener = listener;
         return dialog;
     }
@@ -87,18 +89,17 @@ public class PurchaseDialog extends DialogFragment {
         txtName.setText(item.getName());
         txtPrice.setText(String.valueOf(item.getCoinCost()));
 
-        // Load item image from base64 data
-        if (item.getImageData() != null && !item.getImageData().isEmpty()) {
-            try {
-                byte[] decodedBytes = Base64.decode(item.getImageData(), Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                imgItem.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                imgItem.setImageResource(R.drawable.ic_launcher_foreground);
+        // Show the same picture of the item as the locker grid, so the user can see
+        // what they are buying. Decoding reads assets from disk, so do it off the UI thread.
+        imgItem.setImageResource(R.drawable.ic_launcher_foreground);
+        final android.content.Context appContext = requireContext().getApplicationContext();
+        new Thread(() -> {
+            Bitmap bitmap = AvatarCompositor.loadItemThumbnail(appContext, item, gender,
+                    "average", AvatarCompositor.DEFAULT_HAIR_COLOUR);
+            if (bitmap != null && isAdded()) {
+                requireActivity().runOnUiThread(() -> imgItem.setImageBitmap(bitmap));
             }
-        } else {
-            imgItem.setImageResource(R.drawable.ic_launcher_foreground);
-        }
+        }).start();
 
         // Check if user has enough coins
         boolean canAfford = userCoinBalance >= item.getCoinCost();

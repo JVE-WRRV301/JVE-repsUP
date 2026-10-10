@@ -25,6 +25,15 @@ public class AvatarCompositor {
     private static final String TAG = "AvatarCompositor";
     private static final int AVATAR_SIZE = 512; // px
 
+    /** Art key of the default white socks every avatar wears when none are equipped. */
+    private static final String DEFAULT_SOCKS_KEY = "white_socks_default";
+
+    /**
+     * How different a pixel must be from a placeholder's background colour (sum of
+     * the red, green and blue differences) to count as part of the item.
+     */
+    private static final int PLACEHOLDER_BACKGROUND_TOLERANCE = 100;
+
     /**
      * Composites the full avatar into a single Bitmap.
      *
@@ -35,9 +44,12 @@ public class AvatarCompositor {
      * back to the bundled default drawable for that type.
      *
      * Paint order (bottom to top):
-     *   base body → bottom → socks → top → shoes → hair → accessories
+     *   base body → socks → bottom → shoes → top → hair → accessories
      *
      * Socks sit under shoes so a user can wear socks alone, shoes alone, or both.
+     * Shoes are drawn over the bottoms, so tights and trousers sit behind high-top
+     * shoes instead of covering them. Every avatar always wears socks: when none
+     * are equipped the gender's default white socks are drawn.
      *
      * This method does asset decoding (disk I/O) - call it from a background thread.
      *
@@ -65,13 +77,21 @@ public class AvatarCompositor {
         CosmeticItem hair = findByType(equippedItems, "hair");
         CosmeticItem accessories = findByType(equippedItems, "accessory", "accessories");
 
+        // Avatars always wear socks. Older accounts, or an outfit saved without a
+        // socks row, would otherwise show bare feet.
+        if (socks == null) {
+            socks = new CosmeticItem();
+            socks.setType("socks");
+            socks.setImageData(DEFAULT_SOCKS_KEY);
+        }
+
         // Layer order (bottom to top of the stack):
-        //   socks -> shoes -> bottom -> top -> hair -> accessories
-        // Socks sit lowest so shoes cover them; bottoms (esp. long pants) draw
-        // over both socks and shoes so trouser legs correctly overlap the footwear.
+        //   socks -> bottom -> shoes -> top -> hair -> accessories
+        // Socks sit lowest. Shoes are drawn over the bottoms so tights and long
+        // trousers fall behind high-top shoes rather than over them.
         drawClothingLayer(context, canvas, socks, gender, bodyType);
-        drawClothingLayer(context, canvas, shoes, gender, bodyType);
         drawClothingLayer(context, canvas, bottom, gender, bodyType);
+        drawClothingLayer(context, canvas, shoes, gender, bodyType);
         drawClothingLayer(context, canvas, top, gender, bodyType);
         drawHairLayer(context, canvas, hair, gender, hairColour);
         drawClothingLayer(context, canvas, accessories, gender, bodyType);
@@ -490,6 +510,32 @@ public class AvatarCompositor {
     }
 
     /**
+     * Finds the box around the visible (non-transparent) pixels of a bitmap.
+     * Returns the whole bitmap's bounds when nothing is visible.
+     */
+    public static android.graphics.Rect opaqueBounds(Bitmap bmp) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        int[] row = new int[w];
+        int left = w, right = -1, top = h, bottom = -1;
+        for (int y = 0; y < h; y++) {
+            bmp.getPixels(row, 0, w, 0, y, w, 1);
+            for (int x = 0; x < w; x++) {
+                if ((row[x] >>> 24) > 16) {
+                    if (x < left) left = x;
+                    if (x > right) right = x;
+                    if (y < top) top = y;
+                    bottom = y;
+                }
+            }
+        }
+        if (right < 0) {
+            return new android.graphics.Rect(0, 0, w, h);
+        }
+        return new android.graphics.Rect(left, top, right + 1, bottom + 1);
+    }
+
+    /**
      * Loads a locker THUMBNAIL for an item, cropped tightly to the garment so it
      * fills the cell instead of appearing tiny in its natural body position.
      *
@@ -518,10 +564,10 @@ public class AvatarCompositor {
         }
 
         // Placeholder items are non-wearable filler: a single opaque .jpeg per type
-        // (not body-type specific) shown locked in the locker. Load it whole (no
-        // opaque-crop, since the whole image is opaque on a grey background).
+        // (not body-type specific) shown locked in the locker. They have no
+        // transparency, so crop to whatever differs from the grey background.
         if (isPlaceholder(item)) {
-            return loadPlaceholderBitmap(context, item, gender);
+            return loadCroppedPlaceholder(context, item, gender);
         }
 
         boolean isHair = "hair".equalsIgnoreCase(item.getType());
@@ -533,7 +579,7 @@ public class AvatarCompositor {
             // female default bottom: the base body already shows black shorts, so
             // it draws nothing when equipped). For the locker we still want a
             // thumbnail, so fall back to a same-key .jpeg in the placeholder folder.
-            return loadPlaceholderBitmap(context, item, gender);
+            return loadCroppedPlaceholder(context, item, gender);
         }
         Bitmap cropped = cropToOpaqueSquare(raw);
         if (cropped != raw) {
@@ -568,6 +614,95 @@ public class AvatarCompositor {
         String key = item.getImageData().trim();
         return AssetImageLoader.load(context,
                 "assets/" + folderType + "/" + g + "-placeholders/" + key + ".jpeg");
+    }
+
+    /**
+     * Loads a placeholder picture and crops it to the item, so small items such as
+     * shoes (which sit tiny at the bottom of a big grey picture) are zoomed in like
+     * the real items. Returns null when the asset is missing.
+     */
+    private static Bitmap loadCroppedPlaceholder(Context context, CosmeticItem item, String gender) {
+        Bitmap raw = loadPlaceholderBitmap(context, item, gender);
+        if (raw == null) {
+            return null;
+        }
+        Bitmap cropped = cropToBackgroundSquare(raw);
+        if (cropped != raw) {
+            raw.recycle();
+        }
+        return cropped;
+    }
+
+    /**
+     * Crops an opaque picture on a plain background to the square around the item.
+     * The background colour is the average of the four corners; any pixel that
+     * differs from it by more than {@link #PLACEHOLDER_BACKGROUND_TOLERANCE} is part
+     * of the item. The square is padded by about 12% and kept inside the picture.
+     * Returns the original bitmap when nothing differs from the background.
+     */
+    private static Bitmap cropToBackgroundSquare(Bitmap src) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        if (w < 16 || h < 16) {
+            return src;
+        }
+        int[] pixels = new int[w * h];
+        src.getPixels(pixels, 0, w, 0, 0, w, h);
+
+        // Average colour of an 8x8 block in each corner.
+        long sumR = 0, sumG = 0, sumB = 0;
+        int count = 0;
+        int[][] corners = {{0, 0}, {w - 8, 0}, {0, h - 8}, {w - 8, h - 8}};
+        for (int[] c : corners) {
+            for (int y = c[1]; y < c[1] + 8; y++) {
+                for (int x = c[0]; x < c[0] + 8; x++) {
+                    int p = pixels[y * w + x];
+                    sumR += (p >> 16) & 0xFF;
+                    sumG += (p >> 8) & 0xFF;
+                    sumB += p & 0xFF;
+                    count++;
+                }
+            }
+        }
+        int bgR = (int) (sumR / count);
+        int bgG = (int) (sumG / count);
+        int bgB = (int) (sumB / count);
+
+        int minX = w, minY = h, maxX = -1, maxY = -1;
+        for (int y = 0; y < h; y++) {
+            int rowOffset = y * w;
+            for (int x = 0; x < w; x++) {
+                int p = pixels[rowOffset + x];
+                int diff = Math.abs(((p >> 16) & 0xFF) - bgR)
+                        + Math.abs(((p >> 8) & 0xFF) - bgG)
+                        + Math.abs((p & 0xFF) - bgB);
+                if (diff > PLACEHOLDER_BACKGROUND_TOLERANCE) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (maxX < minX || maxY < minY) {
+            return src;
+        }
+
+        int contentW = maxX - minX + 1;
+        int contentH = maxY - minY + 1;
+        int side = Math.max(contentW, contentH);
+        side += Math.round(side * 0.12f) * 2;
+
+        int left = minX + contentW / 2 - side / 2;
+        int top = minY + contentH / 2 - side / 2;
+        if (side > w) side = w;
+        if (side > h) side = h;
+        if (left < 0) left = 0;
+        if (top < 0) top = 0;
+        if (left + side > w) left = w - side;
+        if (top + side > h) top = h - side;
+
+        return Bitmap.createBitmap(src, left, top, side, side);
     }
 
     /**
