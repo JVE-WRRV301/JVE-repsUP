@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_schedule_workout"
+        android:title="@string/workout_menu_schedule" />
+    <item
         android:id="@+id/action_share_workout"
         android:title="@string/workout_menu_share" />
     <item

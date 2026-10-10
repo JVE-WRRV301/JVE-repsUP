@@ -39,7 +39,7 @@
 
     </RelativeLayout>
 
-    <!-- TabLayout for Saved / Library -->
+    <!-- TabLayout for Saved / Library / Default -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
@@ -72,6 +72,34 @@
             android:layout_gravity="center"
             android:fontFamily="@font/inter"
             android:text="@string/workout_saved_empty"
+            android:textColor="@color/muted"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- Content area for Default tab (admin workouts, view only) -->
+    <FrameLayout
+        android:id="@+id/flDefaultContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDefaultWorkouts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/tvDefaultEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter"
+            android:text="@string/workout_default_empty"
             android:textColor="@color/muted"
             android:textSize="14sp"
             android:visibility="gone" />

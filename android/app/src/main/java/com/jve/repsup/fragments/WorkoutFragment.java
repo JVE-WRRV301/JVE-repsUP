@@ -23,6 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
+import com.jve.repsup.activities.ScheduleWorkoutActivity;
+import com.jve.repsup.utils.DisplayText;
+import com.jve.repsup.utils.ExerciseDemo;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.adapters.ExerciseListAdapter;
@@ -39,10 +42,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * WorkoutFragment displaying two sub-tabs: "Saved" (user workouts) and "Library"
- * (all exercises grouped by muscle group). Users can browse saved workout cards
- * (blue border) with exercise previews, or navigate the exercise library by
- * muscle group. The "+" button navigates to the Create User Workout flow.
+ * WorkoutFragment displaying three sub-tabs: "Saved" (user workouts), "Library"
+ * (all exercises grouped by muscle group) and "Default" (the admin workouts, view
+ * and schedule only). Users can browse workout cards (blue border) with exercise
+ * previews, or navigate the exercise library by muscle group. Tapping an exercise
+ * opens a detail popup. The "+" button navigates to the Create User Workout flow.
  */
 public class WorkoutFragment extends Fragment implements
         WorkoutCardAdapter.OnWorkoutActionListener,
@@ -59,8 +63,11 @@ public class WorkoutFragment extends Fragment implements
     private TabLayout tabLayout;
     private FrameLayout flSavedContent;
     private FrameLayout flLibraryContent;
+    private FrameLayout flDefaultContent;
     private RecyclerView rvSavedWorkouts;
     private TextView tvSavedEmpty;
+    private RecyclerView rvDefaultWorkouts;
+    private TextView tvDefaultEmpty;
     private RecyclerView rvMuscleGroups;
     private LinearLayout llExerciseListContainer;
     private RecyclerView rvExerciseList;
@@ -70,6 +77,7 @@ public class WorkoutFragment extends Fragment implements
 
     // Adapters
     private WorkoutCardAdapter workoutCardAdapter;
+    private WorkoutCardAdapter defaultWorkoutAdapter;
     private MuscleGroupAdapter muscleGroupAdapter;
     private ExerciseListAdapter exerciseListAdapter;
 
@@ -109,6 +117,9 @@ public class WorkoutFragment extends Fragment implements
         tabLayout = view.findViewById(R.id.tabLayout);
         flSavedContent = view.findViewById(R.id.flSavedContent);
         flLibraryContent = view.findViewById(R.id.flLibraryContent);
+        flDefaultContent = view.findViewById(R.id.flDefaultContent);
+        rvDefaultWorkouts = view.findViewById(R.id.rvDefaultWorkouts);
+        tvDefaultEmpty = view.findViewById(R.id.tvDefaultEmpty);
         rvSavedWorkouts = view.findViewById(R.id.rvSavedWorkouts);
         tvSavedEmpty = view.findViewById(R.id.tvSavedEmpty);
         rvMuscleGroups = view.findViewById(R.id.rvMuscleGroups);
@@ -125,14 +136,17 @@ public class WorkoutFragment extends Fragment implements
     private void setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.workout_tab_saved));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.workout_tab_library));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.workout_tab_default));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 0) {
                     showSavedTab();
-                } else {
+                } else if (tab.getPosition() == 1) {
                     showLibraryTab();
+                } else {
+                    showDefaultTab();
                 }
             }
 
@@ -151,6 +165,10 @@ public class WorkoutFragment extends Fragment implements
         rvSavedWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
         rvSavedWorkouts.setAdapter(workoutCardAdapter);
 
+        defaultWorkoutAdapter = new WorkoutCardAdapter(this, true);
+        rvDefaultWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvDefaultWorkouts.setAdapter(defaultWorkoutAdapter);
+
         muscleGroupAdapter = new MuscleGroupAdapter(MUSCLE_GROUPS, this);
         rvMuscleGroups.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvMuscleGroups.setAdapter(muscleGroupAdapter);
@@ -163,12 +181,21 @@ public class WorkoutFragment extends Fragment implements
     private void showSavedTab() {
         flSavedContent.setVisibility(View.VISIBLE);
         flLibraryContent.setVisibility(View.GONE);
+        flDefaultContent.setVisibility(View.GONE);
     }
 
     private void showLibraryTab() {
         flSavedContent.setVisibility(View.GONE);
         flLibraryContent.setVisibility(View.VISIBLE);
+        flDefaultContent.setVisibility(View.GONE);
         showMuscleGroupGrid();
+    }
+
+    private void showDefaultTab() {
+        flSavedContent.setVisibility(View.GONE);
+        flLibraryContent.setVisibility(View.GONE);
+        flDefaultContent.setVisibility(View.VISIBLE);
+        loadDefaultWorkouts();
     }
 
     private void showMuscleGroupGrid() {
@@ -214,6 +241,39 @@ public class WorkoutFragment extends Fragment implements
         });
     }
 
+    /**
+     * Loads the admin (default) workouts for the Default tab, so users can see
+     * what is inside them before scheduling.
+     */
+    private void loadDefaultWorkouts() {
+        workoutRepository.getDefaultWorkouts(new ConnectionManager.DatabaseCallback<List<Workout>>() {
+            @Override
+            public void onSuccess(List<Workout> result) {
+                if (getActivity() == null || !isAdded()) return;
+                getActivity().runOnUiThread(() -> {
+                    if (result != null && !result.isEmpty()) {
+                        defaultWorkoutAdapter.setWorkouts(result);
+                        rvDefaultWorkouts.setVisibility(View.VISIBLE);
+                        tvDefaultEmpty.setVisibility(View.GONE);
+                    } else {
+                        rvDefaultWorkouts.setVisibility(View.GONE);
+                        tvDefaultEmpty.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (getActivity() == null || !isAdded()) return;
+                getActivity().runOnUiThread(() -> {
+                    rvDefaultWorkouts.setVisibility(View.GONE);
+                    tvDefaultEmpty.setVisibility(View.VISIBLE);
+                    DialogUtils.showError(getContext(), R.string.workout_load_error);
+                });
+            }
+        });
+    }
+
     private void loadExercisesForGroup(String muscleGroup) {
         workoutRepository.getExercisesByMuscleGroup(muscleGroup, new ConnectionManager.DatabaseCallback<List<Exercise>>() {
             @Override
@@ -245,9 +305,45 @@ public class WorkoutFragment extends Fragment implements
         loadExercisesForGroup(muscleGroup);
     }
 
+    /**
+     * Shows a small detail popup for the tapped exercise: its demo picture (or
+     * the dumbbell placeholder), muscle group, difficulty and default sets x reps.
+     */
     @Override
     public void onExerciseClick(Exercise exercise, int position) {
-        // Exercise detail view — future enhancement
+        if (getContext() == null) return;
+
+        View content = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_exercise_detail, null);
+
+        ImageView ivImage = content.findViewById(R.id.ivDetailImage);
+        ivImage.setImageResource(ExerciseDemo.drawableFor(exercise.getName()));
+        if (!ExerciseDemo.hasDemo(exercise.getName())) {
+            // The placeholder is a small icon, so give it room instead of filling the box.
+            int padding = Math.round(getResources().getDisplayMetrics().density * 48);
+            ivImage.setPadding(padding, padding, padding, padding);
+        }
+
+        ((TextView) content.findViewById(R.id.tvDetailMuscleGroup)).setText(exercise.getMuscleGroup());
+        ((TextView) content.findViewById(R.id.tvDetailDifficulty))
+                .setText(DisplayText.capitalise(exercise.getDifficulty()));
+        ((TextView) content.findViewById(R.id.tvDetailSetsReps)).setText(getString(
+                R.string.exercise_detail_sets_reps_format,
+                exercise.getDefaultSets(), exercise.getDefaultReps()));
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(exercise.getName())
+                .setView(content)
+                .setPositiveButton(R.string.exercise_detail_close, null)
+                .show();
+    }
+
+    /** Opens the Schedule Workout screen with this workout already selected. */
+    @Override
+    public void onWorkoutSchedule(Workout workout, int position) {
+        Intent intent = new Intent(getContext(), ScheduleWorkoutActivity.class);
+        intent.putExtra(ScheduleWorkoutActivity.EXTRA_WORKOUT_ID, workout.getWorkoutId());
+        startActivity(intent);
     }
 
     @Override
@@ -449,7 +545,7 @@ public class WorkoutFragment extends Fragment implements
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.workout_delete_confirm_title)
                 .setMessage(R.string.workout_delete_confirm_message)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                .setPositiveButton(R.string.workout_action_delete, (dialog, which) -> {
                     workoutRepository.deleteWorkout(workout.getWorkoutId(), new ConnectionManager.DatabaseCallback<Integer>() {
                         @Override
                         public void onSuccess(Integer result) {
@@ -473,7 +569,7 @@ public class WorkoutFragment extends Fragment implements
                         }
                     });
                 })
-                .setNegativeButton(android.R.string.cancel, null)
+                .setNegativeButton(R.string.admin_action_cancel, null)
                 .show();
     }
 

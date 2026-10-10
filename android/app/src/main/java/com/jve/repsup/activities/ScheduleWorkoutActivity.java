@@ -35,6 +35,9 @@ import java.util.List;
  */
 public class ScheduleWorkoutActivity extends AppCompatActivity {
 
+    /** Optional: id of a workout to have already selected in the dropdown. */
+    public static final String EXTRA_WORKOUT_ID = "workout_id";
+
     private TextInputEditText etDate;
     private Spinner spnWorkout;
     private Button btnRepeatNever;
@@ -221,6 +224,18 @@ public class ScheduleWorkoutActivity extends AppCompatActivity {
         );
         adapter.setDropDownViewResource(R.layout.item_spinner_workout);
         spnWorkout.setAdapter(adapter);
+
+        // Pre-select the workout the user came from (e.g. the Schedule option
+        // on a saved workout), if it is in the list.
+        int preselectedId = getIntent().getIntExtra(EXTRA_WORKOUT_ID, -1);
+        if (preselectedId != -1) {
+            for (int i = 0; i < workoutList.size(); i++) {
+                if (workoutList.get(i).getWorkoutId() == preselectedId) {
+                    spnWorkout.setSelection(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void updateRepeatButtons() {

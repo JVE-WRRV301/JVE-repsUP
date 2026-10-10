@@ -57,4 +57,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvWorkoutExerciseCount" />
 
+    <!-- "+N more" / "Show less": tap to expand or collapse the exercise list -->
+    <TextView
+        android:id="@+id/tvWorkoutMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:fontFamily="@font/inter"
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/light_blue"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llExercisePreview" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
