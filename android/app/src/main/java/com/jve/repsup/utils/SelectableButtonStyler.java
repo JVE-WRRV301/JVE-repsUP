@@ -5,6 +5,7 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.button.MaterialButton;
 import com.jve.repsup.R;
 
 /**
@@ -27,6 +28,24 @@ public final class SelectableButtonStyler {
     /** Selected / not-selected look for an option button on the page background. */
     public static void applySelected(TextView button, boolean selected) {
         apply(button, selected, R.color.dark_grey_surface);
+    }
+
+    /**
+     * Same as {@link #applySelected}, plus a tick icon on the selected button.
+     * Used for multi-select lists ("Select all that apply") so a selected option
+     * can be told apart from a single-choice one. The button needs
+     * app:iconGravity="start" in its layout.
+     */
+    public static void applySelectedWithTick(TextView button, boolean selected) {
+        applySelected(button, selected);
+        if (button instanceof MaterialButton) {
+            MaterialButton materialButton = (MaterialButton) button;
+            materialButton.setIcon(selected
+                    ? ContextCompat.getDrawable(button.getContext(), R.drawable.ic_check)
+                    : null);
+            materialButton.setIconTint(ColorStateList.valueOf(
+                    ContextCompat.getColor(button.getContext(), R.color.dark_text)));
+        }
     }
 
     /**
