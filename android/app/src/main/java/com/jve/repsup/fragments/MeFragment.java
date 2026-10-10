@@ -101,6 +101,10 @@ public class MeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Hidden tabs refresh in onHiddenChanged when they are shown again.
+        if (isHidden()) {
+            return;
+        }
         refreshData();
     }
 

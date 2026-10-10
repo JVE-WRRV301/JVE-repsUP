@@ -599,7 +599,6 @@
     <string name="settings_personal_details">Personal Details</string>
     <string name="settings_account">Account</string>
     <string name="settings_measurement_system">Measurement System</string>
-    <string name="settings_language">Language</string>
     <string name="settings_metric">Metric</string>
     <string name="settings_imperial">Imperial</string>
     <string name="settings_logout">Log out</string>
@@ -608,7 +607,6 @@
     <string name="settings_measurement_updated">Measurement system updated</string>
     <string name="settings_measurement_error">Failed to update measurement system</string>
     <string name="settings_back">Back</string>
-    <string name="settings_language_english">English</string>
 
     <!-- Personal Details -->
     <string name="personal_details_title">Personal Details</string>
@@ -622,6 +620,7 @@
     <string name="personal_details_empty_error">All fields are required</string>
     <string name="personal_details_email_error">Please enter a valid email address</string>
     <string name="personal_details_username_taken">Username is already taken</string>
+    <string name="personal_details_email_taken">That email is already used by another account</string>
 
     <!-- Error dialog (shared) -->
     <string name="error_dialog_title">Something went wrong</string>

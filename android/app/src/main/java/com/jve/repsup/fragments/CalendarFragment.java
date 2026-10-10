@@ -114,6 +114,10 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     @Override
     public void onResume() {
         super.onResume();
+        // Hidden tabs refresh in onHiddenChanged when they are shown again.
+        if (isHidden()) {
+            return;
+        }
         refreshCalendar();
     }
 

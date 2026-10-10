@@ -20,7 +20,7 @@ import com.jve.repsup.utils.SnackbarUtils;
 
 /**
  * SettingsActivity provides user profile management and app preferences.
- * Sections: User (Personal Details, Account) and Application (Measurement System, Language).
+ * Sections: User (Personal Details, Account) and Application (Measurement System).
  * Supports measurement system toggle and logout.
  *
  * Validates: Requirements 23.1, 23.2, 23.3, 23.4

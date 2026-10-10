@@ -544,6 +544,23 @@ public class WorkoutFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        // Hidden tabs refresh in onHiddenChanged when they are shown again.
+        if (isHidden()) {
+            return;
+        }
         loadSavedWorkouts();
+    }
+
+    /**
+     * Fires when this tab is shown or hidden via the MainActivity hide/show pattern
+     * (the activity never pauses on a tab switch), so workouts saved or deleted
+     * elsewhere appear when the user comes back.
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            loadSavedWorkouts();
+        }
     }
 }
