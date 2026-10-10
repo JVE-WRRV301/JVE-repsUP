@@ -33,6 +33,7 @@ public class UserWorkoutDetailsFragment extends Fragment {
     private ExerciseDetailAdapter adapter;
     private RecyclerView rvExerciseDetails;
     private android.widget.TextView tvNoExercises;
+    private Button btnSave;
 
     public UserWorkoutDetailsFragment() {
         // Required empty public constructor
@@ -56,7 +57,7 @@ public class UserWorkoutDetailsFragment extends Fragment {
         // Keep the exercise list clear of the keyboard when a reps/weight field
         // is focused.
         InsetsHelper.applyImeBottomPadding(rvExerciseDetails);
-        Button btnSave = view.findViewById(R.id.btnSaveWorkout);
+        btnSave = view.findViewById(R.id.btnSaveWorkout);
         Button btnAddExercises = view.findViewById(R.id.btnAddExercises);
 
         CreateWorkoutActivity activity = (CreateWorkoutActivity) getActivity();
@@ -70,12 +71,12 @@ public class UserWorkoutDetailsFragment extends Fragment {
         }
 
         adapter = new ExerciseDetailAdapter(exercises,
-                activity.getDraftReps(), activity.getDraftWeights(),
+                activity.getDraftSets(), activity.getDraftReps(), activity.getDraftWeights(),
                 position -> {
                     // removeAt mutates the shared selectedExercises list plus the
                     // adapter's reps/weight, so re-sync the activity draft afterwards.
                     adapter.removeAt(position);
-                    activity.saveDraft(adapter.getRepsList(), adapter.getWeightList());
+                    activity.saveDraft(adapter.getSetsList(), adapter.getRepsList(), adapter.getWeightList());
                     updateEmptyState();
                 });
 
@@ -85,7 +86,7 @@ public class UserWorkoutDetailsFragment extends Fragment {
 
         btnAddExercises.setOnClickListener(v -> {
             // Save current input so it survives the add-exercises detour.
-            activity.saveDraft(adapter.getRepsList(), adapter.getWeightList());
+            activity.saveDraft(adapter.getSetsList(), adapter.getRepsList(), adapter.getWeightList());
             activity.onAddExercisesRequested();
         });
 
@@ -103,11 +104,17 @@ public class UserWorkoutDetailsFragment extends Fragment {
                 return;
             }
 
-            List<Integer> repsList = adapter.getRepsList();
-            List<Double> weightList = adapter.getWeightList();
-
-            activity.onWorkoutSaved(workoutName, repsList, weightList);
+            // Block a second tap while the save is running. The activity calls
+            // setSaving(false) again if the save fails.
+            setSaving(true);
+            activity.onWorkoutSaved(workoutName, adapter.getSetsList(),
+                    adapter.getRepsList(), adapter.getWeightList());
         });
+    }
+
+    /** Disables Save while a save is running; re-enabled by the activity on failure. */
+    public void setSaving(boolean saving) {
+        if (btnSave != null) btnSave.setEnabled(!saving);
     }
 
     /**

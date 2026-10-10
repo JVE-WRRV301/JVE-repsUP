@@ -19,6 +19,7 @@ import com.jve.repsup.adapters.ExerciseSelectionAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SnackbarUtils;
+import com.jve.repsup.utils.WorkoutValidator;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 
@@ -27,11 +28,15 @@ import java.util.List;
 
 /**
  * Fragment for selecting exercises in the Create Workout flow.
- * Loads exercises based on selected muscle groups and enforces max 8 limit.
+ * Loads exercises based on selected muscle groups and enforces the workout limit
+ * (WorkoutValidator.MAX_EXERCISES), counting exercises already in the workout.
  */
 public class UserExerciseSelectionFragment extends Fragment {
 
-    public static final int MAX_EXERCISES = 8;
+    public static final int MAX_EXERCISES = WorkoutValidator.MAX_EXERCISES;
+
+    /** Exercises already in the workout when adding more (0 for a new workout). */
+    private int existingCount = 0;
 
     private ExerciseSelectionAdapter adapter;
     private TextView tvSelectionCount;
@@ -58,11 +63,14 @@ public class UserExerciseSelectionFragment extends Fragment {
         tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
         Button btnConfirm = view.findViewById(R.id.btnConfirmExercises);
 
+        CreateWorkoutActivity host = (CreateWorkoutActivity) getActivity();
+        existingCount = host != null ? host.getExistingExerciseCount() : 0;
+
         updateCountText(0);
 
-        adapter = new ExerciseSelectionAdapter(MAX_EXERCISES, count -> {
+        adapter = new ExerciseSelectionAdapter(MAX_EXERCISES - existingCount, count -> {
             updateCountText(count);
-            if (count >= MAX_EXERCISES) {
+            if (existingCount + count >= MAX_EXERCISES) {
                 SnackbarUtils.show(requireView(), R.string.create_workout_max_exercises_reached);
             }
         });
@@ -89,7 +97,7 @@ public class UserExerciseSelectionFragment extends Fragment {
 
     private void updateCountText(int count) {
         if (tvSelectionCount != null) {
-            tvSelectionCount.setText(getString(R.string.create_workout_exercises_selected, count, MAX_EXERCISES));
+            tvSelectionCount.setText(getString(R.string.create_workout_exercises_selected, existingCount + count, MAX_EXERCISES));
         }
     }
 

@@ -448,10 +448,11 @@
     <string name="create_workout_exercises_selected">%1$d / %2$d selected</string>
     <string name="create_workout_confirm_exercises">Confirm Selection</string>
     <string name="create_workout_select_at_least_one">Please select at least one exercise</string>
-    <string name="create_workout_max_exercises_reached">Maximum of 8 exercises reached</string>
+    <string name="create_workout_max_exercises_reached">Maximum of 10 exercises reached</string>
     <string name="create_workout_details_title">Workout Details</string>
     <string name="create_workout_name_hint">Workout Name</string>
     <string name="create_workout_exercise_settings">Exercise Settings</string>
+    <string name="create_workout_sets_hint">Sets</string>
     <string name="create_workout_reps_hint">Reps</string>
     <string name="create_workout_weight_hint">Weight (kg)</string>
     <string name="create_workout_save">Save Workout</string>

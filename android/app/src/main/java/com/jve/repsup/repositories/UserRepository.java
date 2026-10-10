@@ -342,4 +342,17 @@ public class UserRepository {
             return rank;
         }, callback);
     }
+
+    /**
+     * Reads the workout level chosen in the fitness assessment ("never",
+     * "beginner", "intermediate" or "advanced"). Returns null if the user has
+     * no profile row.
+     */
+    public void getWorkoutLevel(int userId, ConnectionManager.DatabaseCallback<String> callback) {
+        ConnectionManager.querySingle(
+                "SELECT workout_lvl FROM user_profile WHERE user_id = ?",
+                new Object[]{userId},
+                rs -> rs.getString("workout_lvl"),
+                callback);
+    }
 }

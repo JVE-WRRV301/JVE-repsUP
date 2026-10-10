@@ -914,6 +914,9 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             return;
         }
 
+        // Stop a second tap while saving; re-enabled below if the save fails.
+        btnSave.setEnabled(false);
+
         // Persist the avatar body attributes (skin tone, body shape, hair colour)
         // together with the outfit. These were held locally until now so that
         // backing out without saving discards them.
@@ -944,9 +947,11 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() ->
-                        DialogUtils.showError(CustomizeAvatarActivity.this,
-                                getString(R.string.locker_save_error)));
+                runOnUiThread(() -> {
+                    btnSave.setEnabled(true);
+                    DialogUtils.showError(CustomizeAvatarActivity.this,
+                            getString(R.string.locker_save_error));
+                });
             }
         });
     }

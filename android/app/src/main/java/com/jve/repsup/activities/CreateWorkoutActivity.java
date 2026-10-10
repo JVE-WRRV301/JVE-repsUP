@@ -23,6 +23,8 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
 
+import com.jve.repsup.utils.WorkoutValidator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +45,10 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     public static final int MODE_CREATE = 0;
     public static final int MODE_GENERATE = 1;
     public static final int MODE_EDIT = 2;
-    public static final int MAX_EXERCISES = 8;
+    public static final int MAX_EXERCISES = WorkoutValidator.MAX_EXERCISES;
+
+    private static final List<String> LOWER_BODY_GROUPS =
+            java.util.Arrays.asList("Legs", "Glutes", "Calves");
 
     private int selectedMode = -1;
     private List<String> selectedMuscleGroups = new ArrayList<>();
@@ -55,8 +60,12 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
     // Draft reps/weight values kept in sync with selectedExercises (by index).
     // These survive navigating to the add-exercises sub-flow and back.
+    private List<Integer> draftSets = new ArrayList<>();
     private List<Integer> draftReps = new ArrayList<>();
     private List<Double> draftWeights = new ArrayList<>();
+
+    // True while a save is running, so a second tap cannot create a duplicate.
+    private boolean saving = false;
 
     // Edit mode fields
     private boolean isEditMode = false;
@@ -129,6 +138,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                 editWorkoutIsDefault = workout.isDefault();
                 List<WorkoutExercise> workoutExercises = workout.getExercises();
                 selectedExercises.clear();
+                draftSets.clear();
                 draftReps.clear();
                 draftWeights.clear();
 
@@ -137,6 +147,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
                         Exercise exercise = we.getExercise();
                         if (exercise != null) {
                             selectedExercises.add(exercise);
+                            draftSets.add(we.getSets());
                             draftReps.add(we.getReps());
                             draftWeights.add(we.getTargetWeight());
                         }
@@ -218,9 +229,11 @@ public class CreateWorkoutActivity extends AppCompatActivity {
      * Initialises draft reps/weight lists from the current exercises' defaults.
      */
     private void seedDraftsFromExercises() {
+        draftSets.clear();
         draftReps.clear();
         draftWeights.clear();
         for (Exercise exercise : selectedExercises) {
+            draftSets.add(exercise.getDefaultSets());
             draftReps.add(exercise.getDefaultReps());
             draftWeights.add(0.0);
         }
@@ -245,6 +258,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             }
             if (!alreadyPresent) {
                 selectedExercises.add(exercise);
+                draftSets.add(exercise.getDefaultSets());
                 draftReps.add(exercise.getDefaultReps());
                 draftWeights.add(0.0);
             }
@@ -255,7 +269,8 @@ public class CreateWorkoutActivity extends AppCompatActivity {
      * Persists the reps/weight the user has currently entered on the details screen so
      * the values are not lost when navigating to add more exercises.
      */
-    public void saveDraft(List<Integer> repsList, List<Double> weightList) {
+    public void saveDraft(List<Integer> setsList, List<Integer> repsList, List<Double> weightList) {
+        this.draftSets = new ArrayList<>(setsList);
         this.draftReps = new ArrayList<>(repsList);
         this.draftWeights = new ArrayList<>(weightList);
     }
@@ -275,14 +290,16 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
     /**
      * Called when user requests workout generation (Generate mode).
-     * Loads exercises matching difficulty + muscle groups, picks up to MAX_EXERCISES randomly.
+     * Loads the exercises for every chosen muscle group, then builds a realistic
+     * workout: a sensible number of exercises (see targetExerciseCount) spread
+     * evenly across the chosen groups.
      */
     public void onGenerateRequested(String difficulty, List<String> muscleGroups) {
         this.selectedDifficulty = difficulty;
         this.selectedMuscleGroups = muscleGroups;
 
-        // Load exercises matching the criteria from all selected muscle groups
-        List<Exercise> allMatching = new ArrayList<>();
+        // Exercises per muscle group, filled as each query returns.
+        final java.util.Map<String, List<Exercise>> byGroup = new java.util.HashMap<>();
         final int[] loadedCount = {0};
         final int totalGroups = muscleGroups.size();
 
@@ -290,27 +307,27 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             workoutRepository.getExercisesByMuscleGroup(group, new ConnectionManager.DatabaseCallback<List<Exercise>>() {
                 @Override
                 public void onSuccess(List<Exercise> result) {
-                    synchronized (allMatching) {
+                    synchronized (byGroup) {
                         if (result != null) {
-                            // Include every exercise from the selected muscle groups,
-                            // regardless of difficulty. The chosen difficulty is used
-                            // later to bias (not restrict) which ones get picked, so a
-                            // workout stays populated even when few match exactly.
-                            allMatching.addAll(result);
+                            // Include every exercise from the group, regardless of
+                            // difficulty. The chosen difficulty only decides which are
+                            // picked first, so a workout stays populated even when few
+                            // match exactly.
+                            byGroup.put(group, result);
                         }
                         loadedCount[0]++;
                         if (loadedCount[0] >= totalGroups) {
-                            runOnUiThread(() -> onExercisesLoaded(allMatching));
+                            runOnUiThread(() -> onExercisesLoaded(byGroup));
                         }
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    synchronized (allMatching) {
+                    synchronized (byGroup) {
                         loadedCount[0]++;
                         if (loadedCount[0] >= totalGroups) {
-                            runOnUiThread(() -> onExercisesLoaded(allMatching));
+                            runOnUiThread(() -> onExercisesLoaded(byGroup));
                         }
                     }
                 }
@@ -319,40 +336,81 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     }
 
     /**
-     * After exercises are loaded for generate mode, pick up to MAX_EXERCISES randomly
-     * and navigate to the details/review screen.
+     * How many exercises a generated workout should have. Lower-body-only
+     * workouts (Legs, Glutes, Calves) are 4 / 4 / 5 for Easy / Medium / Hard;
+     * anything that involves the upper body is 5 / 5 / 6. If more muscle groups
+     * are chosen than that, there is one exercise per group so none is left out.
      */
-    private void onExercisesLoaded(List<Exercise> exercises) {
-        if (exercises.isEmpty()) {
+    static int targetExerciseCount(String difficulty, List<String> groups) {
+        boolean lowerBodyOnly = !groups.isEmpty();
+        for (String group : groups) {
+            if (!LOWER_BODY_GROUPS.contains(group)) {
+                lowerBodyOnly = false;
+                break;
+            }
+        }
+        boolean hard = "Hard".equalsIgnoreCase(difficulty);
+        int count = lowerBodyOnly ? (hard ? 5 : 4) : (hard ? 6 : 5);
+        return Math.min(MAX_EXERCISES, Math.max(count, groups.size()));
+    }
+
+    /**
+     * After the exercises are loaded for generate mode, build the workout by
+     * taking one exercise from each chosen group in turn until the target count
+     * is reached, then open the details/review screen.
+     */
+    private void onExercisesLoaded(java.util.Map<String, List<Exercise>> byGroup) {
+        // Within each group: exercises matching the chosen difficulty first
+        // (shuffled), then the rest (shuffled).
+        List<List<Exercise>> queues = new ArrayList<>();
+        for (String group : selectedMuscleGroups) {
+            List<Exercise> groupExercises = byGroup.get(group);
+            if (groupExercises == null || groupExercises.isEmpty()) continue;
+
+            List<Exercise> preferred = new ArrayList<>();
+            List<Exercise> others = new ArrayList<>();
+            for (Exercise exercise : groupExercises) {
+                if (selectedDifficulty != null && exercise.getDifficulty() != null
+                        && exercise.getDifficulty().equalsIgnoreCase(selectedDifficulty)) {
+                    preferred.add(exercise);
+                } else {
+                    others.add(exercise);
+                }
+            }
+            Collections.shuffle(preferred);
+            Collections.shuffle(others);
+            List<Exercise> queue = new ArrayList<>(preferred);
+            queue.addAll(others);
+            queues.add(queue);
+        }
+
+        if (queues.isEmpty()) {
             SnackbarUtils.show(this, R.string.generate_workout_no_exercises);
             return;
         }
 
-        // Bias the selection toward the chosen difficulty without excluding others.
-        // Split into "matches chosen difficulty" and "the rest", shuffle each, then
-        // take matches first and top up with the rest. This keeps the workout focused
-        // on the chosen difficulty while still populating it when exact matches are few.
-        List<Exercise> preferred = new ArrayList<>();
-        List<Exercise> others = new ArrayList<>();
-        for (Exercise exercise : exercises) {
-            if (selectedDifficulty != null && exercise.getDifficulty() != null
-                    && exercise.getDifficulty().equalsIgnoreCase(selectedDifficulty)) {
-                preferred.add(exercise);
-            } else {
-                others.add(exercise);
+        int target = targetExerciseCount(selectedDifficulty, selectedMuscleGroups);
+        List<Exercise> picked = new ArrayList<>();
+        java.util.Set<Integer> usedIds = new java.util.HashSet<>();
+        boolean tookAny = true;
+        while (picked.size() < target && tookAny) {
+            tookAny = false;
+            for (List<Exercise> queue : queues) {
+                if (picked.size() >= target) break;
+                // Next exercise in this group that is not already in the workout.
+                for (int k = 0; k < queue.size(); k++) {
+                    Exercise candidate = queue.get(k);
+                    if (usedIds.add(candidate.getExerciseId())) {
+                        picked.add(candidate);
+                        queue.remove(k);
+                        tookAny = true;
+                        break;
+                    }
+                }
             }
         }
-        Collections.shuffle(preferred);
-        Collections.shuffle(others);
 
-        List<Exercise> ordered = new ArrayList<>(preferred);
-        ordered.addAll(others);
-
-        if (ordered.size() > MAX_EXERCISES) {
-            ordered = ordered.subList(0, MAX_EXERCISES);
-        }
-
-        this.selectedExercises = new ArrayList<>(ordered);
+        this.selectedExercises = picked;
         seedDraftsFromExercises();
         showFragment(new UserWorkoutDetailsFragment(), true);
     }
@@ -361,12 +419,18 @@ public class CreateWorkoutActivity extends AppCompatActivity {
      * Called when the user saves the workout with name and per-exercise reps/weight.
      * Handles both create (new workout) and edit (update existing) modes.
      */
-    public void onWorkoutSaved(String workoutName, List<Integer> repsList, List<Double> weightList) {
+    public void onWorkoutSaved(String workoutName, List<Integer> setsList,
+                               List<Integer> repsList, List<Double> weightList) {
+        // Ignore a second tap while the first save is still running.
+        if (saving) return;
+
         int userId = sessionManager.getUserId();
         if (userId == -1) {
             DialogUtils.showError(this, R.string.create_workout_error);
+            onSaveFailed(0);
             return;
         }
+        saving = true;
 
         List<WorkoutExercise> workoutExercises = new ArrayList<>();
         for (int i = 0; i < selectedExercises.size(); i++) {
@@ -374,7 +438,9 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             WorkoutExercise we = new WorkoutExercise();
             we.setExerciseId(exercise.getExerciseId());
             we.setReps(repsList.get(i));
-            we.setSets(exercise.getDefaultSets());
+            // Fall back to the exercise default if the box was left empty or 0.
+            int sets = i < setsList.size() ? setsList.get(i) : 0;
+            we.setSets(sets > 0 ? sets : Math.max(1, exercise.getDefaultSets()));
             we.setOrderIndex(i + 1);
             if (weightList != null && i < weightList.size()) {
                 we.setTargetWeight(weightList.get(i));
@@ -412,8 +478,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() ->
-                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                    runOnUiThread(() -> onSaveFailed(R.string.edit_workout_error));
                 }
             });
         } else {
@@ -435,8 +500,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() ->
-                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.create_workout_error));
+                    runOnUiThread(() -> onSaveFailed(R.string.create_workout_error));
                 }
             });
         }
@@ -460,8 +524,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Long newWorkoutId) {
                 if (newWorkoutId == null || newWorkoutId <= 0) {
-                    runOnUiThread(() ->
-                            DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                    runOnUiThread(() -> onSaveFailed(R.string.edit_workout_error));
                     return;
                 }
 
@@ -488,18 +551,32 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(Exception e) {
-                                runOnUiThread(() ->
-                                        DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                                runOnUiThread(() -> onSaveFailed(R.string.edit_workout_error));
                             }
                         });
             }
 
             @Override
             public void onError(Exception e) {
-                runOnUiThread(() ->
-                        DialogUtils.showError(CreateWorkoutActivity.this, R.string.edit_workout_error));
+                runOnUiThread(() -> onSaveFailed(R.string.edit_workout_error));
             }
         });
+    }
+
+    /**
+     * A save failed: let the user try again (Save button back on) and, when a
+     * message is given, tell them what went wrong.
+     */
+    private void onSaveFailed(int messageRes) {
+        saving = false;
+        androidx.fragment.app.Fragment current =
+                getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (current instanceof UserWorkoutDetailsFragment) {
+            ((UserWorkoutDetailsFragment) current).setSaving(false);
+        }
+        if (messageRes != 0) {
+            DialogUtils.showError(this, messageRes);
+        }
     }
 
     // ─── Getters for fragments ───
@@ -526,6 +603,15 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
     public String getEditWorkoutName() {
         return editWorkoutName;
+    }
+
+    public List<Integer> getDraftSets() {
+        return draftSets;
+    }
+
+    /** How many exercises are already in the workout when adding more (else 0). */
+    public int getExistingExerciseCount() {
+        return addingExercises ? selectedExercises.size() : 0;
     }
 
     public List<Integer> getDraftReps() {

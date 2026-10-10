@@ -15,7 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
+import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.SelectableButtonStyler;
+import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SnackbarUtils;
 
 import java.util.Arrays;
@@ -58,6 +61,7 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
         btnDifficultyMedium = view.findViewById(R.id.btnDifficultyMedium);
         btnDifficultyHard = view.findViewById(R.id.btnDifficultyHard);
         setupSingleSelectDifficulty();
+        preselectDifficultyForBeginners();
 
         RecyclerView rvMuscleGroups = view.findViewById(R.id.rvMuscleGroups);
         Button btnGenerate = view.findViewById(R.id.btnGenerate);
@@ -97,6 +101,33 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
         btnDifficultyMedium.setOnClickListener(v -> selectDifficulty("Medium"));
         btnDifficultyHard.setOnClickListener(v -> selectDifficulty("Hard"));
         updateDifficultyButtons();
+    }
+
+    /**
+     * People who said in the fitness assessment that they have never worked out,
+     * or are beginners, start with Easy selected. They can still change it.
+     */
+    private void preselectDifficultyForBeginners() {
+        int userId = new SessionManager(requireContext()).getUserId();
+        if (userId == -1) return;
+        new UserRepository().getWorkoutLevel(userId, new ConnectionManager.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String level) {
+                if (level == null || getActivity() == null || !isAdded()) return;
+                boolean beginner = "never".equalsIgnoreCase(level) || "beginner".equalsIgnoreCase(level);
+                getActivity().runOnUiThread(() -> {
+                    // Do not override a choice the user has already made.
+                    if (beginner && selectedDifficulty == null) {
+                        selectDifficulty("Easy");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Nothing to do: the user simply picks a difficulty themselves.
+            }
+        });
     }
 
     private void selectDifficulty(String difficulty) {
