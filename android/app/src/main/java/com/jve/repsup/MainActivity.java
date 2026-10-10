@@ -497,4 +497,16 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
+
+    /**
+     * Switches to the Calendar tab and opens it on the given date. Used by the
+     * Home week strip, where tapping a day shows what is planned on it.
+     */
+    public void openCalendarOnDate(java.util.Date date) {
+        if (calendarFragment == null) return;
+        calendarFragment.showDate(date);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        // Fires the normal tab-switch listener, which hides Home and shows Calendar.
+        bottomNav.setSelectedItemId(R.id.nav_calendar);
+    }
 }

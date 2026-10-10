@@ -9,11 +9,11 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.GoalPriorityStyle;
 import com.jve.repsup.models.Goal;
 
 import java.util.ArrayList;
@@ -107,29 +107,8 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
             // Title at the top
             tvGoalTitle.setText(title);
 
-            // Priority badge with full label (e.g., "Top Priority").
-            // Matching ignores case and a null priority is treated as Medium, so
-            // values saved as "top"/"medium"/"low" (or null) still map correctly.
-            String priority = goal.getPriority();
-            String normalisedPriority = priority == null ? "medium" : priority.trim().toLowerCase();
-            int priorityColor;
-            String priorityLabel;
-            switch (normalisedPriority) {
-                case "top":
-                    priorityLabel = itemView.getContext().getString(R.string.importance_top_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.red);
-                    break;
-                case "low":
-                    priorityLabel = itemView.getContext().getString(R.string.importance_low_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.green);
-                    break;
-                default:
-                    priorityLabel = itemView.getContext().getString(R.string.importance_medium_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.yellow);
-                    break;
-            }
-            tvGoalPriority.setText(priorityLabel);
-            tvGoalPriority.setTextColor(priorityColor);
+            // Priority badge with full label and colour (shared with Home).
+            GoalPriorityStyle.apply(tvGoalPriority, goal.getPriority());
 
             // Notes at the bottom
             if (!notes.isEmpty()) {

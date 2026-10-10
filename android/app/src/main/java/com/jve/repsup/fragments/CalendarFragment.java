@@ -1,6 +1,7 @@
 package com.jve.repsup.fragments;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.tabs.TabLayout;
 import com.jve.repsup.R;
 import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.GoalPriorityStyle;
 import com.jve.repsup.activities.CreateGoalActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.CalendarDayAdapter;
@@ -53,6 +56,8 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     private RecyclerView rvDayContent;
     private TabLayout tabLayout;
     private ImageView btnAddSchedule;
+    private LinearLayout llDayGoals;
+    private TextView tvDayNothing;
 
     private CalendarDayAdapter calendarDayAdapter;
     private DayContentAdapter dayContentAdapter;
@@ -62,6 +67,14 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
     private Calendar currentMonth;
     private int selectedDay = -1;
+
+    // A date another screen asked us to open (e.g. a tap on the Home week strip);
+    // applied the next time the calendar is shown.
+    private java.util.Date pendingDate;
+
+    // Bumped on every day load so a slow answer for an earlier tap can't
+    // overwrite the panel for the day that is selected now.
+    private int dayRequestId = 0;
 
     public CalendarFragment() {
         // Required empty public constructor
@@ -97,7 +110,56 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     @Override
     public void onResume() {
         super.onResume();
+        refreshCalendar();
+    }
+
+    /**
+     * Fires when this tab is shown or hidden via the MainActivity hide/show
+     * pattern (the activity itself never pauses on a tab switch), so changes made
+     * elsewhere appear when the user comes back.
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            refreshCalendar();
+        }
+    }
+
+    /**
+     * Opens the calendar on the given date: shows that date's month, highlights
+     * the day and shows what is planned on it. Called by MainActivity when the
+     * user taps a day on the Home week strip.
+     */
+    public void showDate(java.util.Date date) {
+        pendingDate = date;
+        if (isAdded() && getView() != null && !isHidden()) {
+            refreshCalendar();
+        }
+    }
+
+    /**
+     * Redraws the grid and markers, then reloads the selected day's panel so a
+     * workout or goal added, deleted or finished elsewhere shows up straight away.
+     */
+    private void refreshCalendar() {
+        if (calendarDayAdapter == null) return;
+
+        if (pendingDate != null) {
+            Calendar target = Calendar.getInstance();
+            target.setTime(pendingDate);
+            pendingDate = null;
+            currentMonth = target;
+            selectedDay = target.get(Calendar.DAY_OF_MONTH);
+        }
+
         updateCalendar();
+        calendarDayAdapter.setSelectedDay(selectedDay);
+        if (selectedDay > 0) {
+            loadDayContent(selectedDay);
+        } else {
+            llDayContent.setVisibility(View.GONE);
+        }
     }
 
     private void initViews(View view) {
@@ -110,6 +172,8 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
         rvDayContent = view.findViewById(R.id.rvDayContent);
         tabLayout = view.findViewById(R.id.tabLayoutCalendar);
         btnAddSchedule = view.findViewById(R.id.btnAddSchedule);
+        llDayGoals = view.findViewById(R.id.llDayGoals);
+        tvDayNothing = view.findViewById(R.id.tvDayNothing);
 
         ivPrevMonth.setOnClickListener(v -> navigateMonth(-1));
         ivNextMonth.setOnClickListener(v -> navigateMonth(1));
@@ -158,10 +222,9 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        TabLayout.Tab goalsTab = tabLayout.getTabAt(1);
-        if (goalsTab != null) {
-            goalsTab.select();
-        }
+        // The calendar opens on My Plan (the first tab). It is already selected
+        // when added, which does not fire the listener, so show its content here.
+        showMyPlanTab();
     }
 
     private void setupFab() {
@@ -169,8 +232,13 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     }
 
     private void navigateMonth(int offset) {
+        // Set day 1 first so adding a month from the 31st can't skip a month.
+        currentMonth.set(Calendar.DAY_OF_MONTH, 1);
         currentMonth.add(Calendar.MONTH, offset);
         selectedDay = -1;
+        dayRequestId++;
+        // Clear the outline from the old month's selected day.
+        calendarDayAdapter.setSelectedDay(-1);
         llDayContent.setVisibility(View.GONE);
         updateCalendar();
     }
@@ -274,6 +342,16 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     @Override
     public void onDayClick(int day) {
         selectedDay = day;
+        loadDayContent(day);
+    }
+
+    /**
+     * Fills the panel under the grid for one day: that day's workouts, the goals
+     * due on it, or a "Nothing planned" message when there are neither.
+     */
+    private void loadDayContent(int day) {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
 
         Calendar cal = (Calendar) currentMonth.clone();
         cal.set(Calendar.DAY_OF_MONTH, day);
@@ -281,31 +359,97 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
         tvSelectedDayTitle.setText(DateFormats.formatShort(cal.getTime()));
 
-        int userId = sessionManager.getUserId();
-        if (userId == -1) return;
+        final int requestId = ++dayRequestId;
 
         scheduleRepository.getScheduledContentForDay(userId, selectedDate,
                 new ConnectionManager.DatabaseCallback<List<ScheduledWorkout>>() {
                     @Override
-                    public void onSuccess(List<ScheduledWorkout> result) {
+                    public void onSuccess(List<ScheduledWorkout> workouts) {
                         if (getActivity() == null || !isAdded()) return;
-                        getActivity().runOnUiThread(() -> {
-                            if (result != null && !result.isEmpty()) {
-                                llDayContent.setVisibility(View.VISIBLE);
-                                dayContentAdapter.setSelectedDate(selectedDate);
-                                dayContentAdapter.setItems(result);
-                            } else {
-                                llDayContent.setVisibility(View.GONE);
-                            }
-                        });
+                        loadGoalsForDay(userId, cal, selectedDate, workouts, requestId);
                     }
 
                     @Override
                     public void onError(Exception e) {
                         if (getActivity() == null || !isAdded()) return;
-                        getActivity().runOnUiThread(() -> llDayContent.setVisibility(View.GONE));
+                        getActivity().runOnUiThread(() -> {
+                            if (requestId == dayRequestId) {
+                                llDayContent.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 });
+    }
+
+    /** Second step of loadDayContent: finds the goals due on the day, then draws the panel. */
+    private void loadGoalsForDay(int userId, Calendar day, java.sql.Date selectedDate,
+                                 List<ScheduledWorkout> workouts, int requestId) {
+        goalRepository.getUserGoals(userId, new ConnectionManager.DatabaseCallback<List<Goal>>() {
+            @Override
+            public void onSuccess(List<Goal> goals) {
+                List<Goal> due = new ArrayList<>();
+                if (goals != null) {
+                    for (Goal goal : goals) {
+                        if (goal.getDeadline() != null && !goal.isCompleted() && isSameDay(goal.getDeadline(), day)) {
+                            due.add(goal);
+                        }
+                    }
+                }
+                showDayContent(workouts, due, selectedDate, requestId);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // The workouts still show; the goals for this day are just left out.
+                showDayContent(workouts, new ArrayList<>(), selectedDate, requestId);
+            }
+        });
+    }
+
+    private void showDayContent(List<ScheduledWorkout> workouts, List<Goal> goalsDue,
+                                java.sql.Date selectedDate, int requestId) {
+        if (getActivity() == null || !isAdded()) return;
+        getActivity().runOnUiThread(() -> {
+            // A newer tap or a month change has replaced this request.
+            if (requestId != dayRequestId || !isAdded()) return;
+
+            boolean hasWorkouts = workouts != null && !workouts.isEmpty();
+            boolean hasGoals = !goalsDue.isEmpty();
+
+            llDayContent.setVisibility(View.VISIBLE);
+
+            if (hasWorkouts) {
+                rvDayContent.setVisibility(View.VISIBLE);
+                dayContentAdapter.setSelectedDate(selectedDate);
+                dayContentAdapter.setItems(workouts);
+            } else {
+                rvDayContent.setVisibility(View.GONE);
+            }
+
+            llDayGoals.removeAllViews();
+            for (Goal goal : goalsDue) {
+                View row = LayoutInflater.from(requireContext())
+                        .inflate(R.layout.item_day_goal, llDayGoals, false);
+                ((TextView) row.findViewById(R.id.tvDayGoalTitle)).setText(goal.getTitle());
+                GoalPriorityStyle.apply(row.findViewById(R.id.tvDayGoalPriority), goal.getPriority());
+
+                GradientDrawable diamond = new GradientDrawable();
+                diamond.setShape(GradientDrawable.RECTANGLE);
+                diamond.setColor(ContextCompat.getColor(requireContext(), R.color.red));
+                row.findViewById(R.id.viewDayGoalMarker).setBackground(diamond);
+
+                llDayGoals.addView(row);
+            }
+
+            tvDayNothing.setVisibility(hasWorkouts || hasGoals ? View.GONE : View.VISIBLE);
+        });
+    }
+
+    private static boolean isSameDay(java.util.Date date, Calendar day) {
+        Calendar other = Calendar.getInstance();
+        other.setTime(date);
+        return other.get(Calendar.YEAR) == day.get(Calendar.YEAR)
+                && other.get(Calendar.DAY_OF_YEAR) == day.get(Calendar.DAY_OF_YEAR);
     }
 
     private void showMyPlanTab() {

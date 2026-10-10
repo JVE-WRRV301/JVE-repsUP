@@ -23,6 +23,7 @@ import com.jve.repsup.adapters.WeeklyPlanAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.repositories.ScheduleRepository;
+import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
@@ -113,31 +114,75 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
             @Override
             public void onDeleteScheduledWorkout(ScheduledWorkout scheduledWorkout) {
                 if (getContext() == null) return;
+
+                if (scheduledWorkout.getSeriesId() > 0) {
+                    // Part of a repeat: ask whether to remove just this one or
+                    // this one and every later repeat.
+                    // Custom layout so the two delete choices stack on the right
+                    // and Cancel sits bottom left (the standard button bar
+                    // squashes three buttons into one column).
+                    View content = LayoutInflater.from(getContext())
+                            .inflate(R.layout.dialog_delete_series, null);
+                    androidx.appcompat.app.AlertDialog dialog =
+                            new MaterialAlertDialogBuilder(getContext())
+                                    .setTitle(R.string.weekly_plan_delete_title)
+                                    .setView(content)
+                                    .create();
+                    content.findViewById(R.id.btnDeleteThisOne).setOnClickListener(v -> {
+                        dialog.dismiss();
+                        deleteOne(scheduledWorkout);
+                    });
+                    content.findViewById(R.id.btnDeleteAllFuture).setOnClickListener(v -> {
+                        dialog.dismiss();
+                        deleteAllFuture(scheduledWorkout);
+                    });
+                    content.findViewById(R.id.btnDeleteCancel).setOnClickListener(v -> dialog.dismiss());
+                    dialog.show();
+                    return;
+                }
+
                 new MaterialAlertDialogBuilder(getContext())
                         .setTitle(R.string.weekly_plan_delete_title)
                         .setMessage(R.string.weekly_plan_delete_message)
-                        .setPositiveButton(R.string.workout_action_delete, (dialog, which) -> {
-                            scheduleRepository.deleteScheduledWorkout(
-                                    scheduledWorkout.getScheduledWorkoutId(),
-                                    new ConnectionManager.DatabaseCallback<Integer>() {
-                                        @Override
-                                        public void onSuccess(Integer result) {
-                                            if (getActivity() == null || !isAdded()) return;
-                                            getActivity().runOnUiThread(() -> loadWeekData());
-                                        }
-
-                                        @Override
-                                        public void onError(Exception e) {
-                                            // Silent fail
-                                        }
-                                    });
-                        })
+                        .setPositiveButton(R.string.workout_action_delete,
+                                (dialog, which) -> deleteOne(scheduledWorkout))
                         .setNegativeButton(R.string.admin_action_cancel, null)
                         .show();
             }
         });
         rvWeeklyPlan.setLayoutManager(new LinearLayoutManager(getContext()));
         rvWeeklyPlan.setAdapter(adapter);
+    }
+
+    /** Deletes a single scheduled workout, then reloads the week. */
+    private void deleteOne(ScheduledWorkout scheduledWorkout) {
+        scheduleRepository.deleteScheduledWorkout(scheduledWorkout.getScheduledWorkoutId(),
+                deleteCallback());
+    }
+
+    /** Deletes this workout and every later unfinished repeat in its series. */
+    private void deleteAllFuture(ScheduledWorkout scheduledWorkout) {
+        scheduleRepository.deleteScheduledWorkoutSeriesFrom(sessionManager.getUserId(),
+                scheduledWorkout.getSeriesId(), scheduledWorkout.getScheduledDate(),
+                deleteCallback());
+    }
+
+    /** Reloads the week after a delete, or tells the user it failed. */
+    private ConnectionManager.DatabaseCallback<Integer> deleteCallback() {
+        return new ConnectionManager.DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer result) {
+                if (getActivity() == null || !isAdded()) return;
+                getActivity().runOnUiThread(() -> loadWeekData());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (getActivity() == null || !isAdded()) return;
+                getActivity().runOnUiThread(() ->
+                        DialogUtils.showError(getContext(), R.string.weekly_plan_delete_error));
+            }
+        };
     }
 
     private void setupWeekNavigation() {

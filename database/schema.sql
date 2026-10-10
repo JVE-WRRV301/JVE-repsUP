@@ -189,6 +189,7 @@ CREATE TABLE scheduled_workout (
     earned_xp INT DEFAULT 0,
     completed_sets INT DEFAULT 0,
     completed_reps INT DEFAULT 0,
+    series_id INT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (workout_id) REFERENCES workout(workout_id) ON DELETE CASCADE
 );
@@ -253,6 +254,7 @@ CREATE TABLE streak (
 
 CREATE INDEX idx_workouts_user ON workout(user_id);
 CREATE INDEX idx_scheduled_user_date ON scheduled_workout(user_id, scheduled_date);
+CREATE INDEX idx_scheduled_series ON scheduled_workout(series_id);
 CREATE INDEX idx_goals_user ON goal(user_id);
 CREATE INDEX idx_xp_logs_user ON xp_log(user_id);
 CREATE INDEX idx_user_cosmetics_user ON user_cosmetic(user_id);

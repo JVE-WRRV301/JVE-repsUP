@@ -277,6 +277,17 @@
                     android:orientation="vertical"
                     android:layout_marginTop="12dp" />
 
+                <!-- "+N more" exercises (shown when the workout has more than 3) -->
+                <TextView
+                    android:id="@+id/tvMoreExercises"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
                 <!-- START Button -->
                 <Button
                     android:id="@+id/btnStart"
@@ -286,6 +297,20 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/home_start"
                     android:textSize="14sp" />
+
+                <!-- "+N more workout today" (shown when 2+ workouts are scheduled today) -->
+                <TextView
+                    android:id="@+id/tvMoreWorkouts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:minHeight="48dp"
+                    android:textColor="@color/light_blue"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

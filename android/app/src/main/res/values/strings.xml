@@ -256,6 +256,18 @@
     <string name="weekly_plan_day_today">%1$s (Today)</string>
     <string name="weekly_plan_delete_title">Delete Scheduled Workout</string>
     <string name="weekly_plan_delete_message">Are you sure you want to remove this scheduled workout?</string>
+    <string name="weekly_plan_delete_series_message">This workout repeats. Delete only this one, or this one and all the repeats after it?</string>
+    <string name="weekly_plan_delete_this_one">Delete this one</string>
+    <string name="weekly_plan_delete_all_future">Delete all future</string>
+    <string name="weekly_plan_delete_error">Couldn\'t delete the workout. Please try again.</string>
+    <string name="calendar_day_nothing_planned">Nothing planned</string>
+    <string name="calendar_day_goal_due">Goal deadline</string>
+    <string name="home_more_exercises_format">+%d more</string>
+    <string name="home_open_day_format">Open %1$s in the calendar</string>
+    <plurals name="home_more_workouts_today">
+        <item quantity="one">+%d more workout today</item>
+        <item quantity="other">+%d more workouts today</item>
+    </plurals>
     <string name="workout_action_edit">Edit</string>
     <string name="workout_action_delete">Delete</string>
 
