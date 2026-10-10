@@ -14,7 +14,6 @@ import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.fragments.CreateWorkoutModeFragment;
 import com.jve.repsup.fragments.GenerateWorkoutOptionsFragment;
 import com.jve.repsup.fragments.UserExerciseSelectionFragment;
-import com.jve.repsup.fragments.UserMuscleGroupSelectionFragment;
 import com.jve.repsup.fragments.UserWorkoutDetailsFragment;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.models.Workout;
@@ -52,9 +51,6 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     private List<String> selectedMuscleGroups = new ArrayList<>();
     private List<Exercise> selectedExercises = new ArrayList<>();
     private String selectedDifficulty;
-
-    // True while the user is picking additional exercises to merge into the current set.
-    private boolean addingExercises = false;
 
     // Draft reps/weight values kept in sync with selectedExercises (by index).
     // These survive navigating to the add-exercises sub-flow and back.
@@ -186,41 +182,64 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     public void onModeSelected(int mode) {
         this.selectedMode = mode;
         if (mode == MODE_CREATE) {
-            showFragment(new UserMuscleGroupSelectionFragment(), true);
+            showFragment(UserExerciseSelectionFragment.newInstance(false), true);
         } else {
             showFragment(new GenerateWorkoutOptionsFragment(), true);
         }
     }
 
     /**
-     * Called when user confirms muscle group selection (Create mode).
+     * Called when the user confirms the exercise picker. The list is the complete
+     * selection (exercises already in the workout start ticked in the picker), so
+     * the workout is rebuilt from it: exercises that were already there keep their
+     * sets / reps / weight, new ones get their defaults, unticked ones are dropped.
+     *
+     * @param adding true when the picker was opened from the details screen, so we
+     *               go back to a fresh details screen instead of adding another one
      */
-    public void onMuscleGroupsSelected(List<String> muscleGroups) {
-        this.selectedMuscleGroups = muscleGroups;
-        showFragment(new UserExerciseSelectionFragment(), true);
-    }
-
-    /**
-     * Called when user confirms exercise selection.
-     * In the normal create flow this sets the exercise list and moves to details.
-     * When adding exercises to an existing set (e.g. editing a workout), the newly
-     * selected exercises are merged into the current list, skipping duplicates and
-     * respecting the MAX_EXERCISES limit, then we return to the details screen.
-     */
-    public void onExercisesSelected(List<Exercise> exercises) {
-        if (addingExercises) {
-            mergeExercises(exercises);
-            addingExercises = false;
-            // Pop the muscle-group and exercise-selection screens off the back stack,
-            // then show a fresh details screen so it rebuilds with the merged exercises.
-            getSupportFragmentManager().popBackStack();
+    public void onExercisesSelected(List<Exercise> exercises, boolean adding) {
+        applySelection(exercises);
+        if (adding) {
+            // Pop the picker, then show a fresh details screen so it rebuilds.
             getSupportFragmentManager().popBackStack();
             showFragment(new UserWorkoutDetailsFragment(), false);
         } else {
-            this.selectedExercises = exercises;
-            seedDraftsFromExercises();
             showFragment(new UserWorkoutDetailsFragment(), true);
         }
+    }
+
+    /** Replaces the workout's exercises with the picker's selection, keeping existing drafts. */
+    private void applySelection(List<Exercise> chosen) {
+        List<Exercise> oldExercises = selectedExercises;
+        List<Integer> oldSets = draftSets;
+        List<Integer> oldReps = draftReps;
+        List<Double> oldWeights = draftWeights;
+
+        List<Exercise> newExercises = new ArrayList<>();
+        List<Integer> newSets = new ArrayList<>();
+        List<Integer> newReps = new ArrayList<>();
+        List<Double> newWeights = new ArrayList<>();
+
+        for (Exercise exercise : chosen) {
+            int oldIndex = -1;
+            for (int i = 0; i < oldExercises.size(); i++) {
+                if (oldExercises.get(i).getExerciseId() == exercise.getExerciseId()) {
+                    oldIndex = i;
+                    break;
+                }
+            }
+            boolean hasDraft = oldIndex >= 0 && oldIndex < oldSets.size()
+                    && oldIndex < oldReps.size() && oldIndex < oldWeights.size();
+            newExercises.add(exercise);
+            newSets.add(hasDraft ? oldSets.get(oldIndex) : exercise.getDefaultSets());
+            newReps.add(hasDraft ? oldReps.get(oldIndex) : exercise.getDefaultReps());
+            newWeights.add(hasDraft ? oldWeights.get(oldIndex) : 0.0);
+        }
+
+        selectedExercises = newExercises;
+        draftSets = newSets;
+        draftReps = newReps;
+        draftWeights = newWeights;
     }
 
     /**
@@ -234,32 +253,6 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             draftSets.add(exercise.getDefaultSets());
             draftReps.add(exercise.getDefaultReps());
             draftWeights.add(0.0);
-        }
-    }
-
-    /**
-     * Merges newly selected exercises into the current selection without duplicating
-     * exercises already present, capping the total at MAX_EXERCISES.
-     */
-    private void mergeExercises(List<Exercise> newExercises) {
-        for (Exercise exercise : newExercises) {
-            if (selectedExercises.size() >= MAX_EXERCISES) {
-                SnackbarUtils.show(this, R.string.create_workout_max_exercises_reached);
-                break;
-            }
-            boolean alreadyPresent = false;
-            for (Exercise existing : selectedExercises) {
-                if (existing.getExerciseId() == exercise.getExerciseId()) {
-                    alreadyPresent = true;
-                    break;
-                }
-            }
-            if (!alreadyPresent) {
-                selectedExercises.add(exercise);
-                draftSets.add(exercise.getDefaultSets());
-                draftReps.add(exercise.getDefaultReps());
-                draftWeights.add(0.0);
-            }
         }
     }
 
@@ -282,8 +275,7 @@ public class CreateWorkoutActivity extends AppCompatActivity {
             SnackbarUtils.show(this, R.string.create_workout_max_exercises_reached);
             return;
         }
-        addingExercises = true;
-        showFragment(new UserMuscleGroupSelectionFragment(), true);
+        showFragment(UserExerciseSelectionFragment.newInstance(true), true);
     }
 
     /**
@@ -605,11 +597,6 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
     public List<Integer> getDraftSets() {
         return draftSets;
-    }
-
-    /** How many exercises are already in the workout when adding more (else 0). */
-    public int getExistingExerciseCount() {
-        return addingExercises ? selectedExercises.size() : 0;
     }
 
     public List<Integer> getDraftReps() {

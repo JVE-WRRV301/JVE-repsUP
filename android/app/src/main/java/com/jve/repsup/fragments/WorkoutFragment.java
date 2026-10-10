@@ -1,6 +1,5 @@
 package com.jve.repsup.fragments;
 
-import com.jve.repsup.utils.MuscleGroups;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +28,6 @@ import com.jve.repsup.utils.ExerciseDemo;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.adapters.ExerciseListAdapter;
-import com.jve.repsup.adapters.MuscleGroupAdapter;
 import com.jve.repsup.adapters.WorkoutCardAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
@@ -38,6 +35,8 @@ import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
+import com.jve.repsup.utils.SimpleTextWatcher;
+import com.jve.repsup.views.ExerciseBrowserView;
 
 import java.util.List;
 
@@ -50,33 +49,24 @@ import java.util.List;
  */
 public class WorkoutFragment extends Fragment implements
         WorkoutCardAdapter.OnWorkoutActionListener,
-        MuscleGroupAdapter.OnMuscleGroupClickListener,
         ExerciseListAdapter.OnExerciseClickListener {
-
-    // Muscle groups available in the library
-    private static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
 
     // Views
     private TabLayout tabLayout;
-    private FrameLayout flSavedContent;
-    private FrameLayout flLibraryContent;
-    private FrameLayout flDefaultContent;
+    private LinearLayout flSavedContent;
+    private ExerciseBrowserView exerciseBrowser;
+    private LinearLayout flDefaultContent;
+    private EditText etSavedSearch;
+    private EditText etDefaultSearch;
     private RecyclerView rvSavedWorkouts;
     private TextView tvSavedEmpty;
     private RecyclerView rvDefaultWorkouts;
     private TextView tvDefaultEmpty;
-    private RecyclerView rvMuscleGroups;
-    private LinearLayout llExerciseListContainer;
-    private RecyclerView rvExerciseList;
-    private ImageView btnLibraryBack;
-    private TextView tvLibraryGroupTitle;
     private ImageView btnAddWorkout;
 
     // Adapters
     private WorkoutCardAdapter workoutCardAdapter;
     private WorkoutCardAdapter defaultWorkoutAdapter;
-    private MuscleGroupAdapter muscleGroupAdapter;
-    private ExerciseListAdapter exerciseListAdapter;
 
     // Data
     private WorkoutRepository workoutRepository;
@@ -113,21 +103,31 @@ public class WorkoutFragment extends Fragment implements
     private void initViews(View view) {
         tabLayout = view.findViewById(R.id.tabLayout);
         flSavedContent = view.findViewById(R.id.flSavedContent);
-        flLibraryContent = view.findViewById(R.id.flLibraryContent);
+        exerciseBrowser = view.findViewById(R.id.exerciseBrowser);
         flDefaultContent = view.findViewById(R.id.flDefaultContent);
+        etSavedSearch = view.findViewById(R.id.etSavedSearch);
+        etDefaultSearch = view.findViewById(R.id.etDefaultSearch);
         rvDefaultWorkouts = view.findViewById(R.id.rvDefaultWorkouts);
         tvDefaultEmpty = view.findViewById(R.id.tvDefaultEmpty);
         rvSavedWorkouts = view.findViewById(R.id.rvSavedWorkouts);
         tvSavedEmpty = view.findViewById(R.id.tvSavedEmpty);
-        rvMuscleGroups = view.findViewById(R.id.rvMuscleGroups);
-        llExerciseListContainer = view.findViewById(R.id.llExerciseListContainer);
-        rvExerciseList = view.findViewById(R.id.rvExerciseList);
-        btnLibraryBack = view.findViewById(R.id.btnLibraryBack);
-        tvLibraryGroupTitle = view.findViewById(R.id.tvLibraryGroupTitle);
         btnAddWorkout = view.findViewById(R.id.btnAddWorkout);
 
         btnAddWorkout.setOnClickListener(v -> navigateToCreateWorkout());
-        btnLibraryBack.setOnClickListener(v -> showMuscleGroupGrid());
+
+        // Library: tap an exercise to see its details.
+        exerciseBrowser.configure(false, 0, null);
+        exerciseBrowser.setOnExerciseClickListener(this);
+
+        // Search by workout name on the Saved and Default tabs.
+        etSavedSearch.addTextChangedListener(new SimpleTextWatcher(text -> {
+            workoutCardAdapter.setQuery(text);
+            updateSavedState();
+        }));
+        etDefaultSearch.addTextChangedListener(new SimpleTextWatcher(text -> {
+            defaultWorkoutAdapter.setQuery(text);
+            updateDefaultState();
+        }));
     }
 
     private void setupTabs() {
@@ -166,44 +166,49 @@ public class WorkoutFragment extends Fragment implements
         rvDefaultWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDefaultWorkouts.setAdapter(defaultWorkoutAdapter);
 
-        muscleGroupAdapter = new MuscleGroupAdapter(MUSCLE_GROUPS, this);
-        rvMuscleGroups.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        rvMuscleGroups.setAdapter(muscleGroupAdapter);
-
-        exerciseListAdapter = new ExerciseListAdapter(this);
-        rvExerciseList.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvExerciseList.setAdapter(exerciseListAdapter);
     }
 
     private void showSavedTab() {
         flSavedContent.setVisibility(View.VISIBLE);
-        flLibraryContent.setVisibility(View.GONE);
+        exerciseBrowser.setVisibility(View.GONE);
         flDefaultContent.setVisibility(View.GONE);
     }
 
     private void showLibraryTab() {
         flSavedContent.setVisibility(View.GONE);
-        flLibraryContent.setVisibility(View.VISIBLE);
+        exerciseBrowser.setVisibility(View.VISIBLE);
         flDefaultContent.setVisibility(View.GONE);
-        showMuscleGroupGrid();
+        exerciseBrowser.loadIfNeeded();
     }
 
     private void showDefaultTab() {
         flSavedContent.setVisibility(View.GONE);
-        flLibraryContent.setVisibility(View.GONE);
+        exerciseBrowser.setVisibility(View.GONE);
         flDefaultContent.setVisibility(View.VISIBLE);
         loadDefaultWorkouts();
     }
 
-    private void showMuscleGroupGrid() {
-        rvMuscleGroups.setVisibility(View.VISIBLE);
-        llExerciseListContainer.setVisibility(View.GONE);
+    /**
+     * Shows the Saved list, or the right message: nothing saved yet, or nothing
+     * matching the search. The search box is only shown when there is something to search.
+     */
+    private void updateSavedState() {
+        boolean hasAny = workoutCardAdapter.getTotalCount() > 0;
+        boolean hasMatches = workoutCardAdapter.getItemCount() > 0;
+        etSavedSearch.setVisibility(hasAny ? View.VISIBLE : View.GONE);
+        rvSavedWorkouts.setVisibility(hasMatches ? View.VISIBLE : View.GONE);
+        tvSavedEmpty.setVisibility(hasMatches ? View.GONE : View.VISIBLE);
+        tvSavedEmpty.setText(hasAny ? R.string.workout_search_no_results : R.string.workout_saved_empty);
     }
 
-    private void showExerciseList(String muscleGroup) {
-        rvMuscleGroups.setVisibility(View.GONE);
-        llExerciseListContainer.setVisibility(View.VISIBLE);
-        tvLibraryGroupTitle.setText(muscleGroup);
+    /** Same as updateSavedState, for the Default tab. */
+    private void updateDefaultState() {
+        boolean hasAny = defaultWorkoutAdapter.getTotalCount() > 0;
+        boolean hasMatches = defaultWorkoutAdapter.getItemCount() > 0;
+        etDefaultSearch.setVisibility(hasAny ? View.VISIBLE : View.GONE);
+        rvDefaultWorkouts.setVisibility(hasMatches ? View.VISIBLE : View.GONE);
+        tvDefaultEmpty.setVisibility(hasMatches ? View.GONE : View.VISIBLE);
+        tvDefaultEmpty.setText(hasAny ? R.string.workout_search_no_results : R.string.workout_default_empty);
     }
 
     private void loadSavedWorkouts() {
@@ -215,14 +220,8 @@ public class WorkoutFragment extends Fragment implements
             public void onSuccess(List<Workout> result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    if (result != null && !result.isEmpty()) {
-                        workoutCardAdapter.setWorkouts(result);
-                        rvSavedWorkouts.setVisibility(View.VISIBLE);
-                        tvSavedEmpty.setVisibility(View.GONE);
-                    } else {
-                        rvSavedWorkouts.setVisibility(View.GONE);
-                        tvSavedEmpty.setVisibility(View.VISIBLE);
-                    }
+                    workoutCardAdapter.setWorkouts(result);
+                    updateSavedState();
                 });
             }
 
@@ -230,8 +229,7 @@ public class WorkoutFragment extends Fragment implements
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    tvSavedEmpty.setVisibility(View.VISIBLE);
-                    rvSavedWorkouts.setVisibility(View.GONE);
+                    updateSavedState();
                     DialogUtils.showError(getContext(), R.string.workout_load_error);
                 });
             }
@@ -248,14 +246,8 @@ public class WorkoutFragment extends Fragment implements
             public void onSuccess(List<Workout> result) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    if (result != null && !result.isEmpty()) {
-                        defaultWorkoutAdapter.setWorkouts(result);
-                        rvDefaultWorkouts.setVisibility(View.VISIBLE);
-                        tvDefaultEmpty.setVisibility(View.GONE);
-                    } else {
-                        rvDefaultWorkouts.setVisibility(View.GONE);
-                        tvDefaultEmpty.setVisibility(View.VISIBLE);
-                    }
+                    defaultWorkoutAdapter.setWorkouts(result);
+                    updateDefaultState();
                 });
             }
 
@@ -263,31 +255,9 @@ public class WorkoutFragment extends Fragment implements
             public void onError(Exception e) {
                 if (getActivity() == null || !isAdded()) return;
                 getActivity().runOnUiThread(() -> {
-                    rvDefaultWorkouts.setVisibility(View.GONE);
-                    tvDefaultEmpty.setVisibility(View.VISIBLE);
+                    updateDefaultState();
                     DialogUtils.showError(getContext(), R.string.workout_load_error);
                 });
-            }
-        });
-    }
-
-    private void loadExercisesForGroup(String muscleGroup) {
-        workoutRepository.getExercisesByMuscleGroup(muscleGroup, new ConnectionManager.DatabaseCallback<List<Exercise>>() {
-            @Override
-            public void onSuccess(List<Exercise> result) {
-                if (getActivity() == null || !isAdded()) return;
-                getActivity().runOnUiThread(() -> {
-                    exerciseListAdapter.setExercises(result);
-                    showExerciseList(muscleGroup);
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                if (getActivity() == null || !isAdded()) return;
-                getActivity().runOnUiThread(() ->
-                        DialogUtils.showError(getContext(), R.string.workout_exercises_load_error)
-                );
             }
         });
     }
@@ -295,11 +265,6 @@ public class WorkoutFragment extends Fragment implements
     private void navigateToCreateWorkout() {
         Intent intent = new Intent(getContext(), CreateWorkoutActivity.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void onMuscleGroupClick(String muscleGroup) {
-        loadExercisesForGroup(muscleGroup);
     }
 
     /**
@@ -550,10 +515,7 @@ public class WorkoutFragment extends Fragment implements
                             getActivity().runOnUiThread(() -> {
                                 workoutCardAdapter.removeWorkout(position);
                                 SnackbarUtils.show(requireView(), R.string.workout_deleted_success);
-                                if (workoutCardAdapter.getItemCount() == 0) {
-                                    rvSavedWorkouts.setVisibility(View.GONE);
-                                    tvSavedEmpty.setVisibility(View.VISIBLE);
-                                }
+                                updateSavedState();
                             });
                         }
 

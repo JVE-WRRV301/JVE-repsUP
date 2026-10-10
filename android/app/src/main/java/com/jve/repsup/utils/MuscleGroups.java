@@ -10,9 +10,10 @@ import java.util.List;
  */
 public final class MuscleGroups {
 
+    // Alphabetical, so tabs and chips are easy to scan.
     public static final List<String> ALL = Collections.unmodifiableList(Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Quads", "Hamstrings", "Glutes", "Abs", "Calves", "Forearms"
+            "Abs", "Back", "Biceps", "Calves", "Chest", "Forearms",
+            "Glutes", "Hamstrings", "Quads", "Shoulders", "Triceps"
     ));
 
     private static final List<String> LOWER_BODY =

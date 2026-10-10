@@ -20,6 +20,7 @@ import com.jve.repsup.models.WorkoutExercise;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -33,7 +34,10 @@ public class WorkoutCardAdapter extends RecyclerView.Adapter<WorkoutCardAdapter.
 
     private static final int MAX_PREVIEW_EXERCISES = 3;
 
+    // Every workout, and the ones matching the current search (what the list shows).
+    private List<Workout> allWorkouts = new ArrayList<>();
     private List<Workout> workouts = new ArrayList<>();
+    private String query = "";
     private OnWorkoutActionListener listener;
 
     // Default (admin) workouts can be viewed and scheduled, but not changed.
@@ -64,20 +68,44 @@ public class WorkoutCardAdapter extends RecyclerView.Adapter<WorkoutCardAdapter.
     }
 
     public void setWorkouts(List<Workout> workouts) {
-        this.workouts = workouts != null ? workouts : new ArrayList<>();
+        this.allWorkouts = workouts != null ? new ArrayList<>(workouts) : new ArrayList<>();
+        applyFilter();
+    }
+
+    /** Shows only the workouts whose name contains this text (empty shows all). */
+    public void setQuery(String text) {
+        this.query = text == null ? "" : text.trim().toLowerCase(Locale.ROOT);
+        applyFilter();
+    }
+
+    /** How many workouts there are in total, ignoring the search. */
+    public int getTotalCount() {
+        return allWorkouts.size();
+    }
+
+    private void applyFilter() {
+        List<Workout> matches = new ArrayList<>();
+        for (Workout workout : allWorkouts) {
+            if (query.isEmpty() || (workout.getName() != null
+                    && workout.getName().toLowerCase(Locale.ROOT).contains(query))) {
+                matches.add(workout);
+            }
+        }
+        this.workouts = matches;
         notifyDataSetChanged();
     }
 
     public void removeWorkout(int position) {
         if (position >= 0 && position < workouts.size()) {
-            workouts.remove(position);
+            Workout removed = workouts.remove(position);
+            allWorkouts.remove(removed);
             notifyItemRemoved(position);
         }
     }
 
     public void addWorkout(Workout workout) {
-        workouts.add(workout);
-        notifyItemInserted(workouts.size() - 1);
+        allWorkouts.add(workout);
+        applyFilter();
     }
 
     @NonNull

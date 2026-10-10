@@ -311,6 +311,11 @@
     <string name="workout_menu_delete">Delete</string>
     <string name="workout_delete_confirm_title">Delete Workout</string>
     <string name="workout_delete_confirm_message">Are you sure you want to delete this workout? Every time it is scheduled, and your completed history for it, will be deleted too.</string>
+    <string name="exercise_search_hint">Search exercises…</string>
+    <string name="workout_search_hint">Search workouts…</string>
+    <string name="exercise_browser_no_results">No exercises found</string>
+    <string name="workout_search_no_results">No workouts found</string>
+    <string name="exercise_browser_group_prefix">%1$s · %2$s</string>
     <string name="workout_tab_default">Default</string>
     <string name="workout_default_empty">No default workouts yet.</string>
     <string name="workout_show_less">Show less</string>
