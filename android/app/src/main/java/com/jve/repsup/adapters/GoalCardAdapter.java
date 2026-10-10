@@ -17,6 +17,8 @@ import com.jve.repsup.utils.GoalPriorityStyle;
 import com.jve.repsup.models.Goal;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,8 +45,31 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
     }
 
     public void setGoals(List<Goal> goals) {
-        this.goals = goals != null ? goals : new ArrayList<>();
+        this.goals = goals != null ? new ArrayList<>(goals) : new ArrayList<>();
+        sortCompletedLast();
         notifyDataSetChanged();
+    }
+
+    /** Re-sorts after a goal is completed so it drops to the bottom straight away. */
+    public void resortAndRefresh() {
+        sortCompletedLast();
+        notifyDataSetChanged();
+    }
+
+    /** Active goals first, completed ones last; the order within each group is kept. */
+    private void sortCompletedLast() {
+        Collections.sort(goals, (a, b) -> Boolean.compare(a.isCompleted(), b.isCompleted()));
+    }
+
+    /** A goal is overdue when its deadline is before today and it isn't completed. */
+    private static boolean isOverdue(Goal goal) {
+        if (goal.isCompleted() || goal.getDeadline() == null) return false;
+        Calendar startOfToday = Calendar.getInstance();
+        startOfToday.set(Calendar.HOUR_OF_DAY, 0);
+        startOfToday.set(Calendar.MINUTE, 0);
+        startOfToday.set(Calendar.SECOND, 0);
+        startOfToday.set(Calendar.MILLISECOND, 0);
+        return goal.getDeadline().getTime() < startOfToday.getTimeInMillis();
     }
 
     public void removeGoal(int position) {
@@ -78,6 +103,7 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         private final TextView tvGoalDeadline;
         private final TextView tvGoalTitle;
         private final TextView tvGoalPriority;
+        private final TextView tvGoalOverdue;
         private final TextView tvGoalDescription;
         private final CheckBox cbGoalComplete;
         private final ImageView btnGoalMenu;
@@ -87,6 +113,7 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
             tvGoalDeadline = itemView.findViewById(R.id.tvGoalDeadline);
             tvGoalTitle = itemView.findViewById(R.id.tvGoalTitle);
             tvGoalPriority = itemView.findViewById(R.id.tvGoalPriority);
+            tvGoalOverdue = itemView.findViewById(R.id.tvGoalOverdue);
             tvGoalDescription = itemView.findViewById(R.id.tvGoalDescription);
             cbGoalComplete = itemView.findViewById(R.id.cbGoalComplete);
             btnGoalMenu = itemView.findViewById(R.id.btnGoalMenu);
@@ -109,6 +136,12 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
 
             // Priority badge with full label and colour (shared with Home).
             GoalPriorityStyle.apply(tvGoalPriority, goal.getPriority());
+
+            // Red "Overdue" label for unfinished goals past their deadline.
+            tvGoalOverdue.setVisibility(isOverdue(goal) ? View.VISIBLE : View.GONE);
+
+            // Completed goals are greyed out.
+            itemView.setAlpha(goal.isCompleted() ? 0.5f : 1f);
 
             // Notes at the bottom
             if (!notes.isEmpty()) {

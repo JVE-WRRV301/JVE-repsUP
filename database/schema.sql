@@ -206,6 +206,7 @@ CREATE TABLE goal (
     goal_priority VARCHAR(20) NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,
     completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 

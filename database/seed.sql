@@ -341,10 +341,10 @@ INSERT INTO scheduled_workout (user_id, workout_id, scheduled_date, is_completed
 -- the future for a demo.
 -- goal_title holds the short title; goal_description holds the optional notes
 -- (NULL when the goal has no notes).
-INSERT INTO goal (user_id, goal_title, goal_description, deadline, goal_priority, is_completed) VALUES
-    (1, 'Move up a weight in bicep curls', 'I want to move up from 18kgs to 20kgs within 2 weeks.', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE),
-    (1, 'Bench press my body weight',       NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Top',    FALSE),
-    (2, 'Complete 3 workouts a week for a month', NULL,                                              DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'Medium', FALSE);
+INSERT INTO goal (user_id, goal_title, goal_description, deadline, goal_priority, is_completed, created_at) VALUES
+    (1, 'Move up a weight in bicep curls', 'I want to move up from 18kgs to 20kgs within 2 weeks.', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+    (1, 'Bench press my body weight',       NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Top',    FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+    (2, 'Complete 3 workouts a week for a month', NULL,                                              DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 
 -- USER COSMETICS (test data) 

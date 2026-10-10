@@ -32,6 +32,22 @@ public final class DialogUtils {
     }
 
     /**
+     * Shows a dialog with its own specific title (instead of the generic error
+     * title) and a string resource message. Used when the user did something the
+     * app won't allow and the title should say what, e.g. "Daily limit reached".
+     * Safe to call with a null context (no-op).
+     */
+    public static void showError(Context context, @StringRes int titleResId,
+                                 @StringRes int messageResId) {
+        if (context == null) return;
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(titleResId)
+                .setMessage(messageResId)
+                .setPositiveButton(R.string.error_dialog_ok, null)
+                .show();
+    }
+
+    /**
      * Shows an error dialog with a literal message string.
      * Safe to call with a null context (no-op).
      */

@@ -215,6 +215,14 @@
     <string name="goal_delete_success">Goal deleted</string>
     <string name="goal_delete_error">Failed to delete goal</string>
     <string name="goal_complete_error">Failed to complete goal</string>
+    <string name="goal_complete_confirm_title">Mark this goal complete?</string>
+    <string name="goal_complete_confirm_message">You will earn %d XP. This can\'t be undone.</string>
+    <string name="goal_complete_confirm_yes">Complete</string>
+    <string name="goal_too_new">You can complete this goal 24 hours after you create it.</string>
+    <string name="goal_daily_limit">You have already completed 3 goals today. Try again tomorrow.</string>
+    <string name="goal_overdue">Overdue</string>
+    <string name="goal_too_new_title">Goal too new</string>
+    <string name="goal_daily_limit_title">Daily limit reached</string>
     <string name="goal_deadline_format">Deadline: %s</string>
 
     <!-- Goal Complete Dialog -->

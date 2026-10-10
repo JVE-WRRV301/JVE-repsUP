@@ -22,9 +22,13 @@
     <!-- 3-dot menu button -->
     <ImageView
         android:id="@+id/btnGoalMenu"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="-12dp"
+        android:layout_marginEnd="-12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/goal_menu_description"
+        android:padding="12dp"
         android:src="@drawable/ic_more_vert"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -54,6 +58,20 @@
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvGoalTitle" />
+
+    <!-- Red "Overdue" label (shown when the deadline has passed) -->
+    <TextView
+        android:id="@+id/tvGoalOverdue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/inter_bold"
+        android:text="@string/goal_overdue"
+        android:textColor="@color/red"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@id/tvGoalPriority"
+        app:layout_constraintStart_toEndOf="@id/tvGoalPriority" />
 
     <!-- Notes / Description -->
     <TextView
