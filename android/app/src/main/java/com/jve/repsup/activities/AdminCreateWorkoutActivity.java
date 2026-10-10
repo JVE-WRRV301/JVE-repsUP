@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import com.jve.repsup.utils.MuscleGroups;
 import android.os.Bundle;
 import android.widget.ImageButton;
 
@@ -21,7 +22,6 @@ import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.utils.WorkoutValidator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,10 +42,7 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
      * the user-facing workout UI). The admin create flow lists these directly;
      * there is no "category" layer.
      */
-    public static final List<String> MUSCLE_GROUPS = Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    );
+    public static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
 
     // True while a save is running, so a second tap cannot create a duplicate.
     private boolean saving = false;

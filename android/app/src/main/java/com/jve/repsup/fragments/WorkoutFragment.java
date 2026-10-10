@@ -1,5 +1,6 @@
 package com.jve.repsup.fragments;
 
+import com.jve.repsup.utils.MuscleGroups;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,7 +39,6 @@ import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,10 +54,7 @@ public class WorkoutFragment extends Fragment implements
         ExerciseListAdapter.OnExerciseClickListener {
 
     // Muscle groups available in the library
-    private static final List<String> MUSCLE_GROUPS = Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    );
+    private static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
 
     // Views
     private TabLayout tabLayout;

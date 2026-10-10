@@ -23,6 +23,7 @@ import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
 
+import com.jve.repsup.utils.MuscleGroups;
 import com.jve.repsup.utils.WorkoutValidator;
 
 import java.util.ArrayList;
@@ -46,9 +47,6 @@ public class CreateWorkoutActivity extends AppCompatActivity {
     public static final int MODE_GENERATE = 1;
     public static final int MODE_EDIT = 2;
     public static final int MAX_EXERCISES = WorkoutValidator.MAX_EXERCISES;
-
-    private static final List<String> LOWER_BODY_GROUPS =
-            java.util.Arrays.asList("Legs", "Glutes", "Calves");
 
     private int selectedMode = -1;
     private List<String> selectedMuscleGroups = new ArrayList<>();
@@ -337,14 +335,14 @@ public class CreateWorkoutActivity extends AppCompatActivity {
 
     /**
      * How many exercises a generated workout should have. Lower-body-only
-     * workouts (Legs, Glutes, Calves) are 4 / 4 / 5 for Easy / Medium / Hard;
+     * workouts (Quads, Hamstrings, Glutes, Calves) are 4 / 4 / 5 for Easy / Medium / Hard;
      * anything that involves the upper body is 5 / 5 / 6. If more muscle groups
      * are chosen than that, there is one exercise per group so none is left out.
      */
     static int targetExerciseCount(String difficulty, List<String> groups) {
         boolean lowerBodyOnly = !groups.isEmpty();
         for (String group : groups) {
-            if (!LOWER_BODY_GROUPS.contains(group)) {
+            if (!MuscleGroups.isLowerBody(group)) {
                 lowerBodyOnly = false;
                 break;
             }

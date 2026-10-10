@@ -1,5 +1,6 @@
 package com.jve.repsup.fragments;
 
+import com.jve.repsup.utils.MuscleGroups;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,6 @@ import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
 import com.jve.repsup.utils.SnackbarUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,10 +26,7 @@ import java.util.List;
  */
 public class UserMuscleGroupSelectionFragment extends Fragment {
 
-    private static final List<String> MUSCLE_GROUPS = Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    );
+    private static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
 
     private SelectableMuscleGroupAdapter adapter;
 
