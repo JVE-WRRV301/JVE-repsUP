@@ -313,7 +313,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* leave placeholder image */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadAvatarThumbBody: database call failed", e);
+                /* leave placeholder image */
+            }
         });
     }
 
@@ -402,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onError(Exception e) {
+                                    Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                                     // Log error silently
                                 }
                             });
@@ -410,6 +414,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
+                        Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                         // Log error silently
                     }
                 });
@@ -417,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "evaluateYesterdaysStreak: database call failed", e);
                 // Log error silently — don't disrupt app launch
             }
         });

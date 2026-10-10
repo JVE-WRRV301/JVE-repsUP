@@ -70,7 +70,7 @@ CREATE TABLE user (
     rank_id INT,
     current_streak INT NOT NULL DEFAULT 0,
     avatar_id INT,
-    measurment_system VARCHAR(10) DEFAULT 'metric',
+    measurement_system VARCHAR(10) DEFAULT 'metric',
     set_language VARCHAR(10) DEFAULT 'en',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (rank_id) REFERENCES ranks(rank_id) ON DELETE SET NULL
@@ -236,7 +236,6 @@ CREATE TABLE goal (
 CREATE TABLE xp_log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    amount INT NOT NULL,
     source_type VARCHAR(20) NOT NULL,
     source_id INT NOT NULL,
     xp_earned INT NOT NULL,
@@ -253,21 +252,9 @@ CREATE TABLE coin_transaction (
     user_id INT NOT NULL,
     amount INT NOT NULL,
     cosmetic_id INT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (cosmetic_id) REFERENCES cosmetic_item(cosmetic_id) ON DELETE SET NULL
-);
-
-
--- STREAKS: weekly streak tracking and XP multipliers
-
-CREATE TABLE streak (
-    streak_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    week_st_date DATE NOT NULL,
-    num_workouts_completed INT DEFAULT 0,
-    met_goal BOOLEAN DEFAULT FALSE,
-    multiplier DECIMAL(3,2) DEFAULT 1.00,
-    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 
 

@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import android.util.Log;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
@@ -16,7 +17,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,6 +61,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * because they spend coins straight away.
  */
 public class CustomizeAvatarActivity extends AppCompatActivity {
+
+    private static final String TAG = "CustomizeAvatarActivity";
 
     private static final String[] CATEGORIES = {"Body", "Hair", "Clothing"};
     private static final String[] CLOTHING_SUBTABS = {"Top", "Bottom", "Shoes"};
@@ -866,7 +868,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* grid still renders, all locked */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadOwnedCosmetics: database call failed", e);
+                /* grid still renders, all locked */
+            }
         });
     }
 
@@ -896,7 +901,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* preview shows body only */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadEquippedItems: database call failed", e);
+                /* preview shows body only */
+            }
         });
     }
 
@@ -911,7 +919,10 @@ public class CustomizeAvatarActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(Exception e) { /* keep default gender */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadGender: database call failed", e);
+                /* keep default gender */
+            }
         });
     }
 

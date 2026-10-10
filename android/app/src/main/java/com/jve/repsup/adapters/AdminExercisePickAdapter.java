@@ -19,8 +19,7 @@ import java.util.List;
 /**
  * RecyclerView adapter for the ADMIN create flow's exercise list. Tapping an
  * exercise invokes the click listener (which opens the sets/reps dialog to add it
- * to the workout). Single-tap behaviour — distinct from the user-side multi-select
- * {@link ExerciseSelectionAdapter}.
+ * to the workout). Single-tap behaviour.
  */
 public class AdminExercisePickAdapter
         extends RecyclerView.Adapter<AdminExercisePickAdapter.ExerciseViewHolder> {

@@ -1,5 +1,6 @@
 package com.jve.repsup.fragments;
 
+import android.util.Log;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -50,6 +51,8 @@ import java.util.Set;
  * "My Plan" and "Goals" tabs, and a FAB for scheduling workouts or creating goals.
  */
 public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnDayClickListener {
+
+    private static final String TAG = "CalendarFragment";
 
     private TextView tvMonthYear;
     private ImageView ivPrevMonth;
@@ -317,6 +320,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
                     @Override
                     public void onError(Exception e) {
+                        Log.e(TAG, "loadMonthIndicators: database call failed", e);
                     }
                 });
 
@@ -343,6 +347,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "loadMonthIndicators: database call failed", e);
             }
         });
     }
@@ -537,19 +542,5 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
     private void navigateToCreateGoal() {
         Intent intent = new Intent(getContext(), CreateGoalActivity.class);
         startActivity(intent);
-    }
-
-    public static class PlaceholderFragment extends Fragment {
-        @Nullable
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                                 @Nullable Bundle savedInstanceState) {
-            TextView tv = new TextView(getContext());
-            tv.setText(R.string.calendar_my_plan_placeholder);
-            tv.setTextColor(getResources().getColor(R.color.muted, null));
-            tv.setGravity(android.view.Gravity.CENTER);
-            tv.setPadding(32, 64, 32, 64);
-            return tv;
-        }
     }
 }

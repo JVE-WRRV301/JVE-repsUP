@@ -24,7 +24,7 @@ public class UserRepository {
      */
     public void authenticate(String username, String password, ConnectionManager.DatabaseCallback<User> callback) {
         String sql = "SELECT user_id, first_name, email, username, set_password, xp, coins, " +
-                "current_level, rank_id, current_streak, avatar_id, measurment_system, set_language " +
+                "current_level, rank_id, current_streak, avatar_id, measurement_system, set_language " +
                 "FROM user WHERE username = ?";
 
         ConnectionManager.querySingle(sql, new Object[]{username}, rs -> {
@@ -46,7 +46,7 @@ public class UserRepository {
             user.setRankId(rs.getInt("rank_id"));
             user.setCurrentStreak(rs.getInt("current_streak"));
             user.setAvatarId(rs.getInt("avatar_id"));
-            user.setMeasurementSystem(rs.getString("measurment_system"));
+            user.setMeasurementSystem(rs.getString("measurement_system"));
             user.setLanguage(rs.getString("set_language"));
             return user;
         }, callback);
@@ -125,14 +125,14 @@ public class UserRepository {
      * Inserts a new XP_Log record for tracking XP earnings.
      * Returns the generated log_id.
      */
-    public void insertXpLog(int userId, int amount, String sourceType, int sourceId,
+    public void insertXpLog(int userId, String sourceType, int sourceId,
                             int xpEarned, int coinsEarned,
                             ConnectionManager.DatabaseCallback<Long> callback) {
-        String sql = "INSERT INTO xp_log (user_id, amount, source_type, source_id, " +
-                "xp_earned, coins_earned, time_stamp) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+        String sql = "INSERT INTO xp_log (user_id, source_type, source_id, " +
+                "xp_earned, coins_earned, time_stamp) VALUES (?, ?, ?, ?, ?, NOW())";
 
         ConnectionManager.executeInsert(sql, new Object[]{
-                userId, amount, sourceType, sourceId, xpEarned, coinsEarned
+                userId, sourceType, sourceId, xpEarned, coinsEarned
         }, callback);
     }
 
@@ -160,7 +160,7 @@ public class UserRepository {
      */
     public void getUserById(int userId, ConnectionManager.DatabaseCallback<User> callback) {
         String sql = "SELECT u.user_id, u.first_name, u.email, u.username, u.set_password, u.xp, u.coins, " +
-                "u.current_level, u.rank_id, u.current_streak, u.avatar_id, u.measurment_system, u.set_language, " +
+                "u.current_level, u.rank_id, u.current_streak, u.avatar_id, u.measurement_system, u.set_language, " +
                 "CONCAT(r.tier, ' ', r.subtier) AS rank_name " +
                 "FROM user u LEFT JOIN ranks r ON u.rank_id = r.rank_id WHERE u.user_id = ?";
 
@@ -177,7 +177,7 @@ public class UserRepository {
             user.setRankId(rs.getInt("rank_id"));
             user.setCurrentStreak(rs.getInt("current_streak"));
             user.setAvatarId(rs.getInt("avatar_id"));
-            user.setMeasurementSystem(rs.getString("measurment_system"));
+            user.setMeasurementSystem(rs.getString("measurement_system"));
             user.setLanguage(rs.getString("set_language"));
             user.setRankName(rs.getString("rank_name"));
             return user;
@@ -235,7 +235,7 @@ public class UserRepository {
      * @param callback receives the number of affected rows or error
      */
     public void updateMeasurementSystem(int userId, String system, ConnectionManager.DatabaseCallback<Integer> callback) {
-        String sql = "UPDATE user SET measurment_system = ? WHERE user_id = ?";
+        String sql = "UPDATE user SET measurement_system = ? WHERE user_id = ?";
 
         ConnectionManager.executeUpdate(sql, new Object[]{system, userId}, callback);
     }

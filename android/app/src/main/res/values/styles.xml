@@ -34,69 +34,6 @@
         <item name="android:paddingBottom">6dp</item>
     </style>
 
-    <!-- Base button: rounded light-blue, dark text -->
-    <style name="Widget.RepsUp.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/light_blue</item>
-        <item name="android:textColor">@color/dark_grey</item>
-        <item name="cornerRadius">@dimen/radius_control</item>
-        <item name="android:fontFamily">@font/inter_medium</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <!-- Outline button (cancel/secondary) -->
-    <style name="Widget.RepsUp.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">@color/muted</item>
-        <item name="android:textColor">@color/muted</item>
-        <item name="cornerRadius">@dimen/radius_control</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <!-- Primary button: light blue rounded, dark text -->
-    <style name="Widget.RepsUp.Button.Primary" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/light_blue</item>
-        <item name="android:textColor">@color/dark_text</item>
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">@dimen/radius_control</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
-        <item name="android:minHeight">52dp</item>
-    </style>
-
-    <!-- Secondary button: outlined with light blue border -->
-    <style name="Widget.RepsUp.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">@color/light_blue</item>
-        <item name="strokeWidth">1.5dp</item>
-        <item name="android:textColor">@color/light_blue</item>
-        <item name="android:fontFamily">@font/inter_medium</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">@dimen/radius_control</item>
-        <item name="android:minHeight">44dp</item>
-        <item name="backgroundTint">@color/transparent</item>
-    </style>
-
-    <!-- Text button: no background, blue text -->
-    <style name="Widget.RepsUp.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/light_blue</item>
-        <item name="android:fontFamily">@font/inter_medium</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="rippleColor">@color/light_blue_muted</item>
-    </style>
-
-    <!-- Danger button: red rounded -->
-    <style name="Widget.RepsUp.Button.Danger" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/red</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="cornerRadius">@dimen/radius_control</item>
-        <item name="android:minHeight">52dp</item>
-    </style>
-
     <!--
         Shared back-button style used on every screen with a back arrow
         (Login, Register, Settings, Account, Personal Details, Workout
@@ -115,69 +52,7 @@
         <item name="android:tint">@color/white</item>
     </style>
 
-    <!-- ==================== CARDS ==================== -->
-
-    <!-- Base card style: dark surface with rounded corners -->
-    <style name="Widget.RepsUp.Card" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/dark_grey_variant</item>
-        <item name="cardCornerRadius">@dimen/radius_card</item>
-        <item name="cardElevation">0dp</item>
-        <item name="contentPadding">16dp</item>
-    </style>
-
-    <!-- Blue bordered card (used for today's workout) -->
-    <style name="Widget.RepsUp.Card.BlueBorder" parent="Widget.RepsUp.Card">
-        <item name="strokeColor">@color/light_blue</item>
-        <item name="strokeWidth">1.5dp</item>
-    </style>
-
-    <!-- Red bordered card (used for goals) -->
-    <style name="Widget.RepsUp.Card.RedBorder" parent="Widget.RepsUp.Card">
-        <item name="strokeColor">@color/red</item>
-        <item name="strokeWidth">1.5dp</item>
-    </style>
-
-    <!-- Yellow bordered card (used for streaks/achievements) -->
-    <style name="Widget.RepsUp.Card.YellowBorder" parent="Widget.RepsUp.Card">
-        <item name="strokeColor">@color/yellow</item>
-        <item name="strokeWidth">1.5dp</item>
-    </style>
-
-    <!-- White card container (used for form sections against dark background) -->
-    <style name="Widget.RepsUp.Card.White" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="cardCornerRadius">@dimen/radius_card</item>
-        <item name="cardElevation">0dp</item>
-        <item name="contentPadding">16dp</item>
-    </style>
-
     <!-- ==================== INPUT FIELDS ==================== -->
-
-    <!--
-        Default text-field style, wired into Theme.RepsUp as the
-        TextInputLayout style. Any text field without its own corner radius
-        picks up radius_control automatically.
-    -->
-    <style name="Widget.RepsUp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/light_blue</item>
-        <item name="boxStrokeWidth">1.5dp</item>
-        <item name="boxCornerRadiusTopStart">@dimen/radius_control</item>
-        <item name="boxCornerRadiusTopEnd">@dimen/radius_control</item>
-        <item name="boxCornerRadiusBottomStart">@dimen/radius_control</item>
-        <item name="boxCornerRadiusBottomEnd">@dimen/radius_control</item>
-        <item name="boxBackgroundColor">@color/dark_grey_surface</item>
-        <item name="hintTextColor">@color/light_blue</item>
-        <item name="android:textColorHint">@color/muted</item>
-    </style>
-
-    <!-- Text input edit text -->
-    <style name="Widget.RepsUp.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">@font/inter</item>
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingBottom">16dp</item>
-    </style>
 
     <!--
         Shared text-field style for Login, Register and Create Goal: transparent
@@ -240,18 +115,6 @@
 
     <!-- ==================== TEXT STYLES ==================== -->
 
-    <!-- Heading (Orbitron font for branding) -->
-    <style name="TextAppearance.RepsUp.Heading" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="android:fontFamily">@font/orbitron_bold</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <!-- Page title: one size and one font for every screen title -->
-    <style name="TextAppearance.RepsUp.PageTitle" parent="TextAppearance.RepsUp.Heading">
-        <item name="android:textSize">22sp</item>
-    </style>
-
     <!--
         Widget style for page titles. Applied with style="..." rather than
         textAppearance so the theme's android:fontFamily (inter) can't override
@@ -267,48 +130,6 @@
     <!-- Page title variant that stays in normal case (greetings, user names) -->
     <style name="Widget.RepsUp.PageTitle.Personal" parent="Widget.RepsUp.PageTitle">
         <item name="android:textAllCaps">false</item>
-    </style>
-
-    <!-- Subheading -->
-    <style name="TextAppearance.RepsUp.Subheading" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <!-- Body text -->
-    <style name="TextAppearance.RepsUp.Body" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:fontFamily">@font/inter</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <!-- Caption/muted text -->
-    <style name="TextAppearance.RepsUp.Caption" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:fontFamily">@font/inter</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/muted</item>
-    </style>
-
-    <!-- Label (small bold) -->
-    <style name="TextAppearance.RepsUp.Label" parent="TextAppearance.MaterialComponents.Overline">
-        <item name="android:fontFamily">@font/inter_medium</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/light_blue</item>
-        <item name="android:textAllCaps">true</item>
-    </style>
-
-    <!-- ==================== BADGES ==================== -->
-
-    <!-- Priority badge base -->
-    <style name="Widget.RepsUp.Badge" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textSize">10sp</item>
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="android:paddingStart">8dp</item>
-        <item name="android:paddingEnd">8dp</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:textAllCaps">true</item>
     </style>
 
     <!-- ==================== LOCKER TABS ==================== -->

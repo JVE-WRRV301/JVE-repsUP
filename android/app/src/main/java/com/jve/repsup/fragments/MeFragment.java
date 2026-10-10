@@ -1,5 +1,6 @@
 package com.jve.repsup.fragments;
 
+import android.util.Log;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -44,6 +45,8 @@ import java.util.Locale;
  * Validates: Requirements 20.1, 20.2, 20.3, 20.4, 20.5
  */
 public class MeFragment extends Fragment {
+
+    private static final String TAG = "MeFragment";
 
     private ImageButton btnSettings;
     private ImageButton btnLocker;
@@ -183,7 +186,10 @@ public class MeFragment extends Fragment {
             }
 
             @Override
-            public void onError(Exception e) { /* leave default avatar image */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadAvatarBodyThenComposite: database call failed", e);
+                /* leave default avatar image */
+            }
         });
     }
 
@@ -250,6 +256,7 @@ public class MeFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "loadUserProfile: database call failed", e);
                 // Silently fail — don't disrupt UI
             }
         });

@@ -193,23 +193,6 @@ public class AvatarCompositor {
     }
 
     /**
-     * Convenience overload that reads gender/body type/skin tone from an Avatar
-     * record. Note the Avatar table does not store gender directly, so callers
-     * that know the gender should prefer
-     * {@link #composite(Context, String, String, String, List)}.
-     *
-     * @param avatar        the user's Avatar record (body_shape + skin_tone)
-     * @param equippedItems the resolved equipped CosmeticItems
-     */
-    public static Bitmap composite(Context context, Avatar avatar, List<CosmeticItem> equippedItems) {
-        String skinTone = avatar != null ? avatar.getSkinTone() : null;
-        String hairColour = avatar != null ? avatar.getHairColour() : null;
-        String bodyType = avatar != null ? avatar.getBodyShape() : null;
-        // Gender is not stored on Avatar; default to male when unknown.
-        return composite(context, "male", bodyType, skinTone, hairColour, equippedItems);
-    }
-
-    /**
      * Finds the first equipped item matching any of the given types (case-insensitive).
      * Returns null when the list is null/empty or no item matches.
      */

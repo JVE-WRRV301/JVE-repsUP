@@ -1,6 +1,7 @@
 package com.jve.repsup.fragments;
 
 import com.jve.repsup.utils.MuscleGroups;
+import android.util.Log;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,8 @@ import java.util.List;
  * User selects a difficulty and one or more muscle groups, then taps Generate.
  */
 public class GenerateWorkoutOptionsFragment extends Fragment {
+
+    private static final String TAG = "GenerateWorkoutOptionsFragment";
 
     private static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
 
@@ -122,6 +125,7 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "preselectDifficultyForBeginners: database call failed", e);
                 // Nothing to do: the user simply picks a difficulty themselves.
             }
         });

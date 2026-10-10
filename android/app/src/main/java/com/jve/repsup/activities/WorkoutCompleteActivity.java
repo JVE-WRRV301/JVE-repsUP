@@ -284,7 +284,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
 
         // 3. Insert XP log record
         int coinsEarned = 0; // Coins are awarded on level-up only (task 13)
-        userRepository.insertXpLog(userId, totalXp, "workout", workoutId, totalXp, coinsEarned,
+        userRepository.insertXpLog(userId, "workout", workoutId, totalXp, coinsEarned,
                 new ConnectionManager.DatabaseCallback<Long>() {
                     @Override
                     public void onSuccess(Long result) {

@@ -1,5 +1,6 @@
 package com.jve.repsup.views;
 
+import android.util.Log;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,6 +43,8 @@ import java.util.Map;
  * together, each labelled with its group.
  */
 public class ExerciseBrowserView extends LinearLayout {
+
+    private static final String TAG = "ExerciseBrowserView";
 
     /** Tells the host that the ticked exercises changed, or that the limit was hit. */
     public interface SelectionListener {
@@ -180,6 +183,7 @@ public class ExerciseBrowserView extends LinearLayout {
 
                     @Override
                     public void onError(Exception e) {
+                        Log.e(TAG, "loadLastWeights: database call failed", e);
                         // The rows just show no weight.
                     }
                 });

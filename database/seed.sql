@@ -563,9 +563,3 @@ INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUE
 
 INSERT INTO outfit_slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) VALUES
     (1, 1, 2, NULL, 3, 7, NULL);
-
-
--- STREAKS (test data) - Dylan's 2-week streak with XP multiplier
-
-INSERT INTO streak (user_id, week_st_date, num_workouts_completed, met_goal, multiplier) VALUES
-    (1, '2026-08-25', 5, TRUE, 1.50);

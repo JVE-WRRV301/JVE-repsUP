@@ -13,7 +13,7 @@ import com.jve.repsup.R;
  * Toasts are shown here as an AlertDialog the user must dismiss, so failures are
  * noticed rather than flashing by.
  *
- * Validation hints and brief success confirmations intentionally remain Toasts.
+ * Validation hints and brief success confirmations are shown as Snackbars (see SnackbarUtils).
  */
 public final class DialogUtils {
 

@@ -218,7 +218,7 @@ public class GoalsListFragment extends Fragment implements GoalCardAdapter.OnGoa
                     @Override
                     public void onSuccess(Integer xpResult) {
                         // Step 3: Insert XP_Log record
-                        userRepository.insertXpLog(userId, xpEarned, "goal",
+                        userRepository.insertXpLog(userId, "goal",
                                 goal.getGoalId(), xpEarned, 0,
                                 new ConnectionManager.DatabaseCallback<Long>() {
                                     @Override

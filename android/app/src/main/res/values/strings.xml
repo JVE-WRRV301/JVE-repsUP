@@ -32,7 +32,6 @@
     <string name="login_no_account">Don\'t have an account? </string>
     <string name="login_sign_up">Sign Up</string>
     <string name="login_connection_error">Connection error. Please try again later.</string>
-    <string name="login_placeholder">Login — Coming Soon</string>
 
     <!-- Welcome Screen -->
     <string name="welcome_title">Welcome to Reps Up</string>
@@ -247,8 +246,6 @@
     <string name="calendar_status_completed">Completed</string>
     <string name="calendar_status_missed">Missed</string>
     <string name="calendar_status_scheduled">Scheduled</string>
-    <string name="calendar_schedule_coming_soon">Schedule Workout coming soon</string>
-    <string name="calendar_my_plan_placeholder">Weekly plan coming soon</string>
 
     <!-- Weekly Plan -->
     <string name="weekly_plan_prev_week">Previous week</string>
@@ -376,7 +373,6 @@
     <!-- Admin Create Exercise -->
     <string name="admin_create_exercise_title">Create Exercise</string>
     <string name="admin_exercise_name_hint">Name</string>
-    <string name="admin_add_demonstration">Add Demonstration</string>
     <string name="admin_select_difficulty">Select Difficulty</string>
     <string name="hint_exercise_name">Exercise Name</string>
     <string name="hint_muscle_group">Muscle Group</string>
@@ -384,7 +380,6 @@
     <string name="hint_default_sets">Default Sets</string>
     <string name="hint_default_reps">Default Reps</string>
     <string name="hint_base_xp">Base XP</string>
-    <string name="btn_select_demo_image">Select Demo Image</string>
     <string name="btn_save_exercise">Save Exercise</string>
     <string name="error_exercise_name_required">Exercise name is required</string>
     <string name="error_muscle_group_required">Muscle group is required</string>
