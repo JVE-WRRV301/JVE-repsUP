@@ -36,6 +36,7 @@ import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SimpleTextWatcher;
+import com.jve.repsup.utils.WeightFormat;
 import com.jve.repsup.views.ExerciseBrowserView;
 
 import java.util.List;
@@ -292,6 +293,14 @@ public class WorkoutFragment extends Fragment implements
         ((TextView) content.findViewById(R.id.tvDetailSetsReps)).setText(getString(
                 R.string.exercise_detail_sets_reps_format,
                 exercise.getDefaultSets(), exercise.getDefaultReps()));
+
+        // The weight the user last logged for this exercise, in blue (nothing if never logged).
+        Double lastWeight = exerciseBrowser.getLastWeight(exercise.getExerciseId());
+        TextView tvLastWeight = content.findViewById(R.id.tvDetailLastWeight);
+        if (lastWeight != null && lastWeight > 0) {
+            tvLastWeight.setText(WeightFormat.kg(requireContext(), lastWeight));
+            content.findViewById(R.id.llDetailLastWeight).setVisibility(View.VISIBLE);
+        }
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(exercise.getName())

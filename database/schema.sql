@@ -195,6 +195,26 @@ CREATE TABLE scheduled_workout (
 );
 
 
+-- EXERCISE LOG: what the user actually did per exercise when completing a workout
+-- (newest row per exercise = the "last weight"; linked rows feed calendar history)
+
+CREATE TABLE exercise_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    scheduled_workout_id INT NULL,
+    sets_completed INT NOT NULL DEFAULT 0,
+    total_reps INT NOT NULL DEFAULT 0,
+    weight_kg DECIMAL(6,2) NOT NULL DEFAULT 0.00,
+    logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_exercise_log_user_exercise (user_id, exercise_id),
+    INDEX idx_exercise_log_scheduled (scheduled_workout_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (exercise_id) REFERENCES exercise(exercise_id) ON DELETE CASCADE,
+    FOREIGN KEY (scheduled_workout_id) REFERENCES scheduled_workout(scheduled_workout_id) ON DELETE SET NULL
+);
+
+
 -- GOALS: user-defined fitness goals
 
 CREATE TABLE goal (

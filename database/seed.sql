@@ -510,6 +510,26 @@ INSERT INTO scheduled_workout (user_id, workout_id, scheduled_date, is_completed
     (1, 5, DATE_ADD(CURDATE(), INTERVAL 3 DAY),  FALSE, 0);
 
 
+-- EXERCISE LOG (test data): what Dyllan actually lifted in yesterday's workout
+-- (workout 7). These are the "last weights" shown in the library and pre-filled
+-- the next time he does those exercises.
+
+INSERT INTO exercise_log (user_id, exercise_id, scheduled_workout_id, sets_completed, total_reps, weight_kg, logged_at)
+SELECT sw.user_id, v.exercise_id, sw.scheduled_workout_id, 3, v.total_reps, v.weight_kg, TIMESTAMP(sw.scheduled_date)
+FROM scheduled_workout sw
+JOIN user u ON u.user_id = sw.user_id AND u.username = 'dyllan12345'
+JOIN (
+    SELECT 12 AS exercise_id, 30 AS total_reps, 40.00 AS weight_kg   -- Barbell Hip Thrusts
+    UNION ALL SELECT 18, 30, 35.00                                    -- Barbell RDLs
+    UNION ALL SELECT 19, 36, 25.00                                    -- Hamstring Extension
+) AS v
+WHERE sw.workout_id = 7
+  AND sw.is_completed = TRUE
+  AND sw.scheduled_workout_id = (SELECT MIN(s2.scheduled_workout_id) FROM scheduled_workout s2
+                                 WHERE s2.user_id = sw.user_id AND s2.workout_id = 7 AND s2.is_completed = TRUE)
+  AND NOT EXISTS (SELECT 1 FROM exercise_log);
+
+
 -- GOALS (test data)
 
 -- goal_priority must be exactly 'Top', 'Medium' or 'Low' (the values the app

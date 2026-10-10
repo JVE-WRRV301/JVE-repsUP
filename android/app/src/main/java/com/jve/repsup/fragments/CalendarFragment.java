@@ -29,16 +29,20 @@ import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.CalendarDayAdapter;
 import com.jve.repsup.adapters.DayContentAdapter;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.Goal;
 import com.jve.repsup.models.ScheduledWorkout;
+import com.jve.repsup.repositories.ExerciseLogRepository;
 import com.jve.repsup.repositories.GoalRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -366,7 +370,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                     @Override
                     public void onSuccess(List<ScheduledWorkout> workouts) {
                         if (getActivity() == null || !isAdded()) return;
-                        loadGoalsForDay(userId, cal, selectedDate, workouts, requestId);
+                        loadLogsForDay(userId, cal, selectedDate, workouts, requestId);
                     }
 
                     @Override
@@ -381,9 +385,39 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                 });
     }
 
-    /** Second step of loadDayContent: finds the goals due on the day, then draws the panel. */
+    /**
+     * Second step of loadDayContent: fetches what was logged for the day's completed
+     * workouts (shown as what was actually done). If that fails the workouts just
+     * show their plan.
+     */
+    private void loadLogsForDay(int userId, Calendar day, java.sql.Date selectedDate,
+                                List<ScheduledWorkout> workouts, int requestId) {
+        List<Integer> completedIds = new ArrayList<>();
+        if (workouts != null) {
+            for (ScheduledWorkout sw : workouts) {
+                if (sw.isCompleted()) completedIds.add(sw.getScheduledWorkoutId());
+            }
+        }
+        new ExerciseLogRepository().getLogsForScheduledWorkouts(completedIds,
+                new ConnectionManager.DatabaseCallback<Map<Integer, Map<Integer, ExerciseResult>>>() {
+                    @Override
+                    public void onSuccess(Map<Integer, Map<Integer, ExerciseResult>> logs) {
+                        if (getActivity() == null || !isAdded()) return;
+                        loadGoalsForDay(userId, day, selectedDate, workouts, logs, requestId);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        if (getActivity() == null || !isAdded()) return;
+                        loadGoalsForDay(userId, day, selectedDate, workouts, new HashMap<>(), requestId);
+                    }
+                });
+    }
+
+    /** Third step of loadDayContent: finds the goals due on the day, then draws the panel. */
     private void loadGoalsForDay(int userId, Calendar day, java.sql.Date selectedDate,
-                                 List<ScheduledWorkout> workouts, int requestId) {
+                                 List<ScheduledWorkout> workouts,
+                                 Map<Integer, Map<Integer, ExerciseResult>> logs, int requestId) {
         goalRepository.getUserGoals(userId, new ConnectionManager.DatabaseCallback<List<Goal>>() {
             @Override
             public void onSuccess(List<Goal> goals) {
@@ -395,19 +429,20 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
                         }
                     }
                 }
-                showDayContent(workouts, due, selectedDate, requestId);
+                showDayContent(workouts, due, selectedDate, logs, requestId);
             }
 
             @Override
             public void onError(Exception e) {
                 // The workouts still show; the goals for this day are just left out.
-                showDayContent(workouts, new ArrayList<>(), selectedDate, requestId);
+                showDayContent(workouts, new ArrayList<>(), selectedDate, logs, requestId);
             }
         });
     }
 
     private void showDayContent(List<ScheduledWorkout> workouts, List<Goal> goalsDue,
-                                java.sql.Date selectedDate, int requestId) {
+                                java.sql.Date selectedDate,
+                                Map<Integer, Map<Integer, ExerciseResult>> logs, int requestId) {
         if (getActivity() == null || !isAdded()) return;
         getActivity().runOnUiThread(() -> {
             // A newer tap or a month change has replaced this request.
@@ -421,6 +456,7 @@ public class CalendarFragment extends Fragment implements CalendarDayAdapter.OnD
             if (hasWorkouts) {
                 rvDayContent.setVisibility(View.VISIBLE);
                 dayContentAdapter.setSelectedDate(selectedDate);
+                dayContentAdapter.setLogs(logs);
                 dayContentAdapter.setItems(workouts);
             } else {
                 rvDayContent.setVisibility(View.GONE);

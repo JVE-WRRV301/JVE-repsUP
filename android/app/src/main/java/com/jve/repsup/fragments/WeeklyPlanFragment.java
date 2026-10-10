@@ -21,14 +21,19 @@ import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.activities.WorkoutExecutionActivity;
 import com.jve.repsup.adapters.WeeklyPlanAdapter;
 import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.ScheduledWorkout;
+import com.jve.repsup.repositories.ExerciseLogRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SessionManager;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Fragment displaying the weekly plan with collapsible day sections.
@@ -214,22 +219,7 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                     @Override
                     public void onSuccess(List<ScheduledWorkout> result) {
                         if (getActivity() == null || !isAdded()) return;
-                        getActivity().runOnUiThread(() -> {
-                            Date weekStart = new Date(currentWeekStart.getTimeInMillis());
-                            adapter.setWeekData(weekStart, result);
-
-                            // Show/hide empty state
-                            if (result == null || result.isEmpty()) {
-                                tvEmptyState.setVisibility(View.VISIBLE);
-                                rvWeeklyPlan.setVisibility(View.VISIBLE);
-                            } else {
-                                tvEmptyState.setVisibility(View.GONE);
-                                rvWeeklyPlan.setVisibility(View.VISIBLE);
-                            }
-
-                            // Auto-scroll to today's position
-                            scrollToToday();
-                        });
+                        loadLogsThenShow(result);
                     }
 
                     @Override
@@ -241,6 +231,52 @@ public class WeeklyPlanFragment extends Fragment implements WeeklyPlanAdapter.On
                         });
                     }
                 });
+    }
+
+    /**
+     * Fetches what was logged for the week's completed workouts (shown as what was
+     * actually done), then draws the week. If that fails the plan is shown instead.
+     */
+    private void loadLogsThenShow(List<ScheduledWorkout> result) {
+        List<Integer> completedIds = new ArrayList<>();
+        if (result != null) {
+            for (ScheduledWorkout sw : result) {
+                if (sw.isCompleted()) completedIds.add(sw.getScheduledWorkoutId());
+            }
+        }
+        new ExerciseLogRepository().getLogsForScheduledWorkouts(completedIds,
+                new ConnectionManager.DatabaseCallback<Map<Integer, Map<Integer, ExerciseResult>>>() {
+                    @Override
+                    public void onSuccess(Map<Integer, Map<Integer, ExerciseResult>> logs) {
+                        showWeek(result, logs);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        showWeek(result, new HashMap<>());
+                    }
+                });
+    }
+
+    private void showWeek(List<ScheduledWorkout> result, Map<Integer, Map<Integer, ExerciseResult>> logs) {
+        if (getActivity() == null || !isAdded()) return;
+        getActivity().runOnUiThread(() -> {
+                Date weekStart = new Date(currentWeekStart.getTimeInMillis());
+                adapter.setLogs(logs);
+                adapter.setWeekData(weekStart, result);
+
+                // Show/hide empty state
+                if (result == null || result.isEmpty()) {
+                    tvEmptyState.setVisibility(View.VISIBLE);
+                    rvWeeklyPlan.setVisibility(View.VISIBLE);
+                } else {
+                    tvEmptyState.setVisibility(View.GONE);
+                    rvWeeklyPlan.setVisibility(View.VISIBLE);
+                }
+
+                // Auto-scroll to today's position
+                scrollToToday();
+        });
     }
 
     /**

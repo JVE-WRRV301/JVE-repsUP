@@ -17,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.jve.repsup.R;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.utils.DisplayText;
+import com.jve.repsup.utils.WeightFormat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,6 +40,8 @@ public class ExerciseBrowserAdapter extends RecyclerView.Adapter<ExerciseBrowser
     private boolean showGroup = false;
     // The tab the user is on. A result from any other group gets its group name in blue.
     private String currentGroup = "";
+    // Last logged weight (kg) per exercise id, shown in blue after the sets and reps.
+    private Map<Integer, Double> lastWeights = new HashMap<>();
     private final boolean selectable;
     private final Set<Integer> selectedIds;
     private final OnItemClickListener listener;
@@ -52,6 +57,11 @@ public class ExerciseBrowserAdapter extends RecyclerView.Adapter<ExerciseBrowser
         this.items = items != null ? items : new ArrayList<>();
         this.showGroup = showGroup;
         this.currentGroup = currentGroup != null ? currentGroup : "";
+        notifyDataSetChanged();
+    }
+
+    public void setLastWeights(Map<Integer, Double> weights) {
+        this.lastWeights = weights != null ? weights : new HashMap<>();
         notifyDataSetChanged();
     }
 
@@ -82,19 +92,43 @@ public class ExerciseBrowserAdapter extends RecyclerView.Adapter<ExerciseBrowser
 
         boolean selected = selectable && selectedIds.contains(exercise.getExerciseId());
 
-        String details = context.getString(R.string.admin_exercise_details,
-                exercise.getDefaultSets(), exercise.getDefaultReps(),
-                DisplayText.capitalise(exercise.getDifficulty()));
+        // "3 sets × 12 reps · Easy", or "3 sets × 12 reps · 20 kg · Easy" once the user
+        // has logged a weight for it.
+        Double lastWeight = lastWeights.get(exercise.getExerciseId());
+        String weightText = lastWeight != null && lastWeight > 0
+                ? WeightFormat.kg(context, lastWeight) : null;
+        String difficulty = DisplayText.capitalise(exercise.getDifficulty());
+        String details = weightText != null
+                ? context.getString(R.string.exercise_browser_details_weight_format,
+                        exercise.getDefaultSets(), exercise.getDefaultReps(), weightText, difficulty)
+                : context.getString(R.string.admin_exercise_details,
+                        exercise.getDefaultSets(), exercise.getDefaultReps(), difficulty);
+        int weightColor = ContextCompat.getColor(context, selected ? R.color.dark_text : R.color.light_blue);
         if (showGroup && exercise.getMuscleGroup() != null) {
             String group = exercise.getMuscleGroup();
-            SpannableString text = new SpannableString(
-                    context.getString(R.string.exercise_browser_group_prefix, group, details));
+            String full = context.getString(R.string.exercise_browser_group_prefix, group, details);
+            SpannableString text = new SpannableString(full);
+            if (weightText != null) {
+                int start = full.indexOf(weightText, group.length());
+                if (start >= 0) {
+                    text.setSpan(new ForegroundColorSpan(weightColor), start,
+                            start + weightText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
             // A result from a different group than the tab you are on stands out in blue
             // (not on a selected row, which is already blue).
             if (!selected && !group.equalsIgnoreCase(currentGroup)) {
                 text.setSpan(new ForegroundColorSpan(
                                 ContextCompat.getColor(context, R.color.light_blue)),
                         0, group.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            holder.tvDetails.setText(text);
+        } else if (weightText != null) {
+            SpannableString text = new SpannableString(details);
+            int start = details.indexOf(weightText);
+            if (start >= 0) {
+                text.setSpan(new ForegroundColorSpan(weightColor), start,
+                        start + weightText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             holder.tvDetails.setText(text);
         } else {

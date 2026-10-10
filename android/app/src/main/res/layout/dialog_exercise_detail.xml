@@ -94,4 +94,31 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Only shown once the user has logged a weight for this exercise -->
+    <LinearLayout
+        android:id="@+id/llDetailLastWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/inter"
+            android:text="@string/exercise_detail_last_weight"
+            android:textColor="@color/muted"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvDetailLastWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:textColor="@color/light_blue"
+            android:textSize="14sp" />
+    </LinearLayout>
+
 </LinearLayout>

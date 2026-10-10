@@ -67,6 +67,12 @@ public class HomeFragment extends Fragment {
     // How many exercises the card lists before it switches to "+N more".
     private static final int MAX_EXERCISES_SHOWN = 3;
 
+    // The scheduled workout whose card is showing every exercise ("+N more" tapped), or -1.
+    private int expandedWorkoutId = -1;
+    // What the card is showing now, so a tap on "+N more" / "Show less" can redraw it.
+    private ScheduledWorkout shownWorkout;
+    private int shownOtherWorkouts;
+
     // True once a load error has been shown and until a load succeeds again, so
     // a database outage gives one message, not one per card or per tab switch.
     private boolean loadErrorShown = false;
@@ -308,6 +314,10 @@ public class HomeFragment extends Fragment {
      * line opens today in the Calendar.
      */
     private void showWorkoutCard(ScheduledWorkout scheduledWorkout, int otherWorkouts) {
+        shownWorkout = scheduledWorkout;
+        shownOtherWorkouts = otherWorkouts;
+        boolean expanded = scheduledWorkout.getScheduledWorkoutId() == expandedWorkoutId;
+
         llTodayContent.setVisibility(View.VISIBLE);
         tvTodayEmpty.setVisibility(View.GONE);
 
@@ -330,8 +340,8 @@ public class HomeFragment extends Fragment {
         List<WorkoutExercise> exercises = scheduledWorkout.getWorkout().getExercises();
         int hiddenExercises = 0;
         if (exercises != null) {
-            int shown = Math.min(exercises.size(), MAX_EXERCISES_SHOWN);
-            hiddenExercises = exercises.size() - shown;
+            int shown = expanded ? exercises.size() : Math.min(exercises.size(), MAX_EXERCISES_SHOWN);
+            hiddenExercises = exercises.size() - Math.min(exercises.size(), MAX_EXERCISES_SHOWN);
             for (WorkoutExercise we : exercises.subList(0, shown)) {
                 View exerciseItem = LayoutInflater.from(getContext())
                         .inflate(R.layout.item_exercise_preview, llExerciseList, false);
@@ -351,8 +361,17 @@ public class HomeFragment extends Fragment {
         }
 
         if (hiddenExercises > 0) {
-            tvMoreExercises.setText(getString(R.string.home_more_exercises_format, hiddenExercises));
+            // Tapping the line shows every exercise; tapping "Show less" folds it back.
+            tvMoreExercises.setText(expanded
+                    ? getString(R.string.workout_show_less)
+                    : getString(R.string.home_more_exercises_format, hiddenExercises));
             tvMoreExercises.setVisibility(View.VISIBLE);
+            tvMoreExercises.setOnClickListener(v -> {
+                if (shownWorkout == null) return;
+                int id = shownWorkout.getScheduledWorkoutId();
+                expandedWorkoutId = expandedWorkoutId == id ? -1 : id;
+                showWorkoutCard(shownWorkout, shownOtherWorkouts);
+            });
         } else {
             tvMoreExercises.setVisibility(View.GONE);
         }

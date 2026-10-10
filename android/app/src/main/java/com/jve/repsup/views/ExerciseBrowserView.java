@@ -21,9 +21,11 @@ import com.jve.repsup.adapters.ExerciseBrowserAdapter;
 import com.jve.repsup.adapters.ExerciseListAdapter;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
+import com.jve.repsup.repositories.ExerciseLogRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.MuscleGroups;
+import com.jve.repsup.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -62,6 +64,8 @@ public class ExerciseBrowserView extends LinearLayout {
     private int maxSelections = Integer.MAX_VALUE;
     private boolean loaded = false;
     private boolean loading = false;
+
+    private final Map<Integer, Double> lastWeights = new java.util.HashMap<>();
 
     private SelectionListener selectionListener;
     private ExerciseListAdapter.OnExerciseClickListener clickListener;
@@ -149,8 +153,41 @@ public class ExerciseBrowserView extends LinearLayout {
         return selected.size();
     }
 
-    /** Loads every exercise once. Calling it again after a success does nothing. */
+    /** The last weight (kg) the user logged for this exercise, or null if none. */
+    @Nullable
+    public Double getLastWeight(int exerciseId) {
+        return lastWeights.get(exerciseId);
+    }
+
+    /**
+     * Fetches the user's last logged weights and shows them on the rows. Runs every
+     * time the list is shown, so a workout finished in the meantime is picked up.
+     * If it fails the rows simply show no weight.
+     */
+    private void loadLastWeights() {
+        int userId = new SessionManager(getContext()).getUserId();
+        if (userId == -1) return;
+        new ExerciseLogRepository().getLastWeights(userId,
+                new ConnectionManager.DatabaseCallback<Map<Integer, Double>>() {
+                    @Override
+                    public void onSuccess(Map<Integer, Double> weights) {
+                        post(() -> {
+                            lastWeights.clear();
+                            if (weights != null) lastWeights.putAll(weights);
+                            adapter.setLastWeights(lastWeights);
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // The rows just show no weight.
+                    }
+                });
+    }
+
+    /** Loads every exercise once (the weights are refreshed on every call). */
     public void loadIfNeeded() {
+        loadLastWeights();
         if (loaded || loading) return;
         loading = true;
         new WorkoutRepository().getAllExercises(new ConnectionManager.DatabaseCallback<List<Exercise>>() {
