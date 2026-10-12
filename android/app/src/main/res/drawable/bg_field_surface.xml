@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Rounded field background (radius_control) in the surface colour.
+    Used by form fields that previously set a flat android:background colour,
+    so every text field in the app carries a control radius.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/dark_grey_surface" />
+    <corners android:radius="@dimen/radius_control" />
+</shape>

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DisplayText;
 import com.jve.repsup.models.Exercise;
 
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class ExerciseListAdapter extends RecyclerView.Adapter<ExerciseListAdapte
 
         void bind(Exercise exercise, int position) {
             tvExerciseName.setText(exercise.getName());
-            tvExerciseDifficulty.setText(exercise.getDifficulty());
+            tvExerciseDifficulty.setText(DisplayText.capitalise(exercise.getDifficulty()));
             tvExerciseMuscleGroup.setText(exercise.getMuscleGroup());
 
             // Placeholder image (exercises don't have image resources stored locally)

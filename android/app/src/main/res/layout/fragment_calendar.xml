@@ -24,10 +24,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/orbitron_bold"
             android:text="@string/my_schedule_heading"
             android:textColor="@color/white"
-            android:textSize="22sp" />
+            style="@style/Widget.RepsUp.PageTitle" />
 
         <ImageView
             android:id="@+id/btnAddSchedule"
@@ -35,7 +34,7 @@
             android:layout_height="32dp"
             android:contentDescription="@string/calendar_add_action"
             android:src="@drawable/ic_add_circle"
-            app:tint="@color/white" />
+            app:tint="@color/light_blue" />
     </LinearLayout>
 
     <!-- Scrollable content: calendar + tabs + tab content -->
@@ -62,7 +61,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:contentDescription="@string/calendar_prev_month"
-                    android:src="@android:drawable/ic_media_previous"
+                    android:src="@drawable/ic_chevron_left"
                     app:tint="@color/white" />
 
                 <TextView
@@ -81,7 +80,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:contentDescription="@string/calendar_next_month"
-                    android:src="@android:drawable/ic_media_next"
+                    android:src="@drawable/ic_chevron_right"
                     app:tint="@color/white" />
             </LinearLayout>
 
@@ -92,15 +91,6 @@
                 android:orientation="horizontal"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/day_sun"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -155,6 +145,15 @@
                     android:text="@string/day_sat"
                     android:textColor="@color/muted"
                     android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/day_sun"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <!-- Calendar grid (RecyclerView with GridLayoutManager) -->
@@ -188,6 +187,26 @@
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:layout_marginTop="8dp" />
+
+                <!-- Goals due on the selected day -->
+                <LinearLayout
+                    android:id="@+id/llDayGoals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- Shown when the selected day has no workouts and no goals -->
+                <TextView
+                    android:id="@+id/tvDayNothing"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:text="@string/calendar_day_nothing_planned"
+                    android:textColor="@color/muted"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Tab layout for My Plan / Goals -->

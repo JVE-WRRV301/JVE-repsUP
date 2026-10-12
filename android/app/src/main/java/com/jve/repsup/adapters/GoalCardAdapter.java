@@ -9,16 +9,17 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.GoalPriorityStyle;
 import com.jve.repsup.models.Goal;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * RecyclerView adapter for goal cards (red border) in the Goals tab.
@@ -44,8 +45,31 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
     }
 
     public void setGoals(List<Goal> goals) {
-        this.goals = goals != null ? goals : new ArrayList<>();
+        this.goals = goals != null ? new ArrayList<>(goals) : new ArrayList<>();
+        sortCompletedLast();
         notifyDataSetChanged();
+    }
+
+    /** Re-sorts after a goal is completed so it drops to the bottom straight away. */
+    public void resortAndRefresh() {
+        sortCompletedLast();
+        notifyDataSetChanged();
+    }
+
+    /** Active goals first, completed ones last; the order within each group is kept. */
+    private void sortCompletedLast() {
+        Collections.sort(goals, (a, b) -> Boolean.compare(a.isCompleted(), b.isCompleted()));
+    }
+
+    /** A goal is overdue when its deadline is before today and it isn't completed. */
+    private static boolean isOverdue(Goal goal) {
+        if (goal.isCompleted() || goal.getDeadline() == null) return false;
+        Calendar startOfToday = Calendar.getInstance();
+        startOfToday.set(Calendar.HOUR_OF_DAY, 0);
+        startOfToday.set(Calendar.MINUTE, 0);
+        startOfToday.set(Calendar.SECOND, 0);
+        startOfToday.set(Calendar.MILLISECOND, 0);
+        return goal.getDeadline().getTime() < startOfToday.getTimeInMillis();
     }
 
     public void removeGoal(int position) {
@@ -79,64 +103,45 @@ public class GoalCardAdapter extends RecyclerView.Adapter<GoalCardAdapter.GoalVi
         private final TextView tvGoalDeadline;
         private final TextView tvGoalTitle;
         private final TextView tvGoalPriority;
+        private final TextView tvGoalOverdue;
         private final TextView tvGoalDescription;
         private final CheckBox cbGoalComplete;
         private final ImageView btnGoalMenu;
-
-        private final SimpleDateFormat dateFormat =
-                new SimpleDateFormat("d EEEE", Locale.getDefault());
 
         GoalViewHolder(@NonNull View itemView) {
             super(itemView);
             tvGoalDeadline = itemView.findViewById(R.id.tvGoalDeadline);
             tvGoalTitle = itemView.findViewById(R.id.tvGoalTitle);
             tvGoalPriority = itemView.findViewById(R.id.tvGoalPriority);
+            tvGoalOverdue = itemView.findViewById(R.id.tvGoalOverdue);
             tvGoalDescription = itemView.findViewById(R.id.tvGoalDescription);
             cbGoalComplete = itemView.findViewById(R.id.cbGoalComplete);
             btnGoalMenu = itemView.findViewById(R.id.btnGoalMenu);
         }
 
         void bind(Goal goal, int position) {
-            // Deadline formatted as "15 Sunday"
+            // Deadline formatted as "15 October 2026"
             if (goal.getDeadline() != null) {
-                tvGoalDeadline.setText(dateFormat.format(goal.getDeadline()));
+                tvGoalDeadline.setText(DateFormats.formatLong(goal.getDeadline()));
             } else {
                 tvGoalDeadline.setText("");
             }
 
-            // Split description into title and notes
-            String description = goal.getDescription();
-            String title = description;
-            String notes = "";
-            if (description != null && description.contains("\n---\n")) {
-                int separatorIndex = description.indexOf("\n---\n");
-                title = description.substring(0, separatorIndex);
-                notes = description.substring(separatorIndex + 5);
-            }
+            // Title and notes come from separate columns now.
+            String title = goal.getTitle();
+            String notes = goal.getDescription() != null ? goal.getDescription() : "";
 
             // Title at the top
             tvGoalTitle.setText(title);
 
-            // Priority badge with full label (e.g., "Top Priority")
-            String priority = goal.getPriority();
-            int priorityColor;
-            String priorityLabel;
-            switch (priority != null ? priority : "Medium") {
-                case "Top":
-                    priorityLabel = itemView.getContext().getString(R.string.importance_top_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.red);
-                    break;
-                case "Low":
-                    priorityLabel = itemView.getContext().getString(R.string.importance_low_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.green);
-                    break;
-                default:
-                    priorityLabel = itemView.getContext().getString(R.string.importance_medium_priority);
-                    priorityColor = ContextCompat.getColor(itemView.getContext(), R.color.yellow);
-                    break;
-            }
-            tvGoalPriority.setText(priorityLabel);
-            tvGoalPriority.setTextColor(priorityColor);
+            // Priority badge with full label and colour (shared with Home).
+            GoalPriorityStyle.apply(tvGoalPriority, goal.getPriority());
+
+            // Red "Overdue" label for unfinished goals past their deadline.
+            tvGoalOverdue.setVisibility(isOverdue(goal) ? View.VISIBLE : View.GONE);
+
+            // Completed goals are greyed out.
+            itemView.setAlpha(goal.isCompleted() ? 0.5f : 1f);
 
             // Notes at the bottom
             if (!notes.isEmpty()) {

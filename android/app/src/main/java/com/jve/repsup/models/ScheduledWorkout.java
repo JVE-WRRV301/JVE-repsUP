@@ -18,6 +18,9 @@ public class ScheduledWorkout {
     private int earnedXp;
     private int completedSets;
     private int completedReps;
+    // Shared by every occurrence created from one repeat; 0 when the workout
+    // does not repeat (the column is NULL).
+    private int seriesId;
 
     // Transient: workout details (populated by joins)
     private Workout workout;
@@ -66,6 +69,9 @@ public class ScheduledWorkout {
 
     public int getCompletedReps() { return completedReps; }
     public void setCompletedReps(int completedReps) { this.completedReps = completedReps; }
+
+    public int getSeriesId() { return seriesId; }
+    public void setSeriesId(int seriesId) { this.seriesId = seriesId; }
 
     public Workout getWorkout() { return workout; }
     public void setWorkout(Workout workout) { this.workout = workout; }

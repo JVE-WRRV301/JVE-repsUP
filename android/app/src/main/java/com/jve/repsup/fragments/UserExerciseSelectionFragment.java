@@ -10,35 +10,41 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
-import com.jve.repsup.adapters.ExerciseSelectionAdapter;
-import com.jve.repsup.database.ConnectionManager;
-import com.jve.repsup.utils.DialogUtils;
-import com.jve.repsup.utils.SnackbarUtils;
 import com.jve.repsup.models.Exercise;
-import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.InsetsHelper;
+import com.jve.repsup.utils.SnackbarUtils;
+import com.jve.repsup.utils.WorkoutValidator;
+import com.jve.repsup.views.ExerciseBrowserView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment for selecting exercises in the Create Workout flow.
- * Loads exercises based on selected muscle groups and enforces max 8 limit.
+ * Exercise picker for the Create Workout flow: search box, a tab per muscle
+ * group and a list to tick from. What is ticked is kept while switching groups
+ * or searching, and the running "x / max selected" count covers every group.
+ * When opened from the details screen to add more exercises, the exercises
+ * already in the workout start ticked.
  */
 public class UserExerciseSelectionFragment extends Fragment {
 
-    public static final int MAX_EXERCISES = 8;
+    private static final String ARG_ADDING = "adding";
 
-    private ExerciseSelectionAdapter adapter;
     private TextView tvSelectionCount;
-    private WorkoutRepository workoutRepository;
 
     public UserExerciseSelectionFragment() {
         // Required empty public constructor
+    }
+
+    /** @param adding true when adding to a workout that already has exercises */
+    public static UserExerciseSelectionFragment newInstance(boolean adding) {
+        UserExerciseSelectionFragment fragment = new UserExerciseSelectionFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_ADDING, adding);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -52,91 +58,47 @@ public class UserExerciseSelectionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        workoutRepository = new WorkoutRepository();
+        CreateWorkoutActivity activity = (CreateWorkoutActivity) getActivity();
+        if (activity == null) return;
 
-        RecyclerView rvExercises = view.findViewById(R.id.rvExercises);
+        // Keep the Continue button above the keyboard while searching.
+        InsetsHelper.applyImeBottomPadding(view);
+
         tvSelectionCount = view.findViewById(R.id.tvSelectionCount);
         Button btnConfirm = view.findViewById(R.id.btnConfirmExercises);
+        ExerciseBrowserView browser = view.findViewById(R.id.exerciseBrowser);
 
-        updateCountText(0);
+        // Exercises already in the workout start ticked (also when going Back to here).
+        browser.configure(true, WorkoutValidator.MAX_EXERCISES, activity.getSelectedExercises());
+        browser.setSelectionListener(new ExerciseBrowserView.SelectionListener() {
+            @Override
+            public void onSelectionChanged(int count) {
+                updateCountText(count);
+            }
 
-        adapter = new ExerciseSelectionAdapter(MAX_EXERCISES, count -> {
-            updateCountText(count);
-            if (count >= MAX_EXERCISES) {
+            @Override
+            public void onLimitReached() {
                 SnackbarUtils.show(requireView(), R.string.create_workout_max_exercises_reached);
             }
         });
+        updateCountText(browser.getSelectedCount());
+        browser.loadIfNeeded();
 
-        rvExercises.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvExercises.setAdapter(adapter);
-
-        // Load exercises for the selected muscle groups
-        loadExercises();
-
+        boolean adding = getArguments() != null && getArguments().getBoolean(ARG_ADDING, false);
         btnConfirm.setOnClickListener(v -> {
-            List<Exercise> selected = adapter.getSelectedExercises();
+            List<Exercise> selected = browser.getSelectedExercises();
             if (selected.isEmpty()) {
                 SnackbarUtils.show(v, R.string.create_workout_select_at_least_one);
                 return;
             }
-
-            CreateWorkoutActivity activity = (CreateWorkoutActivity) getActivity();
-            if (activity != null) {
-                activity.onExercisesSelected(selected);
-            }
+            activity.onExercisesSelected(selected, adding);
         });
     }
 
     private void updateCountText(int count) {
         if (tvSelectionCount != null) {
-            tvSelectionCount.setText(getString(R.string.create_workout_exercises_selected, count, MAX_EXERCISES));
-        }
-    }
-
-    private void loadExercises() {
-        CreateWorkoutActivity activity = (CreateWorkoutActivity) getActivity();
-        if (activity == null) return;
-
-        List<String> muscleGroups = activity.getSelectedMuscleGroups();
-        if (muscleGroups == null || muscleGroups.isEmpty()) return;
-
-        List<Exercise> allExercises = new ArrayList<>();
-        final int[] loadedCount = {0};
-        final int totalGroups = muscleGroups.size();
-
-        for (String group : muscleGroups) {
-            workoutRepository.getExercisesByMuscleGroup(group, new ConnectionManager.DatabaseCallback<List<Exercise>>() {
-                @Override
-                public void onSuccess(List<Exercise> result) {
-                    synchronized (allExercises) {
-                        if (result != null) {
-                            allExercises.addAll(result);
-                        }
-                        loadedCount[0]++;
-                        if (loadedCount[0] >= totalGroups) {
-                            if (getActivity() == null) return;
-                            getActivity().runOnUiThread(() -> adapter.setExercises(allExercises));
-                        }
-                    }
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    synchronized (allExercises) {
-                        loadedCount[0]++;
-                        if (loadedCount[0] >= totalGroups) {
-                            if (getActivity() == null) return;
-                            getActivity().runOnUiThread(() -> {
-                                if (allExercises.isEmpty()) {
-                                    DialogUtils.showError(getContext(), R.string.create_workout_load_error);
-                                } else {
-                                    adapter.setExercises(allExercises);
-                                }
-                            });
-                        }
-                    }
-                }
-            });
+            tvSelectionCount.setText(getString(R.string.create_workout_exercises_selected,
+                    count, WorkoutValidator.MAX_EXERCISES));
         }
     }
 }

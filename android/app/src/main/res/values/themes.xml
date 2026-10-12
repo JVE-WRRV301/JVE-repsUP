@@ -23,7 +23,12 @@
         <!-- Navigation bar — matches bottom nav background for seamless look -->
         <item name="android:navigationBarColor">@color/dark_grey_variant</item>
 
-        <!-- AlertDialog always dark -->
+        <!-- Default control radii: every Button/text field without its own
+             radius becomes a radius_control pill. -->
+        <item name="materialButtonStyle">@style/Widget.RepsUp.MaterialButton</item>
+        <item name="textInputStyle">@style/Widget.RepsUp.TextField</item>
+
+        <!-- AlertDialog always dark and rounded (radius_card) -->
         <item name="alertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
         <item name="materialAlertDialogTheme">@style/Theme.RepsUp.AlertDialog</item>
 
@@ -42,7 +47,7 @@
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorOnPrimary">@color/dark_text</item>
         <item name="colorAccent">@color/light_blue</item>
-        <item name="android:windowBackground">@color/dark_grey_surface</item>
+        <item name="android:windowBackground">@drawable/bg_dialog_window</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/muted</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/DatePickerButton.Negative</item>
@@ -77,6 +82,14 @@
         <item name="buttonBarPositiveButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
         <item name="buttonBarNegativeButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
         <item name="buttonBarNeutralButtonStyle">@style/Theme.RepsUp.AlertDialog.Button</item>
+        <!-- Rounded dialog window (radius_card) -->
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.RepsUp.Dialog</item>
+    </style>
+
+    <!-- Dialog corners: radius_card -->
+    <style name="ShapeAppearanceOverlay.RepsUp.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_card</item>
     </style>
 
     <style name="Theme.RepsUp.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">

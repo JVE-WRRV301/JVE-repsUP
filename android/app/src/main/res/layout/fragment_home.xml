@@ -13,6 +13,15 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Greeting title -->
+        <TextView
+            android:id="@+id/tvGreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.RepsUp.PageTitle.Personal"
+            tools:text="Good morning, Emma" />
+
         <!-- Week Strip -->
         <LinearLayout
             android:id="@+id/llWeekStrip"
@@ -22,33 +31,6 @@
             android:gravity="center"
             android:paddingVertical="12dp"
             android:paddingHorizontal="4dp">
-
-            <!-- Sunday -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <TextView
-                    android:id="@+id/tvDayLabelSun"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/day_sun"
-                    android:fontFamily="@font/inter"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp" />
-                <TextView
-                    android:id="@+id/tvDayDateSun"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/orbitron_bold"
-                    android:textColor="@color/muted"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="2dp" />
-            </LinearLayout>
 
             <!-- Monday -->
             <LinearLayout
@@ -212,6 +194,33 @@
                     android:layout_marginTop="2dp" />
             </LinearLayout>
 
+            <!-- Sunday -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="4dp">
+                <TextView
+                    android:id="@+id/tvDayLabelSun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/day_sun"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvDayDateSun"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/orbitron_bold"
+                    android:textColor="@color/muted"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <!-- TODAY Card -->
@@ -230,10 +239,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home_today"
-                android:fontFamily="@font/orbitron"
+                android:fontFamily="@font/orbitron_bold"
                 android:textColor="@color/light_blue"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="12sp" />
 
             <!-- Workout Content (visible when workout exists) -->
             <LinearLayout
@@ -248,10 +256,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:fontFamily="@font/orbitron"
+                    android:fontFamily="@font/inter_bold"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvWorkoutDate"
@@ -270,19 +277,40 @@
                     android:orientation="vertical"
                     android:layout_marginTop="12dp" />
 
-                <!-- START Button -->
+                <!-- "+N more" exercises (shown when the workout has more than 3) -->
                 <TextView
+                    android:id="@+id/tvMoreExercises"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/inter"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <!-- START Button -->
+                <Button
                     android:id="@+id/btnStart"
+                    style="@style/Widget.RepsUp.Button.Start"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_start_button"
-                    android:fontFamily="@font/orbitron"
-                    android:gravity="center"
                     android:text="@string/home_start"
-                    android:textColor="@color/dark_text"
+                    android:textSize="14sp" />
+
+                <!-- "+N more workout today" (shown when 2+ workouts are scheduled today) -->
+                <TextView
+                    android:id="@+id/tvMoreWorkouts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:minHeight="48dp"
+                    android:textColor="@color/light_blue"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -318,10 +346,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home_next_goal"
-                android:fontFamily="@font/orbitron"
+                android:fontFamily="@font/orbitron_bold"
                 android:textColor="@color/red"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="12sp" />
 
             <!-- Goal Content (visible when goal exists) -->
             <LinearLayout
@@ -352,10 +379,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:fontFamily="@font/orbitron"
+                        android:fontFamily="@font/orbitron_bold"
                         android:textColor="@color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tvGoalPriority"

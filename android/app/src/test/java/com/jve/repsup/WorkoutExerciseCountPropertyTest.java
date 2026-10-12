@@ -21,7 +21,7 @@ class WorkoutExerciseCountPropertyTest {
     // ─── Property 8: Workout Exercise Count Bounded ───
 
     /**
-     * Property 8a: Any exercise count in [1..8] is accepted.
+     * Property 8a: Any exercise count in [1..10] is accepted.
      * For all counts between MIN_EXERCISES and MAX_EXERCISES inclusive,
      * isValidExerciseCount returns true.
      *
@@ -29,15 +29,15 @@ class WorkoutExerciseCountPropertyTest {
      */
     @Property(tries = 200)
     void validExerciseCountsAreAccepted(
-            @ForAll @IntRange(min = 1, max = 8) int count
+            @ForAll @IntRange(min = 1, max = 10) int count
     ) {
         assertTrue(WorkoutValidator.isValidExerciseCount(count),
-                "Exercise count " + count + " should be accepted (within [1..8])");
+                "Exercise count " + count + " should be accepted (within [1..10])");
     }
 
     /**
-     * Property 8b: Any exercise count outside [1..8] is rejected.
-     * For counts 0 and 9-20, isValidExerciseCount returns false.
+     * Property 8b: Any exercise count outside [1..10] is rejected.
+     * For counts 0 and 11-20, isValidExerciseCount returns false.
      *
      * Validates: Requirements 12.4, 25.4
      */
@@ -46,12 +46,12 @@ class WorkoutExerciseCountPropertyTest {
             @ForAll("invalidExerciseCounts") int count
     ) {
         assertFalse(WorkoutValidator.isValidExerciseCount(count),
-                "Exercise count " + count + " should be rejected (outside [1..8])");
+                "Exercise count " + count + " should be rejected (outside [1..10])");
     }
 
     /**
      * Property 8c: For any random count in [0..20], the validator correctly
-     * partitions into accepted (1-8) and rejected (0, 9-20).
+     * partitions into accepted (1-10) and rejected (0, 11-20).
      *
      * Validates: Requirements 12.4, 25.4
      */
@@ -60,16 +60,16 @@ class WorkoutExerciseCountPropertyTest {
             @ForAll @IntRange(min = 0, max = 20) int count
     ) {
         boolean result = WorkoutValidator.isValidExerciseCount(count);
-        if (count >= 1 && count <= 8) {
-            assertTrue(result, "Count " + count + " is in [1..8] and should be accepted");
+        if (count >= 1 && count <= 10) {
+            assertTrue(result, "Count " + count + " is in [1..10] and should be accepted");
         } else {
-            assertFalse(result, "Count " + count + " is outside [1..8] and should be rejected");
+            assertFalse(result, "Count " + count + " is outside [1..10] and should be rejected");
         }
     }
 
     /**
      * Property 8d: validateExerciseList correctly validates list sizes.
-     * A list of size n is accepted iff n is in [1..8]; null lists are rejected.
+     * A list of size n is accepted iff n is in [1..10]; null lists are rejected.
      *
      * Validates: Requirements 12.4, 25.4
      */
@@ -111,25 +111,25 @@ class WorkoutExerciseCountPropertyTest {
     }
 
     /**
-     * Boundary: count 8 is accepted (upper bound).
+     * Boundary: count 10 is accepted (upper bound).
      *
      * Validates: Requirements 12.4, 25.4
      */
     @Example
-    void eightExercisesIsAccepted() {
-        assertTrue(WorkoutValidator.isValidExerciseCount(8),
-                "8 exercises must be accepted (upper bound)");
+    void tenExercisesIsAccepted() {
+        assertTrue(WorkoutValidator.isValidExerciseCount(10),
+                "10 exercises must be accepted (upper bound)");
     }
 
     /**
-     * Boundary: count 9 is rejected (above maximum).
+     * Boundary: count 11 is rejected (above maximum).
      *
      * Validates: Requirements 12.4, 25.4
      */
     @Example
-    void nineExercisesIsRejected() {
-        assertFalse(WorkoutValidator.isValidExerciseCount(9),
-                "9 exercises must be rejected");
+    void elevenExercisesIsRejected() {
+        assertFalse(WorkoutValidator.isValidExerciseCount(11),
+                "11 exercises must be rejected");
     }
 
     /**
@@ -149,7 +149,7 @@ class WorkoutExerciseCountPropertyTest {
     Arbitrary<Integer> invalidExerciseCounts() {
         return Arbitraries.oneOf(
                 Arbitraries.just(0),
-                Arbitraries.integers().between(9, 20)
+                Arbitraries.integers().between(11, 20)
         );
     }
 }

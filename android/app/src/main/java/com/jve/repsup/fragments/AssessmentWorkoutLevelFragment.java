@@ -8,10 +8,10 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 
 /**
@@ -67,13 +67,7 @@ public class AssessmentWorkoutLevelFragment extends Fragment {
 
     private void highlightSelected(int selectedIndex) {
         for (int i = 0; i < allButtons.length; i++) {
-            if (i == selectedIndex) {
-                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            } else {
-                allButtons[i].setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-                allButtons[i].setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-            }
+            SelectableButtonStyler.applySelected(allButtons[i], i == selectedIndex);
         }
     }
 

@@ -11,10 +11,12 @@
     <!-- Item image -->
     <ImageView
         android:id="@+id/img_purchase_item"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Cosmetic item"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:background="@drawable/bg_placeholder_item"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/purchase_item_description"
         tools:src="@drawable/ic_launcher_foreground" />
 
     <!-- Item name -->
@@ -40,7 +42,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_coin"
-            android:contentDescription="Coins" />
+            android:contentDescription="@string/coins_description" />
 
         <TextView
             android:id="@+id/txt_purchase_price"
@@ -60,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Not enough coins"
+        android:text="@string/locker_not_enough_coins"
         android:textColor="@color/red"
         android:textSize="13sp"
         android:visibility="gone"
@@ -82,7 +84,7 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_button_cancel"
-            android:text="Cancel"
+            android:text="@string/purchase_cancel"
             android:textColor="@color/muted"
             android:textSize="14sp"
             android:textAllCaps="false" />
@@ -95,7 +97,7 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_button_buy"
-            android:text="Buy"
+            android:text="@string/purchase_buy"
             android:textColor="@color/dark_text"
             android:textSize="14sp"
             android:textStyle="bold"

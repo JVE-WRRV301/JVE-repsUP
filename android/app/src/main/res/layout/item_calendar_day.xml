@@ -36,13 +36,15 @@
                 android:background="@color/light_blue"
                 android:visibility="gone" />
 
-            <!-- Red triangle for goal -->
+            <!-- Red diamond for goal (a square turned 45 degrees), so it can be
+                 told apart from the round workout dot -->
             <View
                 android:id="@+id/viewGoalIndicator"
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_marginStart="2dp"
+                android:layout_width="5dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="4dp"
                 android:background="@color/red"
+                android:rotation="45"
                 android:visibility="gone" />
 
         </LinearLayout>

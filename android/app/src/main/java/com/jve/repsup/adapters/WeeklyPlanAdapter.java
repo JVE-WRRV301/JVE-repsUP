@@ -14,16 +14,17 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DateFormats;
+import com.jve.repsup.utils.ExerciseLogText;
+import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.WorkoutExercise;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -42,6 +43,13 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private final OnStartClickListener startClickListener;
 
     private Date today;
+
+    // What was logged when each completed workout was done: scheduled workout id, then exercise id.
+    private Map<Integer, Map<Integer, ExerciseResult>> logs = new HashMap<>();
+
+    public void setLogs(Map<Integer, Map<Integer, ExerciseResult>> logs) {
+        this.logs = logs != null ? logs : new HashMap<>();
+    }
 
     /**
      * Listener for the START button tap on today's workout.
@@ -83,13 +91,10 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Calendar cal = Calendar.getInstance();
         cal.setTime(weekStart);
 
-        SimpleDateFormat dayNameFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-        SimpleDateFormat dayDateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
-
         for (int i = 0; i < 7; i++) {
             Date dayDate = new Date(cal.getTimeInMillis());
-            String dayName = dayNameFormat.format(dayDate);
-            String dayDateStr = dayDateFormat.format(dayDate);
+            String dayName = DateFormats.formatWeekday(dayDate);
+            String dayDateStr = DateFormats.formatDayMonth(dayDate);
 
             // Find workouts for this day
             List<ScheduledWorkout> dayWorkouts = new ArrayList<>();
@@ -188,7 +193,9 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         DayData day = item.dayData;
         boolean isToday = isSameDay(day.date, today);
 
-        holder.tvDayName.setText(day.dayName + (isToday ? " (Today)" : ""));
+        holder.tvDayName.setText(isToday
+                ? holder.itemView.getContext().getString(R.string.weekly_plan_day_today, day.dayName)
+                : day.dayName);
         holder.tvDayDate.setText(day.dayDateStr);
 
         // Highlight today's header
@@ -198,14 +205,29 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.tvDayName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
         }
 
-        // Rotate arrow based on collapsed state
-        holder.ivDayExpand.setRotation(item.isCollapsed ? 180f : 0f);
+        // Swap the chevron drawable based on collapsed state (no rotation).
+        holder.ivDayExpand.setImageResource(
+                item.isCollapsed ? R.drawable.ic_chevron_down : R.drawable.ic_chevron_up);
 
         holder.itemView.setOnClickListener(v -> {
             boolean currentlyCollapsed = Boolean.TRUE.equals(collapsedDays.get(day.dayIndex));
             collapsedDays.put(day.dayIndex, !currentlyCollapsed);
             rebuildDisplayList();
         });
+    }
+
+    /**
+     * The sets text of an exercise row: the plan ("3 sets"), or for a completed
+     * workout what was actually done ("3 sets × 10 reps · 20 kg"). A completed
+     * workout with no logs (finished before logging existed) still shows the plan.
+     */
+    private void setExerciseLine(TextView tvSets, ScheduledWorkout sw, WorkoutExercise we) {
+        Map<Integer, ExerciseResult> done = sw.isCompleted() ? logs.get(sw.getScheduledWorkoutId()) : null;
+        if (done != null) {
+            ExerciseLogText.apply(tvSets, done.get(we.getExerciseId()));
+        } else {
+            tvSets.setText(tvSets.getContext().getString(R.string.home_sets_format, we.getSets()));
+        }
     }
 
     private void bindWorkoutCard(WorkoutCardViewHolder holder, ListItem item) {
@@ -268,15 +290,16 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             LayoutInflater inflater = LayoutInflater.from(context);
             for (int i = 0; i < showCount; i++) {
-                View exerciseRow = inflater.inflate(R.layout.item_workout_exercise_row, holder.llExerciseList, false);
+                // Same exercise row as the Home and Workout cards (dumbbell icon on the left)
+                View exerciseRow = inflater.inflate(R.layout.item_exercise_preview, holder.llExerciseList, false);
                 TextView tvName = exerciseRow.findViewById(R.id.tvExerciseName);
                 TextView tvSets = exerciseRow.findViewById(R.id.tvExerciseSets);
-                ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseImage);
+                ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseIcon);
 
                 WorkoutExercise we = exercises.get(i);
                 String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
                 tvName.setText(exerciseName);
-                tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                setExerciseLine(tvSets, sw, we);
 
                 // Load exercise image from drawable resources based on exercise name
                 loadExerciseImage(ivImage, exerciseName);
@@ -294,15 +317,15 @@ public class WeeklyPlanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 holder.tvAndMore.setOnClickListener(v -> {
                     // Add remaining exercises
                     for (int i = 3; i < totalExercises; i++) {
-                        View exerciseRow = inflater.inflate(R.layout.item_workout_exercise_row, holder.llExerciseList, false);
+                        View exerciseRow = inflater.inflate(R.layout.item_exercise_preview, holder.llExerciseList, false);
                         TextView tvName = exerciseRow.findViewById(R.id.tvExerciseName);
                         TextView tvSets = exerciseRow.findViewById(R.id.tvExerciseSets);
-                        ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseImage);
+                        ImageView ivImage = exerciseRow.findViewById(R.id.ivExerciseIcon);
 
                         WorkoutExercise we = exercises.get(i);
                         String exerciseName = we.getExercise() != null ? we.getExercise().getName() : "Exercise";
                         tvName.setText(exerciseName);
-                        tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                        setExerciseLine(tvSets, sw, we);
 
                         loadExerciseImage(ivImage, exerciseName);
 

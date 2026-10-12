@@ -21,9 +21,11 @@
 
     <!-- Scrollable content -->
     <ScrollView
+        android:id="@+id/scrollCreateGoal"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
         android:fillViewport="true">
 
         <LinearLayout
@@ -39,29 +41,25 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="40dp"
-                android:fontFamily="@font/orbitron_bold"
                 android:text="@string/create_goal_title"
                 android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                style="@style/Widget.RepsUp.PageTitle" />
 
             <!-- Goal Title Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilGoalTitle"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/light_blue">
+                android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGoalTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_regular"
+                    android:fontFamily="@font/inter"
                     android:hint="@string/hint_goal_title"
                     android:inputType="textCapSentences"
                     android:textColor="@color/white"
@@ -71,14 +69,12 @@
             <!-- Date Picker Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilGoalDate"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/light_blue">
+                android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGoalDate"
@@ -86,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="false"
-                    android:fontFamily="@font/inter_regular"
+                    android:fontFamily="@font/inter"
                     android:hint="@string/hint_goal_date"
                     android:inputType="none"
                     android:textColor="@color/white"
@@ -101,7 +97,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/inter_regular"
+                android:fontFamily="@font/inter"
                 android:text="@string/label_goal_importance"
                 android:textColor="@color/muted"
                 android:textSize="14sp" />
@@ -127,7 +123,7 @@
                     android:text="@string/importance_top"
                     android:textColor="@color/white"
                     android:textSize="14sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
                 <Button
                     android:id="@+id/btnImportanceMedium"
@@ -140,7 +136,7 @@
                     android:text="@string/importance_medium"
                     android:textColor="@color/white"
                     android:textSize="14sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
 
                 <Button
                     android:id="@+id/btnImportanceLow"
@@ -152,26 +148,24 @@
                     android:text="@string/importance_low"
                     android:textColor="@color/white"
                     android:textSize="14sp"
-                    app:cornerRadius="8dp" />
+                    app:cornerRadius="@dimen/radius_control" />
             </LinearLayout>
 
             <!-- Notes Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilGoalNotes"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/light_blue">
+                android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGoalNotes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_regular"
+                    android:fontFamily="@font/inter"
                     android:gravity="top"
                     android:hint="@string/hint_goal_notes"
                     android:inputType="textMultiLine|textCapSentences"
@@ -188,7 +182,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/inter_regular"
+                android:fontFamily="@font/inter"
                 android:textColor="@color/red"
                 android:textSize="14sp"
                 android:visibility="gone" />
@@ -209,6 +203,6 @@
         android:text="@string/btn_save_goal"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

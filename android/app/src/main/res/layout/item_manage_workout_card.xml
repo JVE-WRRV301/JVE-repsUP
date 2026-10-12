@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/dark_grey_surface"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="@dimen/radius_card"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -51,7 +51,7 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/admin_workout_menu"
-            android:src="@android:drawable/ic_menu_more"
+            android:src="@drawable/ic_more_vert"
             android:scaleType="centerInside" />
 
     </LinearLayout>

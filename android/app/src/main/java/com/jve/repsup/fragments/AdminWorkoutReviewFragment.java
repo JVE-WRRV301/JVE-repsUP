@@ -28,6 +28,7 @@ public class AdminWorkoutReviewFragment extends Fragment {
 
     private EditText etWorkoutName;
     private AdminExerciseSetsRepsAdapter adapter;
+    private Button btnFinish;
 
     @Nullable
     @Override
@@ -58,7 +59,7 @@ public class AdminWorkoutReviewFragment extends Fragment {
         Button btnAddMore = view.findViewById(R.id.btnAddMore);
         btnAddMore.setOnClickListener(v -> activity.addMoreExercises());
 
-        Button btnFinish = view.findViewById(R.id.btnFinish);
+        btnFinish = view.findViewById(R.id.btnFinish);
         btnFinish.setOnClickListener(v -> {
             String name = etWorkoutName.getText() != null
                     ? etWorkoutName.getText().toString().trim() : "";
@@ -70,7 +71,13 @@ public class AdminWorkoutReviewFragment extends Fragment {
                 SnackbarUtils.show(requireView(), R.string.admin_add_at_least_one);
                 return;
             }
+            btnFinish.setEnabled(false);
             activity.saveWorkout(name);
         });
+    }
+
+    /** Re-enables Finish after a failed save so the admin can try again. */
+    public void setSaving(boolean saving) {
+        if (btnFinish != null) btnFinish.setEnabled(!saving);
     }
 }

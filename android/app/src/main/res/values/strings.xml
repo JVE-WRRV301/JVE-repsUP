@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RepsUp</string>
+    <string name="app_name">Reps Up</string>
 
     <!-- Navigation tabs -->
     <string name="nav_home">Home</string>
@@ -21,18 +21,20 @@
     <string name="coins_description">Coin balance</string>
 
     <!-- Login -->
+    <string name="login_title">Log in</string>
     <string name="login_welcome_back">Welcome back!</string>
     <string name="login_username_hint">Username</string>
     <string name="login_password_hint">Password</string>
+    <string name="login_error_username_empty">Please enter your username</string>
+    <string name="login_error_password_empty">Please enter your password</string>
     <string name="login_button">Login</string>
     <string name="login_error">Invalid username or password. Please try again.</string>
     <string name="login_no_account">Don\'t have an account? </string>
     <string name="login_sign_up">Sign Up</string>
     <string name="login_connection_error">Connection error. Please try again later.</string>
-    <string name="login_placeholder">Login — Coming Soon</string>
 
     <!-- Welcome Screen -->
-    <string name="welcome_title">Welcome to REPS UP</string>
+    <string name="welcome_title">Welcome to Reps Up</string>
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_reps_up">REPS UP.</string>
     <string name="welcome_have_account">Have an account already? Login</string>
@@ -61,6 +63,9 @@
     <string name="register_login_word">Login</string>
 
     <!-- Home Fragment -->
+    <string name="home_greeting_morning">Good morning, %1$s</string>
+    <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
+    <string name="home_greeting_evening">Good evening, %1$s</string>
     <string name="home_today">TODAY</string>
     <string name="home_next_goal">NEXT GOAL</string>
     <string name="home_start">START</string>
@@ -106,6 +111,7 @@
     <string name="assessment_next">Next</string>
     <string name="assessment_finish">Finish</string>
     <string name="assessment_get_started">Get Started</string>
+    <string name="assessment_save_error">Failed to save profile. Please try again.</string>
 
     <!-- Assessment Welcome -->
     <string name="assessment_welcome_title">Fitness Assessment</string>
@@ -114,7 +120,7 @@
     <string name="assessment_welcome_personalized">WELCOME %s!</string>
     <string name="assessment_complete_title">Complete your fitness assessment</string>
     <string name="assessment_welcome_detail">Answer a few questions so we can personalise your experience and build your avatar.</string>
-    <string name="btn_lets_go">Lets Go</string>
+    <string name="btn_lets_go">Let\'s go</string>
 
     <!-- Assessment Sections -->
     <string name="assessment_section_body">About your body.</string>
@@ -136,13 +142,13 @@
 
     <!-- Weight -->
     <string name="assessment_weight_question">What\'s your weight?</string>
-    <string name="assessment_unit_kg">KG</string>
-    <string name="assessment_unit_lbs">LBS</string>
+    <string name="assessment_unit_kg">kg</string>
+    <string name="assessment_unit_lbs">lbs</string>
 
     <!-- Height -->
     <string name="assessment_height_question">How tall are you?</string>
-    <string name="assessment_unit_cm">CM</string>
-    <string name="assessment_unit_ft">FT</string>
+    <string name="assessment_unit_cm">cm</string>
+    <string name="assessment_unit_ft">ft</string>
 
     <!-- Body Type -->
     <string name="assessment_body_type_question">What\'s your body type?</string>
@@ -168,7 +174,7 @@
     <string name="assessment_goals_question">What are your fitness goals?</string>
     <string name="assessment_goals_hint">Select all that apply</string>
     <string name="assessment_goal_lose_weight">Lose weight</string>
-    <string name="assessment_goal_stay_consistent">Stay Consistent</string>
+    <string name="assessment_goal_stay_consistent">Stay consistent</string>
     <string name="assessment_goal_build_muscle">Build muscle</string>
     <string name="assessment_goal_get_fitter">Get fitter</string>
     <string name="assessment_goal_improve_endurance">Improve endurance</string>
@@ -193,8 +199,8 @@
 
     <!-- Avatar Generation -->
     <string name="avatar_meet_title">MEET YOUR AVATAR!</string>
-    <string name="avatar_subtitle_male">We\'ll customize him later</string>
-    <string name="avatar_subtitle_female">We\'ll customize her later</string>
+    <string name="avatar_subtitle_male">We\'ll customise him later</string>
+    <string name="avatar_subtitle_female">We\'ll customise her later</string>
     <string name="avatar_continue">Continue</string>
     <string name="avatar_save_error">Could not save avatar. Please try again later.</string>
 
@@ -208,11 +214,20 @@
     <string name="goal_delete_success">Goal deleted</string>
     <string name="goal_delete_error">Failed to delete goal</string>
     <string name="goal_complete_error">Failed to complete goal</string>
+    <string name="goal_complete_confirm_title">Mark this goal complete?</string>
+    <string name="goal_complete_confirm_message">You will earn %d XP. This can\'t be undone.</string>
+    <string name="goal_complete_confirm_yes">Complete</string>
+    <string name="goal_too_new">You can complete this goal 24 hours after you create it.</string>
+    <string name="goal_daily_limit">You have already completed 3 goals today. Try again tomorrow.</string>
+    <string name="goal_overdue">Overdue</string>
+    <string name="goal_too_new_title">Goal too new</string>
+    <string name="goal_daily_limit_title">Daily limit reached</string>
     <string name="goal_deadline_format">Deadline: %s</string>
 
     <!-- Goal Complete Dialog -->
     <string name="goal_congratulations">CONGRATULATIONS!</string>
     <string name="goal_xp_earned_label">XP EARNED</string>
+    <string name="goal_xp_earned_format">+%d XP</string>
     <string name="goal_share">Share</string>
     <string name="goal_close">Close</string>
     <string name="goal_share_text">I just completed my goal \"%1$s\" and earned %2$d XP on Reps Up! 💪🔥</string>
@@ -231,8 +246,6 @@
     <string name="calendar_status_completed">Completed</string>
     <string name="calendar_status_missed">Missed</string>
     <string name="calendar_status_scheduled">Scheduled</string>
-    <string name="calendar_schedule_coming_soon">Schedule Workout coming soon</string>
-    <string name="calendar_my_plan_placeholder">Weekly plan coming soon</string>
 
     <!-- Weekly Plan -->
     <string name="weekly_plan_prev_week">Previous week</string>
@@ -244,8 +257,22 @@
     <string name="weekly_plan_status_missed">Missed</string>
     <string name="weekly_plan_status_scheduled">Scheduled</string>
     <string name="weekly_plan_exercises_format">%d exercises</string>
+    <string name="weekly_plan_week_range">%1$s – %2$s</string>
+    <string name="weekly_plan_day_today">%1$s (Today)</string>
     <string name="weekly_plan_delete_title">Delete Scheduled Workout</string>
     <string name="weekly_plan_delete_message">Are you sure you want to remove this scheduled workout?</string>
+    <string name="weekly_plan_delete_series_message">This workout repeats. Delete only this one, or this one and all the repeats after it?</string>
+    <string name="weekly_plan_delete_this_one">Delete this one</string>
+    <string name="weekly_plan_delete_all_future">Delete all future</string>
+    <string name="weekly_plan_delete_error">Couldn\'t delete the workout. Please try again.</string>
+    <string name="calendar_day_nothing_planned">Nothing planned</string>
+    <string name="calendar_day_goal_due">Goal deadline</string>
+    <string name="home_more_exercises_format">+%d more</string>
+    <string name="home_open_day_format">Open %1$s in the calendar</string>
+    <plurals name="home_more_workouts_today">
+        <item quantity="one">+%d more workout today</item>
+        <item quantity="other">+%d more workouts today</item>
+    </plurals>
     <string name="workout_action_edit">Edit</string>
     <string name="workout_action_delete">Delete</string>
 
@@ -273,13 +300,33 @@
     <string name="workout_back_description">Back to muscle groups</string>
     <string name="workout_menu_description">Workout options</string>
     <string name="workout_exercise_count_format">%d exercises</string>
+    <string name="workout_menu_schedule">Schedule</string>
     <string name="workout_menu_share">Share</string>
     <string name="workout_menu_edit">Edit</string>
     <string name="workout_menu_duplicate">Duplicate</string>
     <string name="workout_menu_reorder">Reorder</string>
     <string name="workout_menu_delete">Delete</string>
     <string name="workout_delete_confirm_title">Delete Workout</string>
-    <string name="workout_delete_confirm_message">Are you sure you want to delete this workout?</string>
+    <string name="workout_delete_confirm_message">Are you sure you want to delete this workout? Every time it is scheduled, and your completed history for it, will be deleted too.</string>
+    <string name="exercise_search_hint">Search exercises…</string>
+    <string name="workout_search_hint">Search workouts…</string>
+    <string name="exercise_browser_no_results">No exercises found</string>
+    <string name="workout_search_no_results">No workouts found</string>
+    <string name="exercise_browser_group_prefix">%1$s · %2$s</string>
+    <string name="workout_tab_default">Default</string>
+    <string name="workout_default_empty">No default workouts yet.</string>
+    <string name="workout_show_less">Show less</string>
+    <string name="weight_kg_format">%s kg</string>
+    <string name="exercise_browser_details_weight_format">%1$d sets × %2$d reps · %3$s · %4$s</string>
+    <string name="exercise_detail_last_weight">Last weight</string>
+    <string name="calendar_exercise_done_format">%1$d sets × %2$d reps</string>
+    <string name="calendar_exercise_done_weight_format">%1$d sets × %2$d reps · %3$s</string>
+    <string name="calendar_exercise_skipped">Skipped</string>
+    <string name="exercise_detail_muscle_group">Muscle group</string>
+    <string name="exercise_detail_difficulty">Difficulty</string>
+    <string name="exercise_detail_sets_reps">Sets and reps</string>
+    <string name="exercise_detail_sets_reps_format">%1$d sets × %2$d reps</string>
+    <string name="exercise_detail_close">Close</string>
     <string name="workout_deleted_success">Workout deleted</string>
     <string name="workout_deleted_error">Failed to delete workout</string>
     <string name="workout_duplicated_success">Workout duplicated</string>
@@ -292,6 +339,12 @@
     <string name="edit_workout_success">Workout updated successfully</string>
     <string name="edit_workout_error">Failed to update workout</string>
     <string name="edit_workout_save_button">Update Workout</string>
+
+    <!-- Workout share text -->
+    <string name="workout_share_intro">Check out my workout: %1$s on Reps Up! 💪</string>
+    <string name="workout_share_exercises_heading">Exercises:</string>
+    <string name="workout_share_exercise_line">• %1$s — %2$d sets × %3$d reps</string>
+    <string name="workout_share_exercise_fallback">Exercise</string>
 
     <!-- Reorder Workout -->
     <string name="workout_reorder_title">Reorder Exercises</string>
@@ -315,12 +368,11 @@
     <string name="admin_create_workout">Create Default Workout</string>
     <string name="admin_create_exercise">Create Default Exercise</string>
     <string name="admin_manage_workouts">Manage Default Workouts</string>
-    <string name="admin_logout">Logout</string>
+    <string name="admin_logout">Log out</string>
 
     <!-- Admin Create Exercise -->
     <string name="admin_create_exercise_title">Create Exercise</string>
     <string name="admin_exercise_name_hint">Name</string>
-    <string name="admin_add_demonstration">Add Demonstration</string>
     <string name="admin_select_difficulty">Select Difficulty</string>
     <string name="hint_exercise_name">Exercise Name</string>
     <string name="hint_muscle_group">Muscle Group</string>
@@ -328,7 +380,6 @@
     <string name="hint_default_sets">Default Sets</string>
     <string name="hint_default_reps">Default Reps</string>
     <string name="hint_base_xp">Base XP</string>
-    <string name="btn_select_demo_image">Select Demo Image</string>
     <string name="btn_save_exercise">Save Exercise</string>
     <string name="error_exercise_name_required">Exercise name is required</string>
     <string name="error_muscle_group_required">Muscle group is required</string>
@@ -394,6 +445,8 @@
     <string name="create_workout_title">Create Workout</string>
     <string name="create_workout_mode_create">Create Workout</string>
     <string name="create_workout_mode_generate">Generate Workout</string>
+    <string name="create_workout_mode_create_desc">Pick your own exercises</string>
+    <string name="create_workout_mode_generate_desc">We\'ll build one from the muscle groups you choose</string>
     <string name="create_workout_select_muscle_groups">Select Muscle Groups</string>
     <string name="create_workout_muscle_groups_hint">Choose one or more muscle groups</string>
     <string name="create_workout_continue">Continue</string>
@@ -401,10 +454,11 @@
     <string name="create_workout_exercises_selected">%1$d / %2$d selected</string>
     <string name="create_workout_confirm_exercises">Confirm Selection</string>
     <string name="create_workout_select_at_least_one">Please select at least one exercise</string>
-    <string name="create_workout_max_exercises_reached">Maximum of 8 exercises reached</string>
+    <string name="create_workout_max_exercises_reached">Maximum of 10 exercises reached</string>
     <string name="create_workout_details_title">Workout Details</string>
     <string name="create_workout_name_hint">Workout Name</string>
     <string name="create_workout_exercise_settings">Exercise Settings</string>
+    <string name="create_workout_sets_hint">Sets</string>
     <string name="create_workout_reps_hint">Reps</string>
     <string name="create_workout_weight_hint">Weight (kg)</string>
     <string name="create_workout_save">Save Workout</string>
@@ -437,11 +491,22 @@
     <string name="workout_execution_finish">Finish</string>
     <string name="workout_execution_set_header">Set</string>
     <string name="workout_execution_reps_header">Reps</string>
-    <string name="workout_execution_weight_header">Weight (KG)</string>
+    <string name="workout_execution_weight_header">Weight (kg)</string>
     <string name="workout_execution_done_header">Done</string>
     <string name="workout_execution_not_scheduled">This workout is not scheduled for today.</string>
     <string name="workout_execution_load_error">Failed to load workout. Please try again.</string>
     <string name="workout_execution_demo_desc">Exercise demonstration image</string>
+    <string name="workout_execution_skip">Skip exercise</string>
+    <string name="workout_execution_remove_set_desc">Remove set</string>
+    <string name="workout_execution_quit_desc">Quit workout</string>
+    <string name="workout_quit_title">Quit workout?</string>
+    <string name="workout_quit_message">Your progress in this workout will be lost.</string>
+    <string name="workout_quit_confirm">Quit</string>
+    <string name="workout_quit_stay">Stay</string>
+    <string name="workout_nothing_logged_title">Nothing logged</string>
+    <string name="workout_nothing_logged_message">You haven\'t ticked any sets with reps, so there is nothing to save. Go back and tick at least one set, or quit the workout.</string>
+    <string name="workout_nothing_logged_back">Go back</string>
+    <string name="workout_nothing_logged_quit">Quit workout</string>
 
     <!-- Workout Complete -->
     <string name="workout_complete_title">GREAT WORKOUT!</string>
@@ -465,6 +530,7 @@
     <string name="level_up_new_level">LEVEL %d</string>
     <string name="level_up_coins">+50 COINS</string>
     <string name="level_up_close">Close</string>
+    <string name="top_bar_level_format">Lv. %d</string>
 
     <!-- Rank Up Dialog -->
     <string name="rank_up_congratulations">CONGRATULATIONS!</string>
@@ -481,8 +547,12 @@
     <string name="locker_item_selected">Item selected</string>
     <string name="locker_purchase_prompt">Purchase for %d coins?</string>
     <string name="locker_not_enough_coins">Not enough coins</string>
+    <string name="purchase_cancel">Cancel</string>
+    <string name="purchase_buy">Buy</string>
+    <string name="purchase_item_description">Cosmetic item</string>
     <string name="locker_item_purchased">Purchased %s!</string>
     <string name="locker_item_coming_soon">Coming soon!</string>
+    <string name="locker_purchase_error">Couldn\'t complete the purchase. Please try again.</string>
     <string name="locker_top_bottom_required">Your avatar needs to be wearing a top and a bottom before you can save.</string>
     <string name="locker_invalid_outfit_title">Incomplete outfit</string>
     <string name="locker_invalid_outfit_ok">Got it</string>
@@ -504,9 +574,9 @@
     <string name="locker_subtab_bottom">Bottom</string>
     <string name="locker_subtab_shoes">Shoes</string>
     <string name="locker_subtab_accessories">Accessories</string>
-    <string name="locker_subtab_special">Special</string>
 
     <!-- Me Fragment -->
+    <string name="me_username_format">@%1$s</string>
     <string name="me_locker_description">Open locker</string>
     <string name="me_rank_description">Gym rank</string>
     <string name="me_rank_default">Bronze I</string>
@@ -524,7 +594,6 @@
     <string name="settings_personal_details">Personal Details</string>
     <string name="settings_account">Account</string>
     <string name="settings_measurement_system">Measurement System</string>
-    <string name="settings_language">Language</string>
     <string name="settings_metric">Metric</string>
     <string name="settings_imperial">Imperial</string>
     <string name="settings_logout">Log out</string>
@@ -533,7 +602,6 @@
     <string name="settings_measurement_updated">Measurement system updated</string>
     <string name="settings_measurement_error">Failed to update measurement system</string>
     <string name="settings_back">Back</string>
-    <string name="settings_language_english">English</string>
 
     <!-- Personal Details -->
     <string name="personal_details_title">Personal Details</string>
@@ -547,6 +615,7 @@
     <string name="personal_details_empty_error">All fields are required</string>
     <string name="personal_details_email_error">Please enter a valid email address</string>
     <string name="personal_details_username_taken">Username is already taken</string>
+    <string name="personal_details_email_taken">That email is already used by another account</string>
 
     <!-- Error dialog (shared) -->
     <string name="error_dialog_title">Something went wrong</string>

@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jve.repsup.MainActivity;
@@ -54,7 +54,6 @@ public class AvatarGenerationActivity extends AppCompatActivity {
 
     private ImageView ivAvatar;
     private Button btnContinue;
-    private ImageButton btnBack;
     private TextView tvAvatarSubheading;
 
     private String gender;
@@ -66,9 +65,17 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_avatar_generation);
 
+        // The profile and avatar are saved before this screen, so there's nothing
+        // to go back to. Block the system Back button; the user must continue.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Intentionally does nothing - Back is disabled on this screen.
+            }
+        });
+
         ivAvatar = findViewById(R.id.ivAvatar);
         btnContinue = findViewById(R.id.btnContinue);
-        btnBack = findViewById(R.id.btnBack);
         tvAvatarSubheading = findViewById(R.id.tvAvatarSubheading);
 
         // Get data from intent
@@ -97,7 +104,6 @@ public class AvatarGenerationActivity extends AppCompatActivity {
         btnContinue.setEnabled(false);
 
         btnContinue.setOnClickListener(v -> navigateToMain());
-        btnBack.setOnClickListener(v -> onBackPressed());
 
         // Start avatar creation process
         createAvatarRecords();
@@ -108,7 +114,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
      * Outfit_Slot record, and updates User.avatar_id.
      */
     private void createAvatarRecords() {
-        String insertAvatarSql = "INSERT INTO Avatar (user_id, skin_tone, body_shape, facial_details) "
+        String insertAvatarSql = "INSERT INTO avatar (user_id, skin_tone, body_shape, facial_details) "
                 + "VALUES (?, ?, ?, ?)";
 
         // Skin tone starts grey; the user chooses a real tone in the locker body tab.
@@ -162,7 +168,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
             return;
         }
 
-        String insertCosmeticSql = "INSERT INTO User_Cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) "
+        String insertCosmeticSql = "INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) "
                 + "VALUES (?, ?, ?, ?)";
         Object[] params = new Object[]{userId, cosmeticIds[index], true, true};
 
@@ -186,7 +192,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
      * Socks slot is filled; shoes slot is left empty by default.
      */
     private void insertOutfitSlot(int avatarId) {
-        String insertOutfitSql = "INSERT INTO Outfit_Slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) "
+        String insertOutfitSql = "INSERT INTO outfit_slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         Object[] outfitParams = new Object[]{
@@ -213,7 +219,7 @@ public class AvatarGenerationActivity extends AppCompatActivity {
      * Updates the User record to link the newly created avatar.
      */
     private void updateUserAvatarId(int avatarId) {
-        String updateUserSql = "UPDATE User SET avatar_id = ? WHERE user_id = ?";
+        String updateUserSql = "UPDATE user SET avatar_id = ? WHERE user_id = ?";
         Object[] updateParams = new Object[]{avatarId, userId};
 
         ConnectionManager.executeUpdate(updateUserSql, updateParams, new ConnectionManager.DatabaseCallback<Integer>() {

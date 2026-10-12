@@ -1,7 +1,10 @@
 package com.jve.repsup.fragments;
 
+import android.util.Log;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.MainActivity;
@@ -26,10 +30,12 @@ import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.CosmeticRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.utils.AvatarCompositor;
+import com.jve.repsup.utils.AvatarState;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.XPCalculator;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * MeFragment displaying the user's full-body avatar, gym rank card with medal icon
@@ -40,10 +46,15 @@ import java.util.List;
  */
 public class MeFragment extends Fragment {
 
+    private static final String TAG = "MeFragment";
+
     private ImageButton btnSettings;
     private ImageButton btnLocker;
+    private TextView tvMeName;
+    private TextView tvMeUsername;
     private ImageView ivAvatar;
     private ImageView ivMedal;
+    private View flMedal;
     private TextView tvRankName;
     private TextView tvLevelNumber;
     private TextView tvLevelLabel;
@@ -53,6 +64,12 @@ public class MeFragment extends Fragment {
     private UserRepository userRepository;
     private CosmeticRepository cosmeticRepository;
     private SessionManager sessionManager;
+
+    // The avatar version (see AvatarState) last drawn here and in the top bar.
+    // The avatar is only rebuilt when the locker has changed it since.
+    private int avatarVersionShown = -1;
+    private int avatarVersionRequested = -1;
+    private int avatarThumbVersion;
 
     public MeFragment() {
         // Required empty public constructor
@@ -79,13 +96,18 @@ public class MeFragment extends Fragment {
 
         initViews(view);
         setupClickListeners();
-        loadUserProfile();
-        loadAvatar();
+        // The top bar loads its own picture at start-up, so it is only refreshed
+        // here when the avatar changes after this point. Data is loaded in onResume.
+        avatarThumbVersion = AvatarState.version();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        // Hidden tabs refresh in onHiddenChanged when they are shown again.
+        if (isHidden()) {
+            return;
+        }
         refreshData();
     }
 
@@ -105,13 +127,18 @@ public class MeFragment extends Fragment {
 
     private void refreshData() {
         loadUserProfile();
-        // Refresh the avatar so outfit/skin-tone changes made in the locker show here.
-        loadAvatar();
-        // Also refresh the top-bar profile picture: the avatar may have changed in
-        // the locker, and the top bar otherwise renders the face only once per
-        // session. This keeps the profile picture in sync with the avatar.
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).refreshAvatarThumb();
+        int version = AvatarState.version();
+        // Only rebuild the avatar when the locker has changed it since last time.
+        if (avatarVersionShown != version) {
+            avatarVersionRequested = version;
+            loadAvatar();
+        }
+        // Same for the top-bar profile picture.
+        if (avatarThumbVersion != version) {
+            avatarThumbVersion = version;
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).refreshAvatarThumb();
+            }
         }
     }
 
@@ -159,7 +186,10 @@ public class MeFragment extends Fragment {
             }
 
             @Override
-            public void onError(Exception e) { /* leave default avatar image */ }
+            public void onError(Exception e) {
+                Log.e(TAG, "loadAvatarBodyThenComposite: database call failed", e);
+                /* leave default avatar image */
+            }
         });
     }
 
@@ -174,15 +204,21 @@ public class MeFragment extends Fragment {
             Bitmap bmp = AvatarCompositor.composite(
                     requireContext().getApplicationContext(), gender, bodyType, skinTone, hairColour, equipped);
             if (getActivity() == null || !isAdded()) return;
-            getActivity().runOnUiThread(() -> ivAvatar.setImageBitmap(bmp));
+            getActivity().runOnUiThread(() -> {
+                ivAvatar.setImageBitmap(bmp);
+                avatarVersionShown = avatarVersionRequested;
+            });
         }).start();
     }
 
     private void initViews(View view) {
         btnSettings = view.findViewById(R.id.btnSettings);
         btnLocker = view.findViewById(R.id.btnLocker);
+        tvMeName = view.findViewById(R.id.tvMeName);
+        tvMeUsername = view.findViewById(R.id.tvMeUsername);
         ivAvatar = view.findViewById(R.id.ivAvatar);
         ivMedal = view.findViewById(R.id.ivMedal);
+        flMedal = view.findViewById(R.id.flMedal);
         tvRankName = view.findViewById(R.id.tvRankName);
         tvLevelNumber = view.findViewById(R.id.tvLevelNumber);
         tvLevelLabel = view.findViewById(R.id.tvLevelLabel);
@@ -220,9 +256,42 @@ public class MeFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                Log.e(TAG, "loadUserProfile: database call failed", e);
                 // Silently fail — don't disrupt UI
             }
         });
+    }
+
+    /**
+     * Colours the rank medal, its border and the rank name for the user's tier
+     * (Bronze, Silver, Gold, Platinum or Diamond). The tier is the first word of
+     * the rank name, for example "Silver II".
+     */
+    private void applyRankColour(@Nullable String rankName) {
+        String name = rankName == null ? "" : rankName.trim().toLowerCase(Locale.ROOT);
+        int colourRes = R.color.rank_bronze;
+        if (name.startsWith("silver")) {
+            colourRes = R.color.rank_silver;
+        } else if (name.startsWith("gold")) {
+            colourRes = R.color.rank_gold;
+        } else if (name.startsWith("platinum")) {
+            colourRes = R.color.rank_platinum;
+        } else if (name.startsWith("diamond")) {
+            colourRes = R.color.rank_diamond;
+        }
+        int colour = ContextCompat.getColor(requireContext(), colourRes);
+
+        tvRankName.setTextColor(colour);
+        ivMedal.setColorFilter(colour);
+
+        Drawable border = flMedal.getBackground();
+        if (border != null) {
+            border = border.mutate();
+            if (border instanceof GradientDrawable) {
+                int strokePx = Math.round(2 * getResources().getDisplayMetrics().density);
+                ((GradientDrawable) border).setStroke(strokePx, colour);
+            }
+        }
     }
 
     /**
@@ -230,43 +299,38 @@ public class MeFragment extends Fragment {
      * Computes the correct level from total XP and fixes the DB if stale.
      */
     private void displayUserProfile(User user) {
+        // Title: the user's first name, with @username underneath.
+        if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty()) {
+            tvMeName.setText(user.getFirstName().trim());
+        }
+        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+            tvMeUsername.setText(getString(R.string.me_username_format, user.getUsername().trim()));
+        }
+
         // Display rank name (uppercase for the design style)
         if (user.getRankName() != null && !user.getRankName().isEmpty()) {
             tvRankName.setText(user.getRankName().toUpperCase());
         } else {
             tvRankName.setText(R.string.me_rank_default);
         }
+        applyRankColour(user.getRankName());
 
-        int totalXp = user.getXp();
+        long totalXp = user.getXp();
 
-        // Compute the correct level based on total XP
-        int correctLevel = 1;
-        while (XPCalculator.shouldLevelUp(totalXp, correctLevel)) {
-            correctLevel++;
-        }
-
-        // Fix DB if level is out of sync
-        if (correctLevel != user.getCurrentLevel()) {
-            userRepository.updateLevel(user.getUserId(), correctLevel, null);
-        }
-
-        // Refresh the top bar to stay in sync
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadTopBarData();
-        }
+        // Read the stored level only. Levelling and rewards are handled in one
+        // place — ProgressionManager, invoked after an XP change — so this
+        // screen must never silently "fix" the level.
+        int level = user.getCurrentLevel();
 
         // Display level number in circle and label below
-        tvLevelNumber.setText(String.valueOf(correctLevel));
-        tvLevelLabel.setText(getString(R.string.me_level_format, correctLevel));
+        tvLevelNumber.setText(String.valueOf(level));
+        tvLevelLabel.setText(getString(R.string.me_level_format, level));
 
-        // Calculate XP progress within current level for circular indicator
-        int xpForNext = XPCalculator.xpForNextLevel(correctLevel);
-
-        int cumulativeXpForCurrentLevel = 0;
-        for (int i = 1; i < correctLevel; i++) {
-            cumulativeXpForCurrentLevel += XPCalculator.xpForNextLevel(i);
-        }
-        int xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
+        // Calculate XP progress within current level for circular indicator.
+        // All curve maths uses long so it can't overflow at high levels.
+        long xpForNext = XPCalculator.xpForNextLevel(level);
+        long cumulativeXpForCurrentLevel = XPCalculator.cumulativeXpForLevel(level);
+        long xpIntoCurrentLevel = totalXp - cumulativeXpForCurrentLevel;
         int progressPercent = xpForNext > 0 ? (int) ((xpIntoCurrentLevel * 100L) / xpForNext) : 0;
         progressPercent = Math.max(0, Math.min(100, progressPercent));
 
@@ -274,6 +338,6 @@ public class MeFragment extends Fragment {
 
         // Display XP progress text (e.g. "250 / 500 XP")
         tvXpProgress.setText(getString(R.string.me_xp_progress_format,
-                xpIntoCurrentLevel, xpForNext));
+                (int) xpIntoCurrentLevel, (int) xpForNext));
     }
 }

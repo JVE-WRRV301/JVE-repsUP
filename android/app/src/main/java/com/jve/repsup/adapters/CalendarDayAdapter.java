@@ -1,6 +1,7 @@
 package com.jve.repsup.adapters;
 
 import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import java.util.Set;
 
 /**
  * RecyclerView adapter for the monthly calendar grid.
- * Displays day numbers with blue (workout) and red (goal) indicators.
+ * Displays day numbers with a blue dot (workout) and a red diamond (goal).
  */
 public class CalendarDayAdapter extends RecyclerView.Adapter<CalendarDayAdapter.DayViewHolder> {
 
@@ -59,7 +60,7 @@ public class CalendarDayAdapter extends RecyclerView.Adapter<CalendarDayAdapter.
     }
 
     /**
-     * Sets the days that have goals (red indicator).
+     * Sets the days that have goals (red diamond).
      */
     public void setGoalDays(Set<Integer> goalDays) {
         this.goalDays = goalDays;
@@ -117,13 +118,14 @@ public class CalendarDayAdapter extends RecyclerView.Adapter<CalendarDayAdapter.
             holder.viewWorkoutIndicator.setVisibility(View.GONE);
         }
 
-        // Goal indicator (red triangle-like shape using a rotated square)
+        // Goal indicator (red diamond: a square turned 45 degrees in the layout),
+        // so it is a different shape from the round workout dot.
         if (goalDays.contains(day)) {
             holder.viewGoalIndicator.setVisibility(View.VISIBLE);
-            GradientDrawable triangle = new GradientDrawable();
-            triangle.setShape(GradientDrawable.OVAL);
-            triangle.setColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));
-            holder.viewGoalIndicator.setBackground(triangle);
+            GradientDrawable diamond = new GradientDrawable();
+            diamond.setShape(GradientDrawable.RECTANGLE);
+            diamond.setColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));
+            holder.viewGoalIndicator.setBackground(diamond);
         } else {
             holder.viewGoalIndicator.setVisibility(View.GONE);
         }
@@ -141,8 +143,14 @@ public class CalendarDayAdapter extends RecyclerView.Adapter<CalendarDayAdapter.
         if (day == selectedDay) {
             GradientDrawable bg = new GradientDrawable();
             bg.setShape(GradientDrawable.RECTANGLE);
-            bg.setCornerRadius(8f);
-            bg.setStroke(2, ContextCompat.getColor(holder.itemView.getContext(), R.color.light_blue));
+            // radius_card resolved to px, so the highlight matches card corners
+            // instead of the old 8-pixel (not dp) value.
+            bg.setCornerRadius(holder.itemView.getResources()
+                    .getDimension(R.dimen.radius_card));
+            // 2dp outline (setStroke takes pixels, so convert from dp)
+            int strokePx = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f,
+                    holder.itemView.getResources().getDisplayMetrics()));
+            bg.setStroke(strokePx, ContextCompat.getColor(holder.itemView.getContext(), R.color.light_blue));
             holder.llDayCell.setBackground(bg);
         } else {
             holder.llDayCell.setBackground(null);

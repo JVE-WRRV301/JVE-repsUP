@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import com.jve.repsup.utils.MuscleGroups;
 import android.os.Bundle;
 import android.widget.ImageButton;
 
@@ -18,9 +19,9 @@ import com.jve.repsup.models.WorkoutExercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.DialogUtils;
 import com.jve.repsup.utils.SnackbarUtils;
+import com.jve.repsup.utils.WorkoutValidator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,17 +35,17 @@ import java.util.List;
  */
 public class AdminCreateWorkoutActivity extends AppCompatActivity {
 
-    public static final int MAX_EXERCISES = 8;
+    public static final int MAX_EXERCISES = WorkoutValidator.MAX_EXERCISES;
 
     /**
      * The only muscle groups the app recognises (match the exercise table and
      * the user-facing workout UI). The admin create flow lists these directly;
      * there is no "category" layer.
      */
-    public static final List<String> MUSCLE_GROUPS = Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    );
+    public static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
+
+    // True while a save is running, so a second tap cannot create a duplicate.
+    private boolean saving = false;
 
     // Running selection: each entry carries the exercise plus its chosen sets/reps.
     private final List<WorkoutExercise> selectedExercises = new ArrayList<>();
@@ -189,6 +190,10 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
      * updates the existing one in edit mode (never duplicates).
      */
     public void saveWorkout(String workoutName) {
+        // Ignore a second tap while the first save is still running.
+        if (saving) return;
+        saving = true;
+
         List<WorkoutExercise> workoutExercises = new ArrayList<>();
         for (int i = 0; i < selectedExercises.size(); i++) {
             WorkoutExercise src = selectedExercises.get(i);
@@ -217,9 +222,7 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(Exception e) {
-                            runOnUiThread(() -> DialogUtils.showError(
-                                    AdminCreateWorkoutActivity.this,
-                                    getString(R.string.admin_workout_create_error)));
+                            runOnUiThread(() -> onSaveFailed());
                         }
                     });
             return;
@@ -234,11 +237,19 @@ public class AdminCreateWorkoutActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        runOnUiThread(() -> DialogUtils.showError(
-                                AdminCreateWorkoutActivity.this,
-                                getString(R.string.admin_workout_create_error)));
+                        runOnUiThread(() -> onSaveFailed());
                     }
                 });
+    }
+
+    /** Lets the admin try again after a failed save. */
+    private void onSaveFailed() {
+        saving = false;
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (current instanceof AdminWorkoutReviewFragment) {
+            ((AdminWorkoutReviewFragment) current).setSaving(false);
+        }
+        DialogUtils.showError(this, getString(R.string.admin_workout_create_error));
     }
 
     private void onSaveSuccess() {

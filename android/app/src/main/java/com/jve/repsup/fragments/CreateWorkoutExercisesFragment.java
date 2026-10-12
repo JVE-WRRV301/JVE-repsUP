@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
@@ -22,6 +24,7 @@ import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.Exercise;
 import com.jve.repsup.repositories.WorkoutRepository;
 import com.jve.repsup.utils.DialogUtils;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SnackbarUtils;
 
 import java.util.List;
@@ -110,9 +113,9 @@ public class CreateWorkoutExercisesFragment extends Fragment {
         etSets.setText(String.valueOf(defaultSets));
         etReps.setText(String.valueOf(defaultReps));
 
-        new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
-                .setPositiveButton(R.string.admin_add_exercise, (dialog, which) -> {
+                .setPositiveButton(R.string.admin_add_exercise, (d, which) -> {
                     int sets = parseOrDefault(etSets.getText().toString(), defaultSets);
                     int reps = parseOrDefault(etReps.getText().toString(), defaultReps);
                     boolean added = activity.addExerciseWithSetsReps(exercise, sets, reps);
@@ -124,7 +127,16 @@ public class CreateWorkoutExercisesFragment extends Fragment {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+
+        // Let the dialog draw edge-to-edge so IME insets are dispatched, then
+        // pad the content with the keyboard inset so the fields stay visible.
+        if (dialog.getWindow() != null) {
+            InsetsHelper.enableEdgeToEdge(dialog.getWindow());
+        }
+        InsetsHelper.applyImeBottomPadding(dialogView.findViewById(R.id.dialogSetsRepsRoot));
+
+        dialog.show();
     }
 
     private int parseOrDefault(String text, int fallback) {

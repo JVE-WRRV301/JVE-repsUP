@@ -2,7 +2,9 @@ package com.jve.repsup.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +16,14 @@ import com.jve.repsup.dialogs.LevelUpDialog;
 import com.jve.repsup.dialogs.RankUpDialog;
 import com.jve.repsup.dialogs.StreakMilestoneDialog;
 import com.jve.repsup.models.ExerciseResult;
-import com.jve.repsup.models.Rank;
-import com.jve.repsup.models.User;
 import com.jve.repsup.models.Workout;
 import com.jve.repsup.models.WorkoutExercise;
+import com.jve.repsup.repositories.ExerciseLogRepository;
 import com.jve.repsup.repositories.ScheduleRepository;
 import com.jve.repsup.repositories.UserRepository;
 import com.jve.repsup.repositories.WorkoutRepository;
+import com.jve.repsup.utils.InsetsHelper;
+import com.jve.repsup.utils.ProgressionManager;
 import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.StreakManager;
 import com.jve.repsup.utils.XPCalculator;
@@ -28,6 +31,7 @@ import com.jve.repsup.utils.XPCalculator;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Displays workout completion summary including total XP earned and muscles worked.
@@ -42,6 +46,7 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     private TextView tvXpEarned;
     private TextView tvMusclesList;
     private Button btnContinue;
+    private ProgressBar pbSaving;
 
     private int scheduledWorkoutId;
     private int workoutId;
@@ -56,12 +61,22 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     private int totalSets;
     private int totalReps;
 
+    // How many of the four saves (XP, XP log, streak, exercise log) are still running. Continue
+    // stays disabled until they have all finished, so the level-up check reads the new XP.
+    private final AtomicInteger pendingSaves = new AtomicInteger(0);
+
     private int updatedStreak = -1; // -1 means streak update hasn't completed yet
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw edge-to-edge, then keep content clear of the status/nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
+
         setContentView(R.layout.activity_workout_complete);
+
+        InsetsHelper.applySystemBarsPadding(findViewById(R.id.workoutCompleteRoot));
 
         scheduleRepository = new ScheduleRepository();
         userRepository = new UserRepository();
@@ -88,8 +103,13 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         tvXpEarned = findViewById(R.id.tvXpEarned);
         tvMusclesList = findViewById(R.id.tvMusclesList);
         btnContinue = findViewById(R.id.btnContinue);
+        pbSaving = findViewById(R.id.pbSaving);
 
         btnContinue.setOnClickListener(v -> navigateHome());
+
+        // Wait for the saves to finish before Continue can be used.
+        btnContinue.setEnabled(false);
+        btnContinue.setAlpha(0.5f);
     }
 
     private void calculateResults() {
@@ -169,23 +189,81 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
     }
 
     /**
-     * Persists workout completion: marks scheduled workout complete,
-     * updates user XP, and inserts an XP log record.
+     * Persists workout completion: marks the scheduled workout complete, and —
+     * only if that update actually changed a row — updates user XP, inserts an
+     * XP log record and updates the streak.
+     *
+     * The {@code completeScheduledWorkout} update carries an {@code is_completed = 0}
+     * guard, so a repeat run (e.g. after this screen is recreated on rotation)
+     * affects 0 rows. Gating the XP/log/streak work on "exactly 1 row changed"
+     * means completion is safe to repeat and XP is never awarded twice.
      */
     private void persistCompletion() {
         int userId = sessionManager.getUserId();
 
-        // 1. Mark scheduled workout as completed
+        // 1. Mark scheduled workout as completed. Everything else is gated on
+        //    this update changing exactly 1 row.
         scheduleRepository.completeScheduledWorkout(scheduledWorkoutId, totalXp, totalSets, totalReps,
                 new ConnectionManager.DatabaseCallback<Integer>() {
                     @Override
-                    public void onSuccess(Integer result) {
-                        // Scheduled workout marked complete
+                    public void onSuccess(Integer rowsChanged) {
+                        if (rowsChanged != null && rowsChanged == 1) {
+                            // First completion of this scheduled workout — award XP,
+                            // log it and update the streak.
+                            awardXpAndStreak(userId);
+                        } else {
+                            // Already completed: nothing more to save (no double XP).
+                            enableContinue();
+                        }
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Log error but don't block user
+                        // Don't block the user
+                        enableContinue();
+                    }
+                });
+    }
+
+    /** Called once per finished save; enables Continue after the last one. */
+    private void saveStepFinished() {
+        if (pendingSaves.decrementAndGet() <= 0) {
+            enableContinue();
+        }
+    }
+
+    private void enableContinue() {
+        runOnUiThread(() -> {
+            pbSaving.setVisibility(View.GONE);
+            btnContinue.setEnabled(true);
+            btnContinue.setAlpha(1f);
+        });
+    }
+
+    /**
+     * Updates the user's XP, inserts the XP log row and updates the streak.
+     * Only called when the scheduled workout was marked complete for the first
+     * time (the completion UPDATE changed exactly 1 row).
+     */
+    private void awardXpAndStreak(int userId) {
+        // Four saves run side by side: XP, XP log, streak and the exercise log.
+        // Continue is enabled once all four have finished (successfully or not).
+        pendingSaves.set(4);
+
+        // 1b. Log what was done for each exercise (sets, reps, heaviest weight). The
+        //     newest log is the "last weight" shown in the library and pre-filled
+        //     next time. Skipped exercises are not logged.
+        new ExerciseLogRepository().logResults(userId, scheduledWorkoutId, exerciseResults,
+                new ConnectionManager.DatabaseCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer saved) {
+                        saveStepFinished();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Don't block the user
+                        saveStepFinished();
                     }
                 });
 
@@ -194,150 +272,152 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Integer result) {
                 // XP updated — level/rank checks happen when user taps Continue
+                saveStepFinished();
             }
 
             @Override
             public void onError(Exception e) {
-                // Log error but don't block user
+                // Don't block the user
+                saveStepFinished();
             }
         });
 
         // 3. Insert XP log record
         int coinsEarned = 0; // Coins are awarded on level-up only (task 13)
-        userRepository.insertXpLog(userId, totalXp, "workout", workoutId, totalXp, coinsEarned,
+        userRepository.insertXpLog(userId, "workout", workoutId, totalXp, coinsEarned,
                 new ConnectionManager.DatabaseCallback<Long>() {
                     @Override
                     public void onSuccess(Long result) {
-                        // XP log inserted
+                        saveStepFinished();
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Log error but don't block user
+                        saveStepFinished();
                     }
                 });
 
-        // 4. Update streak — only increment if this is the first completed workout today
-        scheduleRepository.countOtherCompletedToday(userId, scheduledWorkoutId,
+        // 4. Update streak — only increment if this is the first completed workout today.
+        //    "Today" comes from the phone's date, not MySQL CURDATE().
+        java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
+        scheduleRepository.countOtherCompletedToday(userId, scheduledWorkoutId, today,
                 new ConnectionManager.DatabaseCallback<Integer>() {
                     @Override
                     public void onSuccess(Integer otherCompletedCount) {
                         int alreadyCompletedToday = otherCompletedCount != null ? otherCompletedCount : 0;
                         if (alreadyCompletedToday > 0) {
-                            // Streak was already incremented today — skip
-                            // Store current streak for milestone check (no change)
+                            // Streak was already incremented today — keep it as it is,
+                            // just remember it for the milestone check.
                             userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
                                 @Override
                                 public void onSuccess(Integer streak) {
                                     updatedStreak = streak != null ? streak : 0;
+                                    saveStepFinished();
                                 }
+
                                 @Override
-                                public void onError(Exception e) {}
+                                public void onError(Exception e) {
+                                    saveStepFinished();
+                                }
                             });
                             return;
                         }
-                        // This is the first completion today — increment streak
-                        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
-                            @Override
-                            public void onSuccess(Integer streak) {
-                                int currentStreak = streak != null ? streak : 0;
-                                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
-                                updatedStreak = newStreak; // Store for milestone check
-                                userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
-                                    @Override
-                                    public void onSuccess(Integer result) {
-                                        // Streak updated successfully
-                                    }
-
-                                    @Override
-                                    public void onError(Exception e) {
-                                        // Log error but don't block user
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                // Log error but don't block user
-                            }
-                        });
+                        incrementStreak(userId, true);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        // Log error but don't block user — default to incrementing
-                        // (better to over-count once than silently fail)
-                        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
-                            @Override
-                            public void onSuccess(Integer streak) {
-                                int currentStreak = streak != null ? streak : 0;
-                                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
-                                userRepository.updateStreak(userId, newStreak, null);
-                            }
-
-                            @Override
-                            public void onError(Exception e2) {
-                                // Silent fail
-                            }
-                        });
+                        // Default to incrementing (better to over-count once than
+                        // silently fail).
+                        incrementStreak(userId, false);
                     }
                 });
     }
 
     /**
-     * Called when user taps Continue. Reads latest user state from DB,
-     * checks for level-up and rank-up, shows dialogs in order, then checks streak.
+     * Adds today's workout to the streak. Finishes the "streak" save step when done.
+     *
+     * @param rememberForMilestone true to keep the new value for the milestone check
+     */
+    private void incrementStreak(int userId, boolean rememberForMilestone) {
+        userRepository.getCurrentStreak(userId, new ConnectionManager.DatabaseCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer streak) {
+                int currentStreak = streak != null ? streak : 0;
+                int newStreak = StreakManager.evaluateStreak(currentStreak, true, true);
+                if (rememberForMilestone) {
+                    updatedStreak = newStreak; // Store for milestone check
+                }
+                userRepository.updateStreak(userId, newStreak, new ConnectionManager.DatabaseCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer result) {
+                        saveStepFinished();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        saveStepFinished();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                saveStepFinished();
+            }
+        });
+    }
+
+    /**
+     * Called when user taps Continue. Hands the XP change to the shared
+     * {@link ProgressionManager}, which works out the new level, saves it,
+     * awards coins and promotes the rank, then shows the Level Up / Rank Up
+     * dialogs it reports, then checks the streak.
      * Dialog order: Level Up → Rank Up → Streak Milestone → Navigate Home
      */
     private void navigateHome() {
         int userId = sessionManager.getUserId();
         btnContinue.setEnabled(false); // Prevent double-tap
 
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null) {
-                    checkStreakAndNavigate(userId);
-                    return;
-                }
+        ProgressionManager.applyProgression(userId, userRepository,
+                new ProgressionManager.ProgressionCallback() {
+                    @Override
+                    public void onResult(ProgressionManager.ProgressionResult result) {
+                        if (result.leveledUp()) {
+                            runOnUiThread(() -> {
+                                LevelUpDialog dialog = new LevelUpDialog(
+                                        WorkoutCompleteActivity.this, result.getNewLevel());
+                                dialog.setOnDismissListener(d ->
+                                        showRankUpThenStreak(userId, result));
+                                dialog.show();
+                            });
+                        } else {
+                            checkStreakAndNavigate(userId);
+                        }
+                    }
 
-                int currentLevel = user.getCurrentLevel();
-                int totalUserXp = user.getXp();
+                    @Override
+                    public void onError(Exception e) {
+                        checkStreakAndNavigate(userId);
+                    }
+                });
+    }
 
-                // Check for multiple level-ups
-                int newLevel = currentLevel;
-                while (XPCalculator.shouldLevelUp(totalUserXp, newLevel)) {
-                    newLevel++;
-                }
-
-                if (newLevel > currentLevel) {
-                    int finalLevel = newLevel;
-                    int coinsEarned = (finalLevel - currentLevel) * 50;
-
-                    // Update level in DB
-                    userRepository.updateLevel(userId, finalLevel, null);
-                    // Award coins for level up
-                    userRepository.updateCoins(userId, coinsEarned, null);
-
-                    // Show level-up dialog
-                    runOnUiThread(() -> {
-                        LevelUpDialog dialog = new LevelUpDialog(WorkoutCompleteActivity.this, finalLevel);
-                        dialog.setOnDismissListener(d -> {
-                            // After level-up dismissed, check rank promotion
-                            checkRankPromotion(userId, finalLevel, () -> checkStreakAndNavigate(userId));
-                        });
-                        dialog.show();
-                    });
-                } else {
-                    checkStreakAndNavigate(userId);
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                checkStreakAndNavigate(userId);
-            }
-        });
+    /**
+     * After the Level Up dialog, shows the Rank Up dialog if the progression
+     * result reported a rank gain, then continues to the streak check.
+     */
+    private void showRankUpThenStreak(int userId, ProgressionManager.ProgressionResult result) {
+        if (result.rankedUp() && result.getNewRankName() != null) {
+            runOnUiThread(() -> {
+                RankUpDialog dialog = new RankUpDialog(
+                        WorkoutCompleteActivity.this, result.getNewRankName());
+                dialog.setOnDismissListener(d -> checkStreakAndNavigate(userId));
+                dialog.show();
+            });
+        } else {
+            checkStreakAndNavigate(userId);
+        }
     }
 
     /**
@@ -381,62 +461,6 @@ public class WorkoutCompleteActivity extends AppCompatActivity {
         } else {
             proceedToHome();
         }
-    }
-
-    /**
-     * Checks if the user's new level qualifies for a rank promotion.
-     * If a next rank is available, updates the user's rank_id, awards 100 bonus coins,
-     * and shows a RankUpDialog before continuing the flow.
-     *
-     * @param userId   the user's ID
-     * @param newLevel the user's new level after levelling up
-     * @param onComplete callback to run after rank check completes
-     */
-    private void checkRankPromotion(int userId, int newLevel, Runnable onComplete) {
-        userRepository.getUserById(userId, new ConnectionManager.DatabaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user == null) {
-                    onComplete.run();
-                    return;
-                }
-
-                int currentRankId = user.getRankId() != null ? user.getRankId() : 0;
-
-                userRepository.getNextRank(newLevel, currentRankId, new ConnectionManager.DatabaseCallback<Rank>() {
-                    @Override
-                    public void onSuccess(Rank nextRank) {
-                        if (nextRank != null) {
-                            // User qualifies for rank promotion — update rank
-                            userRepository.updateRank(userId, nextRank.getRankId(), null);
-
-                            // Award 100 bonus coins for rank up
-                            userRepository.updateCoins(userId, 100, null);
-
-                            // Show RankUpDialog on the UI thread
-                            runOnUiThread(() -> {
-                                RankUpDialog dialog = new RankUpDialog(
-                                        WorkoutCompleteActivity.this, nextRank.getDisplayName());
-                                dialog.setOnDismissListener(d -> onComplete.run());
-                                dialog.show();
-                            });
-                        } else {
-                            onComplete.run();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        onComplete.run();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                onComplete.run();
-            }
-        });
     }
 
     /**

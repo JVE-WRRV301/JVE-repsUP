@@ -15,16 +15,24 @@ public class ExerciseResult implements Serializable {
     private int setsCompleted;
     private int totalReps;
     private double totalWeight;
+    // The heaviest weight used in a counted set (this is what gets logged).
+    private double maxWeight;
 
     public ExerciseResult() {}
 
     public ExerciseResult(int exerciseId, int baseXp, int setsCompleted,
                           int totalReps, double totalWeight) {
+        this(exerciseId, baseXp, setsCompleted, totalReps, totalWeight, 0);
+    }
+
+    public ExerciseResult(int exerciseId, int baseXp, int setsCompleted,
+                          int totalReps, double totalWeight, double maxWeight) {
         this.exerciseId = exerciseId;
         this.baseXp = baseXp;
         this.setsCompleted = setsCompleted;
         this.totalReps = totalReps;
         this.totalWeight = totalWeight;
+        this.maxWeight = maxWeight;
     }
 
     // Getters and Setters
@@ -43,4 +51,7 @@ public class ExerciseResult implements Serializable {
 
     public double getTotalWeight() { return totalWeight; }
     public void setTotalWeight(double totalWeight) { this.totalWeight = totalWeight; }
+
+    public double getMaxWeight() { return maxWeight; }
+    public void setMaxWeight(double maxWeight) { this.maxWeight = maxWeight; }
 }

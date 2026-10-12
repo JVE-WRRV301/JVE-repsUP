@@ -12,10 +12,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 import com.jve.repsup.utils.RulerSliderView;
 
@@ -148,17 +148,8 @@ public class AssessmentWeightFragment extends Fragment {
     }
 
     private void updateUnitToggle() {
-        if (isKg) {
-            btnKg.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnKg.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnLbs.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnLbs.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        } else {
-            btnLbs.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnLbs.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnKg.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnKg.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        }
+        SelectableButtonStyler.applySelected(btnKg, isKg);
+        SelectableButtonStyler.applySelected(btnLbs, !isKg);
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

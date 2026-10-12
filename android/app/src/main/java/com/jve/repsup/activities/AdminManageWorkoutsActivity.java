@@ -9,11 +9,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jve.repsup.R;
 import com.jve.repsup.adapters.ManageWorkoutsAdapter;
 import com.jve.repsup.database.ConnectionManager;
@@ -157,7 +157,7 @@ public class AdminManageWorkoutsActivity extends AppCompatActivity
 
     @Override
     public void onDeleteWorkout(Workout workout) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.admin_delete_workout_title)
                 .setMessage(R.string.admin_delete_workout_message)
                 .setPositiveButton(R.string.admin_action_delete, (dialog, which) -> {

@@ -10,6 +10,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.DisplayText;
 import com.jve.repsup.models.Exercise;
 
 import java.util.ArrayList;
@@ -18,8 +19,7 @@ import java.util.List;
 /**
  * RecyclerView adapter for the ADMIN create flow's exercise list. Tapping an
  * exercise invokes the click listener (which opens the sets/reps dialog to add it
- * to the workout). Single-tap behaviour — distinct from the user-side multi-select
- * {@link ExerciseSelectionAdapter}.
+ * to the workout). Single-tap behaviour.
  */
 public class AdminExercisePickAdapter
         extends RecyclerView.Adapter<AdminExercisePickAdapter.ExerciseViewHolder> {
@@ -55,7 +55,8 @@ public class AdminExercisePickAdapter
         holder.tvExerciseName.setText(exercise.getName());
         holder.tvExerciseDetails.setText(
                 holder.itemView.getContext().getString(R.string.admin_exercise_details,
-                        exercise.getDefaultSets(), exercise.getDefaultReps(), exercise.getDifficulty())
+                        exercise.getDefaultSets(), exercise.getDefaultReps(),
+                        DisplayText.capitalise(exercise.getDifficulty()))
         );
 
         holder.cardView.setCardBackgroundColor(

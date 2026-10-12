@@ -1,5 +1,7 @@
 package com.jve.repsup.fragments;
 
+import com.jve.repsup.utils.MuscleGroups;
+import android.util.Log;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +14,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.chip.Chip;
 import com.jve.repsup.R;
 import com.jve.repsup.activities.CreateWorkoutActivity;
 import com.jve.repsup.adapters.SelectableMuscleGroupAdapter;
+import com.jve.repsup.database.ConnectionManager;
+import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.SelectableButtonStyler;
+import com.jve.repsup.utils.SessionManager;
 import com.jve.repsup.utils.SnackbarUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,14 +31,15 @@ import java.util.List;
  */
 public class GenerateWorkoutOptionsFragment extends Fragment {
 
-    private static final List<String> MUSCLE_GROUPS = Arrays.asList(
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    );
+    private static final String TAG = "GenerateWorkoutOptionsFragment";
 
-    private Chip chipEasy;
-    private Chip chipMedium;
-    private Chip chipHard;
+    private static final List<String> MUSCLE_GROUPS = MuscleGroups.ALL;
+
+    private Button btnDifficultyEasy;
+    private Button btnDifficultyMedium;
+    private Button btnDifficultyHard;
+    /** "Easy", "Medium", "Hard", or null when nothing is selected yet. */
+    private String selectedDifficulty;
     private SelectableMuscleGroupAdapter muscleGroupAdapter;
 
     public GenerateWorkoutOptionsFragment() {
@@ -52,10 +57,11 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        chipEasy = view.findViewById(R.id.chipEasy);
-        chipMedium = view.findViewById(R.id.chipMedium);
-        chipHard = view.findViewById(R.id.chipHard);
+        btnDifficultyEasy = view.findViewById(R.id.btnDifficultyEasy);
+        btnDifficultyMedium = view.findViewById(R.id.btnDifficultyMedium);
+        btnDifficultyHard = view.findViewById(R.id.btnDifficultyHard);
         setupSingleSelectDifficulty();
+        preselectDifficultyForBeginners();
 
         RecyclerView rvMuscleGroups = view.findViewById(R.id.rvMuscleGroups);
         Button btnGenerate = view.findViewById(R.id.btnGenerate);
@@ -87,29 +93,56 @@ public class GenerateWorkoutOptionsFragment extends Fragment {
     }
 
     /**
-     * Enforces single-selection across the three difficulty chips: checking one
-     * unchecks the others. (We manage this manually since the chips are laid out
-     * in a weighted LinearLayout rather than a ChipGroup.)
+     * Single selection across the three difficulty buttons: tapping one selects
+     * it and deselects the others, using the shared selectable-button look.
      */
     private void setupSingleSelectDifficulty() {
-        Chip[] chips = {chipEasy, chipMedium, chipHard};
-        for (Chip chip : chips) {
-            chip.setOnClickListener(v -> {
-                for (Chip other : chips) {
-                    other.setChecked(other == v);
-                }
-            });
-        }
+        btnDifficultyEasy.setOnClickListener(v -> selectDifficulty("Easy"));
+        btnDifficultyMedium.setOnClickListener(v -> selectDifficulty("Medium"));
+        btnDifficultyHard.setOnClickListener(v -> selectDifficulty("Hard"));
+        updateDifficultyButtons();
+    }
+
+    /**
+     * People who said in the fitness assessment that they have never worked out,
+     * or are beginners, start with Easy selected. They can still change it.
+     */
+    private void preselectDifficultyForBeginners() {
+        int userId = new SessionManager(requireContext()).getUserId();
+        if (userId == -1) return;
+        new UserRepository().getWorkoutLevel(userId, new ConnectionManager.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String level) {
+                if (level == null || getActivity() == null || !isAdded()) return;
+                boolean beginner = "never".equalsIgnoreCase(level) || "beginner".equalsIgnoreCase(level);
+                getActivity().runOnUiThread(() -> {
+                    // Do not override a choice the user has already made.
+                    if (beginner && selectedDifficulty == null) {
+                        selectDifficulty("Easy");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "preselectDifficultyForBeginners: database call failed", e);
+                // Nothing to do: the user simply picks a difficulty themselves.
+            }
+        });
+    }
+
+    private void selectDifficulty(String difficulty) {
+        selectedDifficulty = difficulty;
+        updateDifficultyButtons();
+    }
+
+    private void updateDifficultyButtons() {
+        SelectableButtonStyler.applySelected(btnDifficultyEasy, "Easy".equals(selectedDifficulty));
+        SelectableButtonStyler.applySelected(btnDifficultyMedium, "Medium".equals(selectedDifficulty));
+        SelectableButtonStyler.applySelected(btnDifficultyHard, "Hard".equals(selectedDifficulty));
     }
 
     private String getSelectedDifficulty() {
-        if (chipEasy.isChecked()) {
-            return "Easy";
-        } else if (chipMedium.isChecked()) {
-            return "Medium";
-        } else if (chipHard.isChecked()) {
-            return "Hard";
-        }
-        return null;
+        return selectedDifficulty;
     }
 }

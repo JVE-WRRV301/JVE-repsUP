@@ -13,17 +13,24 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jve.repsup.R;
+import com.jve.repsup.models.ExerciseResult;
 import com.jve.repsup.models.ScheduledWorkout;
 import com.jve.repsup.models.WorkoutExercise;
+import com.jve.repsup.utils.ExerciseLogText;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * RecyclerView adapter for displaying scheduled workout cards for a selected day.
- * Shows workout name, exercise count, exercise previews (up to 3),
- * completion status, and a START button for today's workouts.
+ * Shows workout name, exercise count, exercise previews (up to 3, or all of them
+ * after tapping "and N more"), completion status, and a START button for today's
+ * workouts. A completed workout lists what was actually done for each exercise.
  */
 public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.ContentViewHolder> {
 
@@ -32,6 +39,10 @@ public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.Co
     private List<ScheduledWorkout> items = new ArrayList<>();
     private OnStartClickListener startClickListener;
     private Date selectedDate;
+    // Workouts whose card is expanded to show every exercise.
+    private final Set<Integer> expandedIds = new HashSet<>();
+    // What was logged when each completed workout was done: scheduled workout id, then exercise id.
+    private Map<Integer, Map<Integer, ExerciseResult>> logs = new HashMap<>();
 
     public interface OnStartClickListener {
         void onStartClick(ScheduledWorkout scheduledWorkout);
@@ -43,6 +54,10 @@ public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.Co
 
     public void setSelectedDate(Date date) {
         this.selectedDate = date;
+    }
+
+    public void setLogs(Map<Integer, Map<Integer, ExerciseResult>> logs) {
+        this.logs = logs != null ? logs : new HashMap<>();
     }
 
     public void setItems(List<ScheduledWorkout> items) {
@@ -103,12 +118,17 @@ public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.Co
             tvExerciseCount.setText(context.getString(
                     R.string.workout_exercise_count_format, exerciseCount));
 
-            // Populate exercise previews (up to 3)
+            // Populate exercise previews (up to 3, or all when expanded)
             llExercisePreview.removeAllViews();
             tvAndMore.setVisibility(View.GONE);
 
+            boolean expanded = expandedIds.contains(sw.getScheduledWorkoutId());
+            Map<Integer, ExerciseResult> done = sw.isCompleted()
+                    ? logs.get(sw.getScheduledWorkoutId()) : null;
+
             if (exercises != null && !exercises.isEmpty()) {
-                int previewCount = Math.min(exercises.size(), MAX_PREVIEW_EXERCISES);
+                int previewCount = expanded
+                        ? exercises.size() : Math.min(exercises.size(), MAX_PREVIEW_EXERCISES);
                 LayoutInflater inflater = LayoutInflater.from(context);
 
                 for (int i = 0; i < previewCount; i++) {
@@ -125,7 +145,12 @@ public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.Co
                     String exerciseName = we.getExercise() != null
                             ? we.getExercise().getName() : "Exercise";
                     tvName.setText(exerciseName);
-                    tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                    if (done != null) {
+                        // Completed workout: what was actually done, not the plan.
+                        ExerciseLogText.apply(tvSets, done.get(we.getExerciseId()));
+                    } else {
+                        tvSets.setText(context.getString(R.string.home_sets_format, we.getSets()));
+                    }
 
                     // Try to load exercise image from drawable
                     loadExerciseImage(ivIcon, exerciseName);
@@ -133,12 +158,22 @@ public class DayContentAdapter extends RecyclerView.Adapter<DayContentAdapter.Co
                     llExercisePreview.addView(previewItem);
                 }
 
-                // "and X more" text
+                // "and X more" (or "Show less" when expanded); tapping toggles the card
                 if (exerciseCount > MAX_PREVIEW_EXERCISES) {
                     int remaining = exerciseCount - MAX_PREVIEW_EXERCISES;
-                    tvAndMore.setText(context.getString(
-                            R.string.weekly_plan_and_more_format, remaining));
+                    tvAndMore.setText(expanded
+                            ? context.getString(R.string.workout_show_less)
+                            : context.getString(R.string.weekly_plan_and_more_format, remaining));
                     tvAndMore.setVisibility(View.VISIBLE);
+                    tvAndMore.setOnClickListener(v -> {
+                        if (!expandedIds.remove(sw.getScheduledWorkoutId())) {
+                            expandedIds.add(sw.getScheduledWorkoutId());
+                        }
+                        int adapterPosition = getAdapterPosition();
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            notifyItemChanged(adapterPosition);
+                        }
+                    });
                 }
             }
 

@@ -22,7 +22,6 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:contentDescription="@string/admin_expand_collapse"
-        android:src="@android:drawable/arrow_up_float"
-        android:rotation="180" />
+        android:src="@drawable/ic_chevron_up" />
 
 </LinearLayout>

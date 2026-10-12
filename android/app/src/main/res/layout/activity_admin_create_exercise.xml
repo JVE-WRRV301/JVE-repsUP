@@ -40,11 +40,9 @@
                 android:id="@+id/tvCreateExerciseTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/orbitron_bold"
                 android:text="@string/admin_create_exercise_title"
                 android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                style="@style/Widget.RepsUp.PageTitle"
                 android:layout_marginBottom="24dp" />
 
             <!-- Exercise Name Label -->
@@ -61,17 +59,10 @@
             <!-- Exercise Name Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilExerciseName"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etExerciseName"
@@ -83,49 +74,6 @@
                     android:textColor="@color/white"
                     android:textColorHint="@color/muted" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Add Demonstration Label -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/admin_add_demonstration"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/inter_bold"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Demo Image Placeholder -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@drawable/bg_card_dark"
-                android:layout_marginBottom="16dp">
-
-                <ImageView
-                    android:id="@+id/ivDemoPreview"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_exercise_placeholder"
-                    app:tint="@color/muted"
-                    android:contentDescription="@string/admin_add_demonstration" />
-
-                <!-- Select Demo Image button overlaid at bottom -->
-                <Button
-                    android:id="@+id/btnSelectImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_gravity="bottom"
-                    android:layout_margin="12dp"
-                    android:backgroundTint="@color/dark_grey_variant"
-                    android:fontFamily="@font/inter"
-                    android:text="@string/btn_select_demo_image"
-                    android:textColor="@color/white"
-                    android:textAllCaps="true"
-                    android:textSize="12sp"
-                    app:cornerRadius="8dp" />
-            </FrameLayout>
 
             <!-- Muscle Group Label -->
             <TextView
@@ -141,17 +89,10 @@
             <!-- Muscle Group Dropdown -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilMuscleGroup"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.RepsUp.TextField.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="16dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/actvMuscleGroup"
@@ -178,17 +119,10 @@
             <!-- Difficulty Dropdown -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDifficulty"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.RepsUp.TextField.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="16dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/actvDifficulty"
@@ -215,17 +149,10 @@
             <!-- Default Sets Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDefaultSets"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDefaultSets"
@@ -252,17 +179,10 @@
             <!-- Default Reps Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDefaultReps"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDefaultReps"
@@ -289,17 +209,10 @@
             <!-- Base XP Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilBaseXp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.RepsUp.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxBackgroundColor="@color/dark_grey_surface"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etBaseXp"
@@ -328,6 +241,6 @@
         android:text="@string/btn_save_exercise"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp" />
+        app:cornerRadius="@dimen/radius_control" />
 
 </LinearLayout>

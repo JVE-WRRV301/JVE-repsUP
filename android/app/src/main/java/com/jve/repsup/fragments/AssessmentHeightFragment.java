@@ -13,10 +13,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.jve.repsup.R;
+import com.jve.repsup.utils.SelectableButtonStyler;
 import com.jve.repsup.activities.FitnessAssessmentActivity;
 import com.jve.repsup.utils.RulerSliderView;
 
@@ -215,17 +215,8 @@ public class AssessmentHeightFragment extends Fragment {
     }
 
     private void updateUnitToggle() {
-        if (isCm) {
-            btnCm.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnCm.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnFt.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnFt.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        } else {
-            btnFt.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.light_blue));
-            btnFt.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_text));
-            btnCm.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.dark_grey_surface));
-            btnCm.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        }
+        SelectableButtonStyler.applySelected(btnCm, isCm);
+        SelectableButtonStyler.applySelected(btnFt, !isCm);
     }
 
     private FitnessAssessmentActivity getAssessmentActivity() {

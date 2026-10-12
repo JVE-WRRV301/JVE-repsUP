@@ -11,7 +11,8 @@ public class Goal {
 
     private int goalId;
     private int userId;
-    private String description;
+    private String title;
+    private String description;  // notes (may be null/empty)
     private Date deadline;
     private String priority;  // "Top", "Medium", "Low"
     private boolean isCompleted;
@@ -19,10 +20,11 @@ public class Goal {
 
     public Goal() {}
 
-    public Goal(int goalId, int userId, String description, Date deadline,
+    public Goal(int goalId, int userId, String title, String description, Date deadline,
                 String priority, boolean isCompleted, Timestamp completedAt) {
         this.goalId = goalId;
         this.userId = userId;
+        this.title = title;
         this.description = description;
         this.deadline = deadline;
         this.priority = priority;
@@ -37,6 +39,9 @@ public class Goal {
 
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -55,12 +60,15 @@ public class Goal {
 
     /**
      * Returns XP reward based on priority level.
+     * Matching ignores case and a null priority is treated as Medium, so values
+     * saved as "top"/"medium"/"low" (or null) still award the right XP.
      */
     public int getXpReward() {
-        switch (priority) {
-            case "Top": return 1000;
-            case "Medium": return 500;
-            case "Low": return 250;
+        String normalised = priority == null ? "medium" : priority.trim().toLowerCase();
+        switch (normalised) {
+            case "top": return 1000;
+            case "medium": return 500;
+            case "low": return 250;
             default: return 0;
         }
     }

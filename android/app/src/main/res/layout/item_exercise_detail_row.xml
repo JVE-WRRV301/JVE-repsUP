@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/dark_grey_surface"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="@dimen/radius_card"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -36,8 +36,49 @@
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/create_workout_remove_exercise"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:src="@drawable/ic_close"
                 app:tint="@color/red" />
+
+        </LinearLayout>
+
+        <!-- Column headings, then the compact number boxes underneath -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:text="@string/create_workout_sets_hint"
+                android:textColor="@color/muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:text="@string/create_workout_reps_hint"
+                android:textColor="@color/muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/inter"
+                android:gravity="center"
+                android:text="@string/create_workout_weight_hint"
+                android:textColor="@color/muted"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -46,44 +87,34 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <EditText
+                android:id="@+id/etSets"
+                style="@style/Widget.RepsUp.CompactField"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                app:boxBackgroundColor="@color/dark_grey_variant"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted">
+                android:importantForAutofill="no"
+                android:inputType="number" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etReps"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter"
-                    android:hint="@string/create_workout_reps_hint"
-                    android:inputType="number"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <EditText
+                android:id="@+id/etReps"
+                style="@style/Widget.RepsUp.CompactField"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                app:boxBackgroundColor="@color/dark_grey_variant"
-                app:boxStrokeColor="@color/light_blue"
-                app:hintTextColor="@color/muted">
+                android:importantForAutofill="no"
+                android:inputType="number" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etWeight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter"
-                    android:hint="@string/create_workout_weight_hint"
-                    android:inputType="numberDecimal"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <EditText
+                android:id="@+id/etWeight"
+                style="@style/Widget.RepsUp.CompactField"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:importantForAutofill="no"
+                android:inputType="numberDecimal" />
 
         </LinearLayout>
 

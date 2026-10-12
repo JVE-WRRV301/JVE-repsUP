@@ -3,26 +3,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_grey"
+    android:clipToPadding="false"
     android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/workoutExecutionContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Back button (hidden on the first exercise) -->
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <!-- Top row: previous exercise (hidden on the first one) and quit (always) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/settings_back"
-            android:src="@drawable/ic_back"
-            android:tint="@color/white"
-            android:visibility="gone" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/settings_back"
+                android:src="@drawable/ic_back"
+                android:tint="@color/white"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btnQuit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/workout_execution_quit_desc"
+                android:src="@drawable/ic_close"
+                android:tint="@color/white" />
+
+        </LinearLayout>
 
         <!-- Progress indicator -->
         <TextView
@@ -63,10 +86,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:fontFamily="@font/orbitron"
+            android:fontFamily="@font/orbitron_bold"
             android:textColor="@color/white"
             android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_marginBottom="24dp" />
 
         <!-- Set table header -->
@@ -114,6 +136,11 @@
                 android:text="@string/workout_execution_done_header"
                 android:textColor="@color/muted"
                 android:textSize="12sp" />
+
+            <!-- Space for each row's remove button -->
+            <View
+                android:layout_width="36dp"
+                android:layout_height="0dp" />
         </LinearLayout>
 
         <!-- Set rows container -->
@@ -143,19 +170,32 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <!-- Skip this exercise (no XP for it) -->
+        <TextView
+            android:id="@+id/btnSkipExercise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/inter"
+            android:padding="8dp"
+            android:text="@string/workout_execution_skip"
+            android:textColor="@color/muted"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <!-- Next/Finish button -->
         <Button
             android:id="@+id/btnNext"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_button_rounded"
             android:enabled="false"
-            android:fontFamily="@font/orbitron"
+            android:fontFamily="@font/orbitron_bold"
             android:text="@string/workout_execution_next"
             android:textColor="@color/dark_text"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 

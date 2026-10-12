@@ -7,17 +7,8 @@
     android:fitsSystemWindows="true"
     android:padding="24dp">
 
-    <!-- Back button top-left -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/back"
-        android:src="@drawable/ic_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/white" />
+    <!-- No back button: the profile and avatar are already saved at this point,
+         so there is nowhere to go back to. System Back is also blocked in code. -->
 
     <!-- Title: MEET YOUR AVATAR! -->
     <TextView
@@ -32,7 +23,7 @@
         android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnBack" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Subheading: We'll customize him/her later -->
     <TextView

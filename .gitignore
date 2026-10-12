@@ -10,3 +10,15 @@ node_modules/
 __pycache__/
 venv/
 local.properties
+
+# Stray build and test output (not source)
+output/
+test-output.txt
+e -i parent-hash
+android/gradle_out.txt
+android/compile_out.txt
+android/exit_code.txt
+android/build_check2.log
+android/test_error.txt
+android/test_run_output.txt
+android/app/.jqwik-database

@@ -15,38 +15,38 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class StreakMultiplierPropertyTest {
 
-    // ─── Property 4a: Streak < 14 → multiplier is 1.0 ───
+    // ─── Property 4a: Streak < 7 → multiplier is 1.0 ───
 
     /**
-     * Property 4a: For any streak count less than 14, the XP multiplier
+     * Property 4a: For any streak count less than 7, the XP multiplier
      * must be exactly 1.0 (no bonus applied).
      *
      * Validates: Requirements 16.5
      */
     @Property(tries = 200)
-    void streakBelow14ReturnsBaseMultiplier(
-            @ForAll @IntRange(min = 0, max = 13) int streakCount
+    void streakBelow7ReturnsBaseMultiplier(
+            @ForAll @IntRange(min = 0, max = 6) int streakCount
     ) {
         double multiplier = StreakManager.getMultiplier(streakCount);
         assertEquals(1.0, multiplier, 0.0001,
-                "Streak " + streakCount + " (< 14) must have multiplier 1.0");
+                "Streak " + streakCount + " (< 7) must have multiplier 1.0");
     }
 
-    // ─── Property 4b: Streak >= 14 → multiplier is >= 1.5 ───
+    // ─── Property 4b: Streak >= 7 → multiplier is >= 1.5 ───
 
     /**
-     * Property 4b: For any streak count of 14 or more, the XP multiplier
+     * Property 4b: For any streak count of 7 or more, the XP multiplier
      * must be at least 1.5 (first bonus tier).
      *
      * Validates: Requirements 16.5
      */
     @Property(tries = 200)
-    void streakAtOrAbove14ReturnsAtLeast1Point5(
-            @ForAll @IntRange(min = 14, max = 500) int streakCount
+    void streakAtOrAbove7ReturnsAtLeast1Point5(
+            @ForAll @IntRange(min = 7, max = 500) int streakCount
     ) {
         double multiplier = StreakManager.getMultiplier(streakCount);
         assertTrue(multiplier >= 1.5,
-                "Streak " + streakCount + " (>= 14) must have multiplier >= 1.5, got " + multiplier);
+                "Streak " + streakCount + " (>= 7) must have multiplier >= 1.5, got " + multiplier);
     }
 
     // ─── Property 4c: Non-decreasing — higher streak never reduces multiplier ───

@@ -1,5 +1,6 @@
 package com.jve.repsup.activities;
 
+import com.jve.repsup.utils.MuscleGroups;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,10 +35,8 @@ public class AdminCreateExerciseActivity extends AppCompatActivity {
 
     // Must match the muscle groups the user-facing workout UI queries, otherwise
     // admin-created exercises land in a group users can't browse.
-    private static final String[] MUSCLE_GROUPS = {
-            "Chest", "Back", "Shoulders", "Biceps", "Triceps",
-            "Legs", "Glutes", "Abs", "Calves", "Forearms"
-    };
+    private static final String[] MUSCLE_GROUPS =
+            MuscleGroups.ALL.toArray(new String[0]);
 
     private static final String[] DIFFICULTIES = {"Easy", "Medium", "Hard"};
 

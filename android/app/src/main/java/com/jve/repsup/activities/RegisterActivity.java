@@ -2,6 +2,7 @@ package com.jve.repsup.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,8 +13,9 @@ import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Patterns;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -27,11 +29,8 @@ import com.jve.repsup.R;
 import com.jve.repsup.database.ConnectionManager;
 import com.jve.repsup.models.User;
 import com.jve.repsup.repositories.UserRepository;
+import com.jve.repsup.utils.InsetsHelper;
 import com.jve.repsup.utils.SessionManager;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Registration screen with redesigned UI: background image at top, rounded form panel below.
@@ -65,28 +64,33 @@ public class RegisterActivity extends AppCompatActivity {
     private Runnable usernameCheckRunnable;
     private boolean isUsernameTaken = false;
 
-    private static final Set<String> VALID_EMAIL_PROVIDERS = new HashSet<>(Arrays.asList(
-            "gmail", "outlook", "hotmail", "yahoo", "icloud", "protonmail",
-            "aol", "zoho", "mail", "yandex", "live", "msn"
-    ));
-
-    private static final Set<String> VALID_EMAIL_EXTENSIONS = new HashSet<>(Arrays.asList(
-            ".com", ".co.za", ".co.uk", ".org", ".net", ".edu",
-            ".gov", ".io", ".me", ".info", ".biz", ".us",
-            ".ca", ".au", ".de", ".fr", ".in", ".za"
-    ));
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Full-screen immersive like the welcome page
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // Draw the full-screen background image behind the status and nav bars.
+        InsetsHelper.enableEdgeToEdge(getWindow());
 
         setContentView(R.layout.activity_register);
+
+        // Push the form clear of the keyboard when a field is focused.
+        View scrollRegister = findViewById(R.id.scrollRegister);
+        // Clip the scroll view so the panel's rounded top corners stay fixed while
+        // the fields scroll underneath. A uniform round-rect outline (bottom
+        // corners pushed below the view by +radius) is clippable on all supported
+        // versions, whereas the top-corners-only drawable shape is only clippable
+        // on Android 13+.
+        final int panelRadiusPx = Math.round(
+                24 * getResources().getDisplayMetrics().density);
+        scrollRegister.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(),
+                        view.getHeight() + panelRadiusPx, panelRadiusPx);
+            }
+        });
+        scrollRegister.setClipToOutline(true);
+        InsetsHelper.applyImeBottomPadding(scrollRegister);
 
         userRepository = new UserRepository();
         sessionManager = new SessionManager(this);
@@ -439,57 +443,20 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(RegisterActivity.this, FitnessAssessmentActivity.class);
             intent.putExtra("user_name", name);
             startActivity(intent);
+            // Finish Register so the half-made account can't be reached again by
+            // pressing Back from the assessment (which would re-submit the form
+            // and report "username taken").
+            finish();
         });
     }
 
     /**
-     * Validates email against recognized providers and extensions.
-     * Must contain exactly one @, a recognized domain provider, and a valid extension.
+     * Validates email using the platform email pattern, matching
+     * PersonalDetailsActivity so an address accepted at sign-up is also
+     * accepted when later edited.
      */
     private boolean isValidEmail(String email) {
-        if (email == null || email.isEmpty()) return false;
-
-        String lower = email.toLowerCase();
-
-        // Must contain exactly one @
-        int atIndex = lower.indexOf('@');
-        if (atIndex == -1 || atIndex != lower.lastIndexOf('@')) return false;
-
-        // Split into local and domain parts
-        String localPart = lower.substring(0, atIndex);
-        String domainPart = lower.substring(atIndex + 1);
-
-        if (localPart.isEmpty() || domainPart.isEmpty()) return false;
-
-        // Check for valid extension
-        boolean hasValidExtension = false;
-        String matchedExtension = null;
-        for (String ext : VALID_EMAIL_EXTENSIONS) {
-            if (domainPart.endsWith(ext)) {
-                // Pick the longest matching extension
-                if (matchedExtension == null || ext.length() > matchedExtension.length()) {
-                    matchedExtension = ext;
-                    hasValidExtension = true;
-                }
-            }
-        }
-        if (!hasValidExtension) return false;
-
-        // Extract provider: domain part minus the extension
-        String providerPart = domainPart.substring(0, domainPart.length() - matchedExtension.length());
-
-        // Remove trailing dot if present (e.g., "gmail." from "gmail.com" when extension is ".com")
-        // Actually the extension includes the dot, so providerPart should be just "gmail"
-        // But for compound extensions like ".co.za", domain "gmail.co.za" → providerPart = "gmail"
-        // Let's validate the provider
-        if (providerPart.isEmpty()) return false;
-
-        // Remove trailing dot that remains from compound domains like "hotmail.co.uk"
-        // With extension ".co.uk", domain "hotmail.co.uk" → providerPart = "hotmail"
-        // But "someuser@gmail.com" → extension ".com" → providerPart = "gmail"
-        // That's correct already.
-
-        return VALID_EMAIL_PROVIDERS.contains(providerPart);
+        return email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private void showError(TextView errorView, String message) {

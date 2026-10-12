@@ -28,4 +28,4 @@ When a user completes more than one scheduled workout on the same day, the strea
 
 3.4 WHEN a user completes a workout THEN the system SHALL CONTINUE TO award XP using the streak multiplier derived from the current streak value at the time of completion.
 
-3.5 WHEN a user's streak reaches a 14-day milestone THEN the system SHALL CONTINUE TO show the streak milestone dialog and apply the appropriate XP multiplier.
+3.5 WHEN a user's streak reaches a 7-day milestone THEN the system SHALL CONTINUE TO show the streak milestone dialog and apply the appropriate XP multiplier.

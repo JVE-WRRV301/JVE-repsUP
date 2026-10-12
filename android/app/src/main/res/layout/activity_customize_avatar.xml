@@ -2,25 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/customizeAvatarRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/dark_grey"
     tools:context=".activities.CustomizeAvatarActivity">
 
-    <!-- Top bar: back button, coin balance, save button -->
+    <!-- Top bar: back button, coin balance, save button.
+         Top spacing comes from the status-bar inset applied to the root at
+         runtime, not a fixed 32dp padding. -->
     <LinearLayout
+        android:id="@+id/locker_top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:paddingTop="32dp"
         android:paddingBottom="8dp"
         android:minHeight="56dp"
-        android:background="@color/dark_grey"
-        android:fitsSystemWindows="true">
+        android:background="@color/dark_grey">
 
         <!-- Back button -->
         <ImageButton
@@ -144,7 +146,7 @@
             app:tabSelectedTextColor="@color/white"
             app:tabIndicatorColor="@color/light_blue"
             app:tabIndicatorHeight="2dp"
-            app:tabMode="scrollable"
+            app:tabMode="fixed"
             app:tabGravity="fill"
             app:tabTextAppearance="@style/LockerSubTabText" />
 

@@ -3,34 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/adminLoginRoot"
     android:background="@color/dark_grey"
     android:padding="32dp">
+
+    <!-- Pushes the title down so it clears the status bar and sits lower on the screen -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
 
     <!-- Admin Login Title -->
     <TextView
         android:id="@+id/tvAdminTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/orbitron_bold"
         android:text="@string/admin_login_title"
         android:textColor="@color/white"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tilAdminUsername"
+        style="@style/Widget.RepsUp.PageTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintTop_toBottomOf="@id/guideTop" />
 
     <!-- Username Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAdminUsername"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        app:boxStrokeColor="@color/light_blue"
-        app:hintTextColor="@color/light_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvAdminTitle">
@@ -49,14 +52,12 @@
     <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAdminPassword"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.RepsUp.TextField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:boxStrokeColor="@color/light_blue"
-        app:hintTextColor="@color/light_blue"
         app:passwordToggleEnabled="true"
-        app:passwordToggleTint="@color/light_blue"
+        app:passwordToggleTint="@color/muted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tilAdminUsername">
@@ -97,7 +98,7 @@
         android:text="@string/admin_login_button"
         android:textColor="@color/dark_text"
         android:textSize="16sp"
-        app:cornerRadius="12dp"
+        app:cornerRadius="@dimen/radius_control"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvAdminError" />
