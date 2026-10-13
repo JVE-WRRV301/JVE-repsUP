@@ -1,0 +1,10 @@
+# Copy this file to local.properties (same folder) and fill in your own values.
+# local.properties is never committed to git.
+#
+# 10.0.2.2 is how the Android emulator reaches MySQL on your own computer.
+# On a real phone, use your computer's local network IP address instead.
+db.host=10.0.2.2
+db.port=3306
+db.user=root
+db.password=your_mysql_password
+db.name=reps_up
