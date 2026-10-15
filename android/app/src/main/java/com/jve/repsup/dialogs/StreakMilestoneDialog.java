@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -18,6 +19,8 @@ import com.jve.repsup.R;
  * XP multiplier, and share/close buttons.
  */
 public class StreakMilestoneDialog extends Dialog {
+
+    private static final String TAG = "StreakMilestoneDialog";
 
     private final int streakCount;
     private final double xpMultiplier;
@@ -61,12 +64,21 @@ public class StreakMilestoneDialog extends Dialog {
     }
 
     private void shareStreakMilestone() {
-        String multiplierFormatted = String.format("%.1f", xpMultiplier);
-        String shareText = getContext().getString(R.string.streak_share_text, streakCount, multiplierFormatted);
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-        getContext().startActivity(Intent.createChooser(shareIntent, getContext().getString(R.string.streak_milestone_share)));
-        dismiss();
+        // Do NOT dismiss() here. This dialog's onDismissListener navigates to the
+        // home page, so dismissing before/while sharing would preempt the share
+        // sheet and send the user home. Keeping the dialog open lets the native
+        // share sheet open over it, and the user stays on the milestone screen.
+        try {
+            String multiplierFormatted = String.format("%.1f", xpMultiplier);
+            String shareText = getContext().getString(
+                    R.string.streak_share_text, streakCount, multiplierFormatted);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+            getContext().startActivity(Intent.createChooser(shareIntent,
+                    getContext().getString(R.string.streak_milestone_share)));
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to open share sheet for streak milestone", e);
+        }
     }
 }
