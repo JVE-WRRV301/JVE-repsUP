@@ -6,6 +6,33 @@ A gamified mobile fitness application that helps users schedule, track, and exec
 
 ---
 
+## For the lecturer / marker
+
+Everything needed to run Reps Up is in this zip. The database is **local**: you build it on your own MySQL server from the two SQL scripts below, and the app connects to it. Allow about 10 minutes (plus the first Gradle sync).
+
+1. **Build the database.** In MySQL (Workbench or the command line), run `database/schema.sql`, then `database/seed.sql`. This creates the `reps_up` database with all tables and the demonstration data. (Detailed commands: [Database Setup](#database-setup).)
+2. **Tell the app where the database is.** Copy `android/local.properties.example` to `android/local.properties` and fill in your MySQL details:
+   ```properties
+   db.host=10.0.2.2
+   db.port=3306
+   db.user=root
+   db.password=your_mysql_password
+   db.name=reps_up
+   ```
+   `10.0.2.2` is how the Android emulator reaches MySQL on the same computer. Any MySQL user with access to `reps_up` works, including `root`.
+3. **Run the app.** Open the `android/` folder in Android Studio, let Gradle sync finish, then run the app on an emulator (or a phone, see [Connect the app to the database](#5-connect-the-app-to-the-database)).
+4. **Log in** with one of the accounts below.
+
+| Where | Username | Password |
+|---|---|---|
+| App (user with level 10, outfit and workouts) | dyllan12345 | Password1 |
+| App (female avatar) | sarahj | Password2 |
+| Admin side (long-press the "REPS UP." title on the welcome screen) | Admin | admin123 |
+
+Where things are: source code in `android/app/src/main/java`, screens in `android/app/src/main/res/layout`, the database script in `database/schema.sql`, and the unit tests in `android/app/src/test`.
+
+---
+
 ## Tech Stack
 
 - **Mobile app:** Android, written in **Java** (minSdk 26, compileSdk 36), built with Gradle (Groovy `build.gradle` files) in Android Studio
@@ -21,7 +48,7 @@ The short version. Each step is explained in detail further down.
 
 1. Clone the repo.
 2. Build the database: run `database/schema.sql`, then `database/seed.sql`.
-3. Create `android/local.properties` with your database details (`db.host`, `db.port`, `db.user`, `db.password`, `db.name`).
+3. Copy `android/local.properties.example` to `android/local.properties` and fill in your database details (`db.host`, `db.port`, `db.user`, `db.password`, `db.name`). You can use `root` or any MySQL user that can access `reps_up`.
 4. Open the `android/` folder in Android Studio and run the app.
 5. Log in as `dyllan12345` / `Password1`.
 
@@ -217,6 +244,7 @@ JVE-repsUP/
 │   ├── app/                App source code (src/main) and unit tests (src/test)
 │   ├── gradle/             Gradle wrapper
 │   ├── build.gradle        Top-level build config (Groovy)
+│   ├── local.properties.example   Template for your database details
 │   └── local.properties    Your database details (you create this; never committed)
 ├── database/
 │   ├── schema.sql          Database structure (tables, foreign keys, indexes)
