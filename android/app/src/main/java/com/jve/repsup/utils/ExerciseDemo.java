@@ -37,6 +37,30 @@ public final class ExerciseDemo {
         if (name.contains("bench press")) {
             return R.drawable.bench_press_avatar;
         }
+        if (name.contains("walking lunge")) {
+            return R.drawable.walking_lunges_avatar;
+        }
+        if (name.contains("bulgarian")) {
+            return R.drawable.bulgarian_split_squats_avatar;
+        }
+        if (name.contains("barbell hip thrust")) {
+            return R.drawable.barbell_hip_thrusts_avatar;
+        }
+        // Exact match: the library also has Close-Grip and Reverse-Grip Lat
+        // Pulldown, which are different exercises and keep the placeholder.
+        if (name.equals("lat pulldown")) {
+            return R.drawable.lat_pulldown_avatar;
+        }
+        if (name.contains("one-arm dumbbell row")) {
+            return R.drawable.one_arm_dumbbell_row_avatar;
+        }
+        // Exact match so Barbell, Cable, Preacher etc. curls do not get this demo.
+        if (name.equals("bicep curls")) {
+            return R.drawable.bicep_curls_avatar;
+        }
+        if (name.contains("dumbbell squat")) {
+            return R.drawable.dumbbell_squats_avatar;
+        }
 
         return R.drawable.ic_exercise_placeholder;
     }

@@ -389,8 +389,8 @@ INSERT INTO admins (admin_username, admin_password) VALUES
 --   Sarah level 3   -> needs 950 XP  (xp 1000),  rank Bronze I   (rank_id 1)
 --   Jason level 18  -> needs 14450 XP (xp 15000), rank Silver I  (rank_id 4)
 INSERT INTO user (first_name, email, username, set_password, xp, coins, current_level, rank_id, current_streak) VALUES
-    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 6000, 100, 10, 3, 14),
-    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 1000, 50,  3,  1, 2),
+    ('Dylan Woods',  'dylan@example.com',  'dyllan12345', 'hpNFcW/IRXmzMCIgArGJkg==:3GzlcUiT+0iZfFSAEr8jOi7fQ07mmD9aJ71To27z4Ro=', 6000, 5000, 10, 3, 14),
+    ('Sarah Fisher',  'sarah@example.com',  'sarahj',      'vthPYIU70FmDQmkJHEk4Lw==:vseAyU2qxplWT8ggyYsmbJ9IHpM8QL5RcXEp2RxYge0=', 1000, 5000, 3,  1, 2),
     ('Jason Kruger',   'jason@example.com',   'jaskrug',       'ZKoWh3LUmuUxFkanuLWZRw==:1Fb77qBPqcSajwiFuwRl7ahZDtEglGEGzR/RDyQkDEU=', 15000, 200, 18, 4, 21);
 
 
@@ -411,10 +411,11 @@ INSERT INTO user_profile (user_id, user_gender, user_age, user_weight, user_heig
 -- skin_tone must have art: grey (default), fair, tan, dark. (No 'beige' art.)
 -- body_shape must be one of the 3 offered per gender (same as body_type above):
 --   male = average/built/chubby, female = average/toned/chubby.
-INSERT INTO avatar (user_id, skin_tone, body_shape, facial_details) VALUES
-    (1, 'tan',   'built',   'short_brown_hair'),
-    (2, 'fair',  'average', 'long_blonde_hair'),
-    (3, 'tan',   'built',   'short_black_hair');
+-- hair_colour is the colour of the equipped Default Hair (Dylan black, Sarah blonde).
+INSERT INTO avatar (user_id, skin_tone, hair_colour, body_shape, facial_details) VALUES
+    (1, 'tan',   'black',  'built',   'short_black_hair'),
+    (2, 'fair',  'blonde', 'average', 'long_blonde_hair'),
+    (3, 'tan',   'grey',   'built',   'short_black_hair');
 
 -- Link each user back to their avatar
 UPDATE user SET avatar_id = 1 WHERE user_id = 1;
@@ -438,7 +439,8 @@ INSERT INTO workout (user_id, workout_name, is_default) VALUES
     (1, 'Chest, Shoulders and Triceps', FALSE),
     (1, 'Back and Biceps',              FALSE),
     (1, 'Glutes and Hamstrings',        FALSE),
-    (2, 'Beginner Full Body',           FALSE);
+    (2, 'Beginner Full Body',           FALSE),
+    (2, 'Glutes and Quads',             FALSE);
 
 
 -- WORKOUT EXERCISES - what's in each workout
@@ -480,9 +482,8 @@ INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, worko
 -- Dylan's "Back and Biceps" workout 
 INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
     (6, 10, 3, 10, 1), -- Lat Pulldown
-    (6, 11, 3, 10, 2), -- Seated Row
-    (6, 8,  3, 12, 3), -- Bicep Curls
-    (6, 9,  3, 12, 4); -- Hammer Curls
+    (6, 47, 3, 10, 2), -- One-Arm Dumbbell Row
+    (6, 8,  3, 12, 3); -- Bicep Curls (dumbbell)
 
 -- Dylan's "Glutes and Hamstrings" workout 
 INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
@@ -498,16 +499,24 @@ INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, worko
     (8, 4,  3, 12, 4), -- Dumbbell Shoulder Press
     (8, 23, 3, 20, 5); -- Crunches
 
+-- Sarah's "Glutes and Quads" workout (workout 9) - these four exercises all have demo pictures
+INSERT INTO workout_exercise (workout_id, exercise_id, num_sets, num_reps, workout_exercise_order_index) VALUES
+    (9, 12,  3, 10, 1), -- Barbell Hip Thrusts
+    (9, 14,  3, 10, 2), -- Bulgarian Split Squats
+    (9, 15,  3, 12, 3), -- Walking Lunges
+    (9, 132, 3, 12, 4); -- Dumbbell Squats
 
--- SCHEDULED WORKOUTS (test data) - calendar entries for Dylan
+
+-- SCHEDULED WORKOUTS (test data) - calendar entries for Dylan and Sarah
 
 -- Dates are relative to CURDATE() so the demo always has something today and
 -- this week: one completed yesterday, one scheduled for today, and one later
 -- this week.
 INSERT INTO scheduled_workout (user_id, workout_id, scheduled_date, is_completed, earned_xp) VALUES
     (1, 7, DATE_ADD(CURDATE(), INTERVAL -1 DAY), TRUE,  90),
-    (1, 5, CURDATE(),                            FALSE, 0),
-    (1, 5, DATE_ADD(CURDATE(), INTERVAL 3 DAY),  FALSE, 0);
+    (1, 6, CURDATE(),                            FALSE, 0),
+    (1, 5, DATE_ADD(CURDATE(), INTERVAL 3 DAY),  FALSE, 0),
+    (2, 9, CURDATE(),                            FALSE, 0);
 
 
 -- EXERCISE LOG (test data): what Dyllan actually lifted in yesterday's workout
@@ -540,7 +549,13 @@ WHERE sw.workout_id = 7
 INSERT INTO goal (user_id, goal_title, goal_description, deadline, goal_priority, is_completed, created_at) VALUES
     (1, 'Move up a weight in bicep curls', 'I want to move up from 18kgs to 20kgs within 2 weeks.', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY)),
     (1, 'Bench press my body weight',       NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Top',    FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-    (2, 'Complete 3 workouts a week for a month', NULL,                                              DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY));
+    (2, 'Complete 3 workouts a week for a month', NULL,                                              DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+    (1, 'Squat 100kg',                      'Build up in 5kg steps over the month.',                 DATE_ADD(CURDATE(), INTERVAL 28 DAY), 'Top',    FALSE, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+    (1, 'Train 4 days a week',              NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+    (1, 'Do 10 pull-ups in a row',          NULL,                                                    DATE_SUB(CURDATE(), INTERVAL 1 DAY),  'Low',    TRUE,  DATE_SUB(NOW(), INTERVAL 20 DAY)),
+    (2, 'Hip thrust 120kg',                 'Currently at 90kg.',                                    DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Top',    FALSE, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+    (2, 'Never miss a scheduled workout',   NULL,                                                    DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'Medium', FALSE, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+    (2, 'Train more',                       'Train 5 days a week for a month straight.',             DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Low',    FALSE, DATE_SUB(NOW(), INTERVAL 2 DAY));
 
 
 -- USER COSMETICS (test data) 
@@ -554,12 +569,19 @@ INSERT INTO user_cosmetic (user_id, cosmetic_id, is_unlocked, is_equipped) VALUE
     (1, 2,  TRUE, TRUE),   -- Black Shorts (male, equipped)
     (1, 3,  TRUE, TRUE),   -- White Socks (male, equipped)
     (1, 7,  TRUE, TRUE),   -- Default Hair (male, equipped)
-    (1, 18, TRUE, FALSE),  -- White Sneakers (male, owned, not worn - socks only by default)
-    (1, 11, TRUE, FALSE);  -- Grey Zip Hoodie (male, owned, not equipped)
+    (1, 18, TRUE, TRUE),   -- White Sneakers (male, equipped)
+    (1, 11, TRUE, FALSE),  -- Grey Zip Hoodie (male, owned, not equipped)
+    -- Sarah (user 2) is female: default set + default hair (id 8) + white sneakers (id 41).
+    (2, 4,  TRUE, TRUE),   -- White Tank (female, equipped)
+    (2, 5,  TRUE, TRUE),   -- Black Shorts (female, equipped)
+    (2, 6,  TRUE, TRUE),   -- White Socks (female, equipped)
+    (2, 8,  TRUE, TRUE),   -- Default Hair (female, equipped)
+    (2, 41, TRUE, TRUE);   -- White Sneakers (female, equipped)
 
 
--- OUTFIT SLOTS (test data) - Dylan's currently equipped outfit
--- Wearing tank + shorts + socks (no shoes) by default.
+-- OUTFIT SLOTS (test data) - Dylan's and Sarah's currently equipped outfits
+-- Both wear the default tank + shorts + socks + hair and white sneakers.
 
 INSERT INTO outfit_slot (user_id, top_id, bottom_id, shoes_id, socks_id, hair_id, accessories_id) VALUES
-    (1, 1, 2, NULL, 3, 7, NULL);
+    (1, 1, 2, 18, 3, 7, NULL),
+    (2, 4, 5, 41, 6, 8, NULL);
